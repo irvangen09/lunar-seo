@@ -10,7 +10,8 @@
         "psr-4": {
             "Lunar\\SEO\\": "includes/",
             "Lunar\\SEO\\Modules\\General\\": "modules/general/",
-            "Lunar\\SEO\\Modules\\Sitemap\\": "modules/sitemap/"
+            "Lunar\\SEO\\Modules\\Sitemap\\": "modules/sitemap/",
+            "Lunar\\SEO\\Modules\\Schema\\": "modules/schema/"
         }
     },
     "config": {
