@@ -23,6 +23,7 @@ namespace Lunar\SEO\Modules\General\Renderers;
 use Lunar\SEO\Modules\General\Services\PlaceholderResolver;
 use Lunar\SEO\Modules\General\Services\DescriptionGenerator;
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -53,18 +54,29 @@ final class TwitterCardRenderer implements RendererInterface {
 	private DescriptionGenerator $description_generator;
 
 	/**
+	 * Shared Service untuk site_image_id (fallback twitter:image),
+	 * SCHEMA_MODULE_ARCHITECTURE.md §3.
+	 *
+	 * @var SiteIdentity
+	 */
+	private SiteIdentity $site_identity;
+
+	/**
 	 * @param OptionManager        $option_manager         Shared service Option Manager.
 	 * @param PlaceholderResolver  $placeholder_resolver   Service resolusi placeholder.
 	 * @param DescriptionGenerator $description_generator  Service fallback description.
+	 * @param SiteIdentity         $site_identity          Shared service Site Identity.
 	 */
 	public function __construct(
 		OptionManager $option_manager,
 		PlaceholderResolver $placeholder_resolver,
-		DescriptionGenerator $description_generator
+		DescriptionGenerator $description_generator,
+		SiteIdentity $site_identity
 	) {
 		$this->option_manager        = $option_manager;
 		$this->placeholder_resolver  = $placeholder_resolver;
 		$this->description_generator = $description_generator;
+		$this->site_identity         = $site_identity;
 	}
 
 	/**
@@ -175,7 +187,7 @@ final class TwitterCardRenderer implements RendererInterface {
 			}
 		}
 
-		$site_image_id = (int) $this->option_manager->get( self::MODULE_SLUG, 'site_info', 'site_image_id', 0 );
+		$site_image_id = $this->site_identity->get_site_image_id();
 
 		if ( $site_image_id > 0 ) {
 			$url = wp_get_attachment_image_url( $site_image_id, 'full' );

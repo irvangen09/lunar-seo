@@ -17,6 +17,7 @@
 namespace Lunar\SEO;
 
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -37,6 +38,14 @@ final class Bootstrap {
 	 * @var OptionManager
 	 */
 	private OptionManager $option_manager;
+
+	/**
+	 * Shared service: Site Identity (SCHEMA_MODULE_ARCHITECTURE.md §3) -
+	 * dipakai module General (Site Info) dan Schema (Organization/WebSite).
+	 *
+	 * @var SiteIdentity
+	 */
+	private SiteIdentity $site_identity;
 
 	/**
 	 * Module Registry.
@@ -112,6 +121,7 @@ final class Bootstrap {
 	 */
 	private function register_shared_services(): void {
 		$this->option_manager = new OptionManager();
+		$this->site_identity  = new SiteIdentity( $this->option_manager );
 	}
 
 	/**
@@ -120,7 +130,7 @@ final class Bootstrap {
 	 * @return void
 	 */
 	private function register_modules(): void {
-		$this->module_registry = new ModuleRegistry( $this->option_manager );
+		$this->module_registry = new ModuleRegistry( $this->option_manager, $this->site_identity );
 		$this->module_registry->register_active_modules();
 	}
 
@@ -131,5 +141,14 @@ final class Bootstrap {
 	 */
 	public function get_option_manager(): OptionManager {
 		return $this->option_manager;
+	}
+
+	/**
+	 * Akses Site Identity oleh module.
+	 *
+	 * @return SiteIdentity
+	 */
+	public function get_site_identity(): SiteIdentity {
+		return $this->site_identity;
 	}
 }

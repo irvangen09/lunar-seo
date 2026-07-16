@@ -94,11 +94,7 @@ final class Frontend {
 	public function init(): void {
 		$this->cache->register_invalidation_hooks();
 
-<<<<<<< HEAD
 		add_filter( 'generate_rewrite_rules', [ $this, 'add_sitemap_rewrite_rules' ] );
-=======
-		add_action( 'init', [ $this, 'register_rewrite_rules' ] );
->>>>>>> 804fec5772c7cf8fd7fe37dc6d7a43ca83e39cac
 		add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
 		add_action( 'template_redirect', [ $this, 'maybe_output_sitemap' ] );
 
@@ -121,7 +117,6 @@ final class Frontend {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Tambahkan rewrite rule sitemap index + setiap tipe yang aktif
 	 * ke $wp_rewrite.
 	 *
@@ -154,28 +149,6 @@ final class Frontend {
 		$wp_rewrite->rules = array_merge( $rules, $wp_rewrite->rules );
 
 		return $wp_rewrite;
-=======
-	 * Daftarkan rewrite rule untuk sitemap index + setiap tipe yang aktif.
-	 *
-	 * @return void
-	 */
-	public function register_rewrite_rules(): void {
-		add_rewrite_rule( '^sitemap\.xml$', 'index.php?lunar_seo_sitemap=index', 'top' );
-
-		foreach ( $this->get_active_type_prefixes() as $type => $prefix ) {
-			add_rewrite_rule(
-				'^' . $prefix . '-sitemap\.xml$',
-				'index.php?lunar_seo_sitemap=' . $type . '&lunar_seo_sitemap_page=1',
-				'top'
-			);
-
-			add_rewrite_rule(
-				'^' . $prefix . '-sitemap([0-9]+)\.xml$',
-				'index.php?lunar_seo_sitemap=' . $type . '&lunar_seo_sitemap_page=$matches[1]',
-				'top'
-			);
-		}
->>>>>>> 804fec5772c7cf8fd7fe37dc6d7a43ca83e39cac
 	}
 
 	/**

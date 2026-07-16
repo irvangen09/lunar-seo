@@ -13,6 +13,7 @@
 namespace Lunar\SEO;
 
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -53,10 +54,25 @@ final class ModuleRegistry {
 	private OptionManager $option_manager;
 
 	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * Shared service kedua yang disalurkan SERAGAM ke setiap module,
+	 * sejajar OptionManager (SCHEMA_MODULE_ARCHITECTURE.md §3). Module
+	 * yang belum membutuhkannya (misal Sitemap saat ini) cukup
+	 * menerima tanpa memakainya - lebih konsisten daripada
+	 * pengecualian khusus per module di dalam Registry, yang akan
+	 * bertentangan dengan prinsip "seluruh module diregistrasikan
+	 * secara seragam" (ARCHITECTURE.md §7).
+	 *
+	 * @var SiteIdentity
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	private SiteIdentity $site_identity;
+
+	/**
+	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
+	 */
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
+		$this->site_identity  = $site_identity;
 	}
 
 	/**
@@ -70,7 +86,7 @@ final class ModuleRegistry {
 				continue;
 			}
 
-			$module = new $module_class( $this->option_manager );
+			$module = new $module_class( $this->option_manager, $this->site_identity );
 
 			if ( ! $module instanceof ModuleInterface ) {
 				continue;

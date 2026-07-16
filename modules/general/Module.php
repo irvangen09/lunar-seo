@@ -19,6 +19,7 @@ namespace Lunar\SEO\Modules\General;
 
 use Lunar\SEO\ModuleInterface;
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -43,6 +44,16 @@ final class Module implements ModuleInterface {
 	private OptionManager $option_manager;
 
 	/**
+	 * Shared service Site Identity - dipakai Settings (save) dan
+	 * Frontend (PlaceholderResolver, OpenGraphRenderer,
+	 * TwitterCardRenderer) untuk website_name/site_image_id
+	 * (SCHEMA_MODULE_ARCHITECTURE.md §3).
+	 *
+	 * @var SiteIdentity
+	 */
+	private SiteIdentity $site_identity;
+
+	/**
 	 * Instance Admin - disimpan sebagai property (bukan variabel
 	 * lokal di boot_admin()) agar dapat dibagikan ke Assets.php,
 	 * yang membutuhkan hook_suffix ASLI dari instance yang SAMA
@@ -54,9 +65,11 @@ final class Module implements ModuleInterface {
 
 	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
+		$this->site_identity  = $site_identity;
 	}
 
 	/**
@@ -90,7 +103,7 @@ final class Module implements ModuleInterface {
 	 * @return void
 	 */
 	private function boot_settings(): void {
-		( new Settings\Settings( $this->option_manager ) )->init();
+		( new Settings\Settings( $this->option_manager, $this->site_identity ) )->init();
 	}
 
 	/**
@@ -118,7 +131,7 @@ final class Module implements ModuleInterface {
 	 * @return void
 	 */
 	private function boot_frontend(): void {
-		( new Frontend( $this->option_manager ) )->init();
+		( new Frontend( $this->option_manager, $this->site_identity ) )->init();
 	}
 
 	/**

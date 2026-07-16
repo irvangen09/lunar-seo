@@ -18,6 +18,7 @@ namespace Lunar\SEO\Modules\Sitemap;
 
 use Lunar\SEO\ModuleInterface;
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -52,8 +53,14 @@ final class Module implements ModuleInterface {
 
 	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity - diterima
+	 *                                      agar signature konstruktor seragam di
+	 *                                      seluruh module (ModuleRegistry meneruskan
+	 *                                      Shared Service yang sama ke semua module,
+	 *                                      lihat SCHEMA_MODULE_ARCHITECTURE.md §3),
+	 *                                      TIDAK dipakai module Sitemap saat ini.
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
 	}
 

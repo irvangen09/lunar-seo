@@ -29,6 +29,7 @@
 namespace Lunar\SEO\Modules\General\Settings;
 
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,9 +52,26 @@ final class Settings {
 	private const MODULE_SLUG = 'general';
 
 	/**
+	 * Field Site Info yang sudah dipromosikan ke SiteIdentity Shared
+	 * Service (SCHEMA_MODULE_ARCHITECTURE.md §3) - TIDAK lagi
+	 * disimpan di lunar_seo_general_settings.site_info, meski field
+	 * schema/sanitasinya tetap di SiteInfo.php (tidak diubah).
+	 * title_separator SENGAJA tidak ada di daftar ini - tetap di
+	 * General, tidak relevan untuk Schema.
+	 *
+	 * @var string[]
+	 */
+	private const SITE_IDENTITY_FIELDS = [ 'website_name', 'alternate_website_name', 'site_image_id' ];
+
+	/**
 	 * @var OptionManager
 	 */
 	private OptionManager $option_manager;
+
+	/**
+	 * @var SiteIdentity
+	 */
+	private SiteIdentity $site_identity;
 
 	/**
 	 * Daftar section settings.
@@ -68,9 +86,11 @@ final class Settings {
 
 	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
+		$this->site_identity  = $site_identity;
 
 		$this->register_sections();
 	}
@@ -167,10 +187,17 @@ final class Settings {
 	/**
 	 * Handler GET - kembalikan seluruh setting module General.
 	 *
+	 * Field Site Identity (website_name, alternate_website_name,
+	 * site_image_id) di-overlay dari SiteIdentity Shared Service ke
+	 * dalam key "site_info" - React app tidak perlu tahu bahwa
+	 * lokasi penyimpanan aslinya sudah dipisah (SCHEMA_MODULE_ARCHITECTURE.md §3).
+	 *
 	 * @return \WP_REST_Response
 	 */
 	public function rest_get_settings(): \WP_REST_Response {
-		return new \WP_REST_Response( $this->option_manager->get_all( self::MODULE_SLUG ) );
+		$data = $this->option_manager->get_all( self::MODULE_SLUG );
+
+		return new \WP_REST_Response( $this->overlay_site_identity( $data ) );
 	}
 
 	/**
@@ -187,11 +214,57 @@ final class Settings {
 
 		$sanitized = $this->sanitize( $input );
 
+		// Field Site Identity ditulis ke Shared Service (bukan ke
+		// lunar_seo_general_settings) - field schema/sanitasinya
+		// TETAP di SiteInfo.php (tidak diubah), hanya tujuan
+		// penyimpanan akhir yang dipisah di sini
+		// (SCHEMA_MODULE_ARCHITECTURE.md §3.5).
+		$this->site_identity->set( $this->extract_site_identity_fields( $sanitized ) );
+
+		foreach ( self::SITE_IDENTITY_FIELDS as $field ) {
+			unset( $sanitized['site_info'][ $field ] );
+		}
+
 		$this->option_manager->update_all( self::MODULE_SLUG, $sanitized );
 
 		$this->maybe_flush_rewrite_rules( $before, $sanitized );
 
-		return new \WP_REST_Response( $sanitized );
+		return new \WP_REST_Response( $this->overlay_site_identity( $sanitized ) );
+	}
+
+	/**
+	 * Ambil nilai field Site Identity dari hasil sanitasi section
+	 * "site_info", untuk diteruskan ke SiteIdentity::set().
+	 *
+	 * @param array $sanitized Data hasil sanitize().
+	 * @return array<string, mixed>
+	 */
+	private function extract_site_identity_fields( array $sanitized ): array {
+		$site_info = $sanitized['site_info'] ?? [];
+
+		return [
+			'website_name'           => $site_info['website_name'] ?? '',
+			'alternate_website_name' => $site_info['alternate_website_name'] ?? '',
+			'site_image_id'          => $site_info['site_image_id'] ?? 0,
+		];
+	}
+
+	/**
+	 * Overlay nilai Site Identity terkini ke dalam key "site_info",
+	 * agar bentuk payload REST konsisten baik dibaca sebelum maupun
+	 * sesudah promosi field ke Shared Service - React app
+	 * (src/admin/app.js) tetap membaca dari path yang sama persis
+	 * (settings.site_info.website_name, dst) tanpa perubahan.
+	 *
+	 * @param array $data Data setting module General.
+	 * @return array
+	 */
+	private function overlay_site_identity( array $data ): array {
+		$data['site_info']['website_name']           = $this->site_identity->get_website_name();
+		$data['site_info']['alternate_website_name']  = $this->site_identity->get_alternate_website_name();
+		$data['site_info']['site_image_id']           = $this->site_identity->get_site_image_id();
+
+		return $data;
 	}
 
 	/**

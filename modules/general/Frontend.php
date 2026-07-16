@@ -25,6 +25,7 @@ use Lunar\SEO\Modules\General\Services\PlaceholderResolver;
 use Lunar\SEO\Modules\General\Services\TitleResolver;
 use Lunar\SEO\Modules\General\Services\DescriptionGenerator;
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -38,6 +39,11 @@ final class Frontend {
 	private OptionManager $option_manager;
 
 	/**
+	 * @var SiteIdentity
+	 */
+	private SiteIdentity $site_identity;
+
+	/**
 	 * Daftar Renderer yang akan diinisialisasi.
 	 *
 	 * @var RendererInterface[]
@@ -46,9 +52,11 @@ final class Frontend {
 
 	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
+		$this->site_identity  = $site_identity;
 
 		$this->register_renderers();
 	}
@@ -64,7 +72,7 @@ final class Frontend {
 	 * @return void
 	 */
 	private function register_renderers(): void {
-		$placeholder_resolver  = new PlaceholderResolver( $this->option_manager );
+		$placeholder_resolver  = new PlaceholderResolver( $this->option_manager, $this->site_identity );
 		$title_resolver        = new TitleResolver( $placeholder_resolver );
 		$description_generator = new DescriptionGenerator();
 
@@ -77,11 +85,11 @@ final class Frontend {
 		);
 
 		$this->register_renderer(
-			new OpenGraphRenderer( $this->option_manager, $placeholder_resolver, $description_generator )
+			new OpenGraphRenderer( $this->option_manager, $placeholder_resolver, $description_generator, $this->site_identity )
 		);
 
 		$this->register_renderer(
-			new TwitterCardRenderer( $this->option_manager, $placeholder_resolver, $description_generator )
+			new TwitterCardRenderer( $this->option_manager, $placeholder_resolver, $description_generator, $this->site_identity )
 		);
 
 		$this->register_renderer(

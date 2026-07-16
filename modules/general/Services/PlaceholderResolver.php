@@ -22,6 +22,7 @@
 namespace Lunar\SEO\Modules\General\Services;
 
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SiteIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -37,7 +38,10 @@ final class PlaceholderResolver {
 	private const MODULE_SLUG = 'general';
 
 	/**
-	 * Section tempat {site_name} dan {separator} disimpan.
+	 * Section tempat {separator} disimpan.
+	 *
+	 * website_name TIDAK lagi dibaca dari section ini secara langsung -
+	 * lihat SiteIdentity (SCHEMA_MODULE_ARCHITECTURE.md §3).
 	 *
 	 * @var string
 	 */
@@ -49,10 +53,21 @@ final class PlaceholderResolver {
 	private OptionManager $option_manager;
 
 	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * Shared Service untuk website_name (SCHEMA_MODULE_ARCHITECTURE.md §3) -
+	 * dipakai juga oleh module Schema (Organization/WebSite), sehingga
+	 * satu sumber kebenaran tidak diduplikasi di General.
+	 *
+	 * @var SiteIdentity
 	 */
-	public function __construct( OptionManager $option_manager ) {
+	private SiteIdentity $site_identity;
+
+	/**
+	 * @param OptionManager $option_manager Shared service Option Manager.
+	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
+	 */
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
 		$this->option_manager = $option_manager;
+		$this->site_identity  = $site_identity;
 	}
 
 	/**
@@ -101,12 +116,7 @@ final class PlaceholderResolver {
 	 * @return string
 	 */
 	public function get_site_name(): string {
-		$website_name = $this->option_manager->get(
-			self::MODULE_SLUG,
-			self::SITE_INFO_SECTION,
-			'website_name',
-			''
-		);
+		$website_name = $this->site_identity->get_website_name();
 
 		return '' !== $website_name ? $website_name : get_bloginfo( 'name' );
 	}

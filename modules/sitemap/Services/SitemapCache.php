@@ -118,7 +118,6 @@ final class SitemapCache {
 	 * Invalidasi cache untuk post type terkait saat post
 	 * disimpan/dihapus/di-trash.
 	 *
-<<<<<<< HEAD
 	 * Selain cache post type yang bersangkutan, turut invalidasi:
 	 * - "authors"  - AuthorProvider memakai get_users(has_published_posts)
 	 *                yang mencakup SEMUA public post type, sehingga setiap
@@ -128,8 +127,6 @@ final class SitemapCache {
 	 *                post type "post", sehingga hanya perlu diinvalidasi
 	 *                untuk post type tersebut.
 	 *
-=======
->>>>>>> 804fec5772c7cf8fd7fe37dc6d7a43ca83e39cac
 	 * @param int $post_id ID post yang berubah.
 	 * @return void
 	 */
@@ -141,15 +138,12 @@ final class SitemapCache {
 		}
 
 		$this->delete_entries( $post_type );
-<<<<<<< HEAD
 		$this->delete_entries( 'authors' );
 
 		if ( 'post' === $post_type ) {
 			$this->delete_entries( 'archives' );
 		}
 
-=======
->>>>>>> 804fec5772c7cf8fd7fe37dc6d7a43ca83e39cac
 		$this->delete_entries( 'index' );
 	}
 
