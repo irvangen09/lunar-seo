@@ -25,6 +25,13 @@ namespace Lunar\SEO\Modules\Schema;
 use Lunar\SEO\ModuleInterface;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
+use Lunar\SEO\Modules\Schema\Nodes\ArticleNode;
+use Lunar\SEO\Modules\Schema\Nodes\BreadcrumbListNode;
+use Lunar\SEO\Modules\Schema\Nodes\ImageObjectNode;
+use Lunar\SEO\Modules\Schema\Nodes\OrganizationNode;
+use Lunar\SEO\Modules\Schema\Nodes\WebPageNode;
+use Lunar\SEO\Modules\Schema\Nodes\WebSiteNode;
+use Lunar\SEO\Modules\Schema\Services\SchemaGraphBuilder;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -79,15 +86,31 @@ final class Module implements ModuleInterface {
 	}
 
 	/**
-	 * Inisialisasi output Schema Graph JSON-LD di <head>.
+	 * Rakit seluruh Node, suntikkan ke SchemaGraphBuilder, lalu ke
+	 * Frontend - Constructor Injection murni, tanpa Service Locator
+	 * (GENERAL_MODULE_ARCHITECTURE.md §8, pola yang sama).
 	 *
-	 * Dirakit bertahap pada Tahap 2.4-2.9 (Nodes/, SchemaGraphBuilder,
-	 * Frontend) - method ini akan diisi begitu komponen tsb tersedia.
+	 * Urutan Node di array TIDAK memengaruhi hasil akhir (setiap Node
+	 * menentukan sendiri applicable/tidaknya lewat get_node(), lihat
+	 * NodeInterface) - disusun mengikuti urutan tabel §0
+	 * (SCHEMA_MODULE_ARCHITECTURE.md) sekadar untuk keterbacaan.
 	 *
 	 * @return void
 	 */
 	private function boot_frontend(): void {
-		// Diisi pada Tahap 2.9 setelah SchemaGraphBuilder dan seluruh
-		// Node tersedia.
+		$image_object_node = new ImageObjectNode();
+
+		$nodes = [
+			new WebSiteNode( $this->site_identity ),
+			new OrganizationNode( $this->site_identity ),
+			new BreadcrumbListNode(),
+			new ArticleNode( $image_object_node ),
+			new WebPageNode( $image_object_node ),
+		];
+
+		$graph_builder = new SchemaGraphBuilder( $nodes );
+
+		$frontend = new Frontend( $graph_builder );
+		$frontend->init();
 	}
 }
