@@ -47,6 +47,11 @@ final class ArticleNode implements NodeInterface {
 		$node = [
 			'@type'     => 'Article',
 			'@id'       => SchemaId::article( $permalink ),
+			// Permalink polos, terpisah dari @id (yang punya anchor
+			// #article) - Google merekomendasikan properti "url" ini
+			// ada terpisah, ditemukan lewat Rich Results Test setelah
+			// pengujian live.
+			'url'       => $permalink,
 			// Judul post ASLI, tanpa dipotong - Google merekomendasikan
 			// <=110 karakter tapi tidak mewajibkan, memotong berisiko
 			// memenggal makna (SCHEMA_MODULE_ARCHITECTURE.md §5.5).
@@ -70,12 +75,23 @@ final class ArticleNode implements NodeInterface {
 		$author_name = get_the_author_meta( 'display_name', (int) $post->post_author );
 
 		if ( '' !== $author_name ) {
-			// Tanpa "url" di Fase 1 - tidak diminta
-			// (SCHEMA_MODULE_ARCHITECTURE.md §5.5).
-			$node['author'] = [
+			$author_node = [
 				'@type' => 'Person',
 				'name'  => $author_name,
 			];
+
+			// get_author_posts_url() = URL arsip penulis WordPress
+			// native (/author/{nicename}/) - bukan asumsi kepemilikan
+			// apapun, murni data yang sudah tersedia dari WordPress,
+			// ditambahkan atas persetujuan eksplisit setelah ditemukan
+			// lewat Rich Results Test.
+			$author_url = get_author_posts_url( (int) $post->post_author );
+
+			if ( '' !== $author_url ) {
+				$author_node['url'] = $author_url;
+			}
+
+			$node['author'] = $author_node;
 		}
 
 		// Nested object PENUH (bukan referensi @id) - ImageObjectNode
