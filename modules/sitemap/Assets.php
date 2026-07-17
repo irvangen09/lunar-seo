@@ -71,12 +71,16 @@ final class Assets {
 			true
 		);
 
-		$style_path = LUNAR_SEO_PATH . 'build/sitemap-admin.css';
+		// CATATAN: @wordpress/scripts menamai output CSS berbeda dari
+		// JS untuk entry yang sama - "build/style-sitemap-admin.css",
+		// BUKAN "build/sitemap-admin.css" (pola sama dengan
+		// modules/general/Assets.php).
+		$style_path = LUNAR_SEO_PATH . 'build/style-sitemap-admin.css';
 
 		if ( file_exists( $style_path ) ) {
 			wp_enqueue_style(
 				'lunar-seo-sitemap-admin',
-				LUNAR_SEO_URL . 'build/sitemap-admin.css',
+				LUNAR_SEO_URL . 'build/style-sitemap-admin.css',
 				[],
 				$asset['version']
 			);

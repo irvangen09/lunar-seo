@@ -85,12 +85,18 @@ final class Assets {
 			true
 		);
 
-		$style_path = LUNAR_SEO_PATH . 'build/admin.css';
+		// CATATAN: @wordpress/scripts menamai OUTPUT CSS berbeda dari
+		// JS untuk entry yang sama - "build/style-admin.css", BUKAN
+		// "build/admin.css" (MiniCssExtractPlugin memberi prefix
+		// "style-" khusus untuk CSS, sementara JS tetap memakai nama
+		// entry asli). Path di bawah ini harus selalu mengikuti pola
+		// tersebut, sama seperti catatan flat-path untuk JS di atas.
+		$style_path = LUNAR_SEO_PATH . 'build/style-admin.css';
 
 		if ( file_exists( $style_path ) ) {
 			wp_enqueue_style(
 				'lunar-seo-admin',
-				LUNAR_SEO_URL . 'build/admin.css',
+				LUNAR_SEO_URL . 'build/style-admin.css',
 				[],
 				$asset['version']
 			);
@@ -129,12 +135,14 @@ final class Assets {
 			true
 		);
 
-		$style_path = LUNAR_SEO_PATH . 'build/editor.css';
+		// Lihat catatan penamaan CSS di enqueue_admin() di atas -
+		// pola yang sama berlaku untuk entry "editor".
+		$style_path = LUNAR_SEO_PATH . 'build/style-editor.css';
 
 		if ( file_exists( $style_path ) ) {
 			wp_enqueue_style(
 				'lunar-seo-editor',
-				LUNAR_SEO_URL . 'build/editor.css',
+				LUNAR_SEO_URL . 'build/style-editor.css',
 				[],
 				$asset['version']
 			);
