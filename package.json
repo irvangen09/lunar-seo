@@ -7,8 +7,20 @@
     "build": "wp-scripts build",
     "start": "wp-scripts start",
     "lint:js": "wp-scripts lint-js",
-    "format": "wp-scripts format"
+    "format": "wp-scripts format",
+    "plugin-zip": "wp-scripts plugin-zip"
   },
+  "files": [
+    "lunar-seo.php",
+    "uninstall.php",
+    "readme.txt",
+    "includes",
+    "modules",
+    "vendor",
+    "build",
+    "languages",
+    "assets"
+  ],
   "devDependencies": {
     "@wordpress/scripts": "^30.0.0"
   }
