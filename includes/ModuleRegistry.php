@@ -27,14 +27,12 @@ final class ModuleRegistry {
 	 * Setiap module baru cukup ditambahkan di sini tanpa mengubah
 	 * module lain (Extensibility - ARCHITECTURE.md §18).
 	 *
-	 * Schema akan ditambahkan pada tahap pengembangan berikutnya
-	 * sesuai roadmap, belum diimplementasikan saat ini.
-	 *
 	 * @var class-string<ModuleInterface>[]
 	 */
 	private array $available_modules = [
 		\Lunar\SEO\Modules\General\Module::class,
 		\Lunar\SEO\Modules\Sitemap\Module::class,
+		\Lunar\SEO\Modules\Schema\Module::class,
 	];
 
 	/**
