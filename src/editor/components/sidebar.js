@@ -21,29 +21,19 @@ import { TextControl, CheckboxControl, PanelBody } from '@wordpress/components';
 
 import Preview from './preview';
 import TemplateField from '../../shared/template-field';
-
-// Variable yang tersedia untuk context post/page (konsisten dengan
-// TitleRenderer.php/MetaRenderer.php - {title} berasal dari judul
-// asli post, sisanya placeholder global).
-const TITLE_VARIABLES = [ 'title', 'separator', 'site_name', 'tagline' ];
-const DESCRIPTION_VARIABLES = [ 'title', 'site_name', 'tagline' ];
+import {
+	META_KEY_TITLE,
+	META_KEY_DESCRIPTION,
+	META_KEY_CANONICAL,
+	META_KEY_ROBOTS,
+	TITLE_VARIABLES,
+	DESCRIPTION_VARIABLES,
+	ROBOTS_DIRECTIVES,
+	TITLE_MAX_LENGTH,
+	DESCRIPTION_MAX_LENGTH,
+} from '../constants';
 
 const SIDEBAR_NAME = 'lunar-seo-sidebar';
-
-// Meta key HARUS sama persis dengan PostMetaKeys.php (PHP).
-const META_KEY_TITLE = '_lunar_seo_title';
-const META_KEY_DESCRIPTION = '_lunar_seo_description';
-const META_KEY_CANONICAL = '_lunar_seo_canonical';
-const META_KEY_ROBOTS = '_lunar_seo_robots';
-
-// Whitelist directive - konsisten dengan Settings/RobotsUrl.php (PHP).
-// "index"/"follow" sengaja TIDAK termasuk - keduanya adalah perilaku
-// default crawler yang tidak perlu dinyatakan eksplisit di robots
-// meta tag (lihat MetaRenderer.php).
-const ROBOTS_DIRECTIVES = [ 'noindex', 'nofollow', 'noarchive', 'nosnippet', 'noimageindex' ];
-
-const TITLE_MAX_LENGTH = 60;
-const DESCRIPTION_MAX_LENGTH = 160;
 
 export default function Sidebar() {
 	const postType = useSelect( ( select ) => select( 'core/editor' ).getCurrentPostType(), [] );
