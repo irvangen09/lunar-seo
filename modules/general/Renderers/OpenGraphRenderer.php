@@ -94,10 +94,10 @@ final class OpenGraphRenderer implements RendererInterface {
 		$this->output_tag( 'og:title', $this->resolve_title() );
 		$this->output_tag( 'og:description', $this->resolve_description() );
 		$this->output_tag( 'og:type', is_singular() ? 'article' : 'website' );
-		$this->output_tag( 'og:url', $this->resolve_url() );
+		$this->output_url_tag( 'og:url', $this->resolve_url() );
 
 		$image_url = $this->resolve_image_url( (int) ( $og['image_id'] ?? 0 ) );
-		$this->output_tag( 'og:image', $image_url );
+		$this->output_url_tag( 'og:image', $image_url );
 	}
 
 	/**
@@ -116,6 +116,30 @@ final class OpenGraphRenderer implements RendererInterface {
 			'<meta property="%s" content="%s" />' . "\n",
 			esc_attr( $property ),
 			esc_attr( $value )
+		);
+	}
+
+	/**
+	 * Cetak satu og: meta tag yang nilainya berupa URL (og:url,
+	 * og:image), skip apabila value kosong.
+	 *
+	 * Dipisah dari output_tag() karena URL butuh esc_url() - bukan
+	 * esc_attr() - agar konsisten dengan escaping sesuai konteks
+	 * (ARCHITECTURE.md §16, CODING_STANDARD.md §12).
+	 *
+	 * @param string $property Nama property og:.
+	 * @param string $url      Nilai URL.
+	 * @return void
+	 */
+	private function output_url_tag( string $property, string $url ): void {
+		if ( '' === $url ) {
+			return;
+		}
+
+		printf(
+			'<meta property="%s" content="%s" />' . "\n",
+			esc_attr( $property ),
+			esc_url( $url )
 		);
 	}
 
