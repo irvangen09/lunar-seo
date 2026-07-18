@@ -11,10 +11,11 @@ coverage
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
-# Dependency directories
+# directories
 node_modules/
 vendor/
 build/
+internal-docs/
 
 # Optional npm cache directory
 .npm
@@ -30,5 +31,3 @@ build/
 
 # dotenv environment variables file
 .env
-
-*.md
