@@ -52,8 +52,6 @@ final class Assets {
 			return;
 		}
 
-		wp_enqueue_media();
-
 		$asset_file = LUNAR_SEO_PATH . 'build/sitemap-admin.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
