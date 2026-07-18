@@ -2,11 +2,13 @@
 /**
  * Plugin Name:       Lunar SEO
  * Description:       Plugin SEO WordPress yang ringan, modular, dan mengikuti WordPress Coding Standards.
- * Version:            1.0.0
- * Requires PHP:       8.0
- * Requires at least:  6.9
- * Author:             Lunar
- * Text Domain:        lunar-seo
+ * Version:           1.0.0
+ * Requires at least: 6.9
+ * Requires PHP:      8.0
+ * Author:            Irvan Noerfazri
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       lunar-seo
  *
  * @package Lunar\SEO
  */

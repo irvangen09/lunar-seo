@@ -1,12 +1,12 @@
 === Lunar SEO ===
 Contributors: Irvan Noerfazri
-Tags: seo, sitemap, xml-sitemap, schema, structured-data, json-ld
+Tags: seo, sitemap, xml-sitemap, schema, structured-data
 Requires at least: 6.9
 Tested up to: 6.9
 Requires PHP: 8.0
 Stable tag: 1.0.0
 License: GPLv2 or later
-License URI: https://gnu.org
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards.
 
