@@ -101,6 +101,45 @@ final class Frontend {
 		// Setting Sitemap berubah -> struktur URL yang aktif bisa
 		// berubah (toggle Include) -> flush rewrite rules.
 		add_action( 'lunar_seo_sitemap_settings_updated', 'flush_rewrite_rules' );
+
+		// WordPress Core memiliki XML Sitemap bawaan sendiri sejak
+		// versi 5.5 (/wp-sitemap.xml). Lunar SEO sudah menghasilkan
+		// sitemap sendiri (/sitemap.xml) yang lebih lengkap (Priority,
+		// Changefreq, Excluded Items, custom post type/taxonomy) -
+		// membiarkan keduanya aktif bersamaan menghasilkan 2 sitemap
+		// berbeda yang membingungkan search engine dan berpotensi
+		// dianggap konten duplikat. Matikan sitemap native WP Core
+		// sepenuhnya (ditemukan lewat pengujian live robots.txt,
+		// lihat catatan Go-Live Checklist).
+		add_filter( 'wp_sitemaps_enabled', '__return_false' );
+
+		// wp_sitemaps_enabled() di atas otomatis mencegah WP Core
+		// meng-hook baris "Sitemap: .../wp-sitemap.xml" (WP_Sitemaps
+		// hanya mendaftarkan filter robots_txt apabila sitemaps_enabled()
+		// bernilai true - lihat WP_Sitemaps::init()). Lunar SEO
+		// menulis baris Sitemap: miliknya sendiri lewat filter yang
+		// sama, menunjuk ke index /sitemap.xml.
+		add_filter( 'robots_txt', [ $this, 'add_robots_sitemap_line' ], 10, 2 );
+	}
+
+	/**
+	 * Tambahkan baris "Sitemap:" ke virtual robots.txt WordPress,
+	 * menunjuk ke Sitemap Index milik Lunar SEO sendiri. Mengikuti
+	 * pola persis WP_Sitemaps::add_robots() (hook filter `robots_txt`,
+	 * BUKAN action - virtual robots.txt WordPress dibangun via
+	 * apply_filters( 'robots_txt', $output, $public ) di dalam
+	 * do_robots()).
+	 *
+	 * @param string $output Isi robots.txt yang sudah ada.
+	 * @param bool   $public Apakah situs public (Settings > Reading).
+	 * @return string
+	 */
+	public function add_robots_sitemap_line( string $output, bool $public ): string {
+		if ( ! $public ) {
+			return $output;
+		}
+
+		return $output . "\nSitemap: " . esc_url( home_url( '/sitemap.xml' ) ) . "\n";
 	}
 
 	/**
