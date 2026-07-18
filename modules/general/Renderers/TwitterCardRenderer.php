@@ -104,7 +104,7 @@ final class TwitterCardRenderer implements RendererInterface {
 		$this->output_tag( 'twitter:card', '' !== $image_url ? 'summary_large_image' : 'summary' );
 		$this->output_tag( 'twitter:title', $this->resolve_title() );
 		$this->output_tag( 'twitter:description', $this->resolve_description() );
-		$this->output_tag( 'twitter:image', $image_url );
+		$this->output_url_tag( 'twitter:image', $image_url );
 	}
 
 	/**
@@ -123,6 +123,30 @@ final class TwitterCardRenderer implements RendererInterface {
 			'<meta name="%s" content="%s" />' . "\n",
 			esc_attr( $name ),
 			esc_attr( $value )
+		);
+	}
+
+	/**
+	 * Cetak satu twitter: meta tag yang nilainya berupa URL
+	 * (twitter:image), skip apabila value kosong.
+	 *
+	 * Dipisah dari output_tag() karena URL butuh esc_url() - bukan
+	 * esc_attr() - agar konsisten dengan escaping sesuai konteks
+	 * (ARCHITECTURE.md §16, CODING_STANDARD.md §12).
+	 *
+	 * @param string $name Nama twitter: meta tag.
+	 * @param string $url  Nilai URL.
+	 * @return void
+	 */
+	private function output_url_tag( string $name, string $url ): void {
+		if ( '' === $url ) {
+			return;
+		}
+
+		printf(
+			'<meta name="%s" content="%s" />' . "\n",
+			esc_attr( $name ),
+			esc_url( $url )
 		);
 	}
 
