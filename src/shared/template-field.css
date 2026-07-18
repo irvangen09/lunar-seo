@@ -1,0 +1,38 @@
+/**
+ * Template Field - Variable Chips.
+ *
+ * Menggantikan tampilan flat teks "{title}" dengan tombol bergaya
+ * chip/pill (mirip pola yang lazim di plugin SEO lain) - label yang
+ * ditampilkan sudah ramah-baca ("Title"), token asli "{title}" tetap
+ * yang disisipkan ke field dan tersedia lewat tooltip native (atribut
+ * title). Warna mengikuti Admin Color Scheme WordPress (biru primer
+ * WP-Admin, DESIGN_SYSTEM.md §4) - bukan warna baru.
+ */
+
+.lunar-template-field__variables {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.lunar-template-field__variable.components-button {
+	height: auto;
+	padding: 4px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 12px;
+	background: #f0f0f1;
+	color: #2c3338;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.lunar-template-field__variable.components-button:hover:not(:disabled) {
+	border-color: #2271b1;
+	background: #f0f6fc;
+	color: #2271b1;
+}
+
+.lunar-template-field__variable.components-button:focus:not(:disabled) {
+	box-shadow: 0 0 0 1px #fff, 0 0 0 3px #2271b1;
+}

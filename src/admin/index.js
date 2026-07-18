@@ -11,6 +11,7 @@ import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 
 import App from './app';
+import './style.css';
 
 const ROOT_ELEMENT_ID = 'lunar-seo-general-settings-root';
 

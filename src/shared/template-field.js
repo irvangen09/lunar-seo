@@ -23,6 +23,39 @@
  */
 
 import { TextControl, TextareaControl, Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Label ramah-pengguna untuk tiap variable slug. Satu tempat ini
+ * menjadi Single Source of Truth supaya penamaan konsisten di
+ * seluruh pemakaian TemplateField (Admin Settings & Editor Sidebar) -
+ * menghindari label yang beda-beda tiap tempat dipakai (DRY,
+ * DESIGN_SYSTEM.md §18 - Component Consistency).
+ *
+ * Slug yang tidak terdaftar tetap tampil (fallback format otomatis),
+ * jadi menambah variable baru di masa depan tidak wajib mengubah
+ * dictionary ini.
+ */
+const VARIABLE_LABELS = {
+	title: __( 'Title', 'lunar-seo' ),
+	term_title: __( 'Term Title', 'lunar-seo' ),
+	site_name: __( 'Site Name', 'lunar-seo' ),
+	tagline: __( 'Tagline', 'lunar-seo' ),
+	separator: __( 'Separator', 'lunar-seo' ),
+	query: __( 'Search Query', 'lunar-seo' ),
+};
+
+function getVariableLabel( variable ) {
+	if ( VARIABLE_LABELS[ variable ] ) {
+		return VARIABLE_LABELS[ variable ];
+	}
+
+	// Fallback: "custom_field" -> "Custom Field".
+	return variable
+		.split( '_' )
+		.map( ( word ) => word.charAt( 0 ).toUpperCase() + word.slice( 1 ) )
+		.join( ' ' );
+}
 
 export default function TemplateField( { label, help, value, onChange, variables, maxLength, multiline, placeholder } ) {
 	const currentValue = value || '';
@@ -46,10 +79,11 @@ export default function TemplateField( { label, help, value, onChange, variables
 					{ variables.map( ( variable ) => (
 						<Button
 							key={ variable }
-							variant="tertiary"
+							className="lunar-template-field__variable"
 							onClick={ () => insertVariable( variable ) }
+							title={ `{${ variable }}` }
 						>
-							{ `{${ variable }}` }
+							{ getVariableLabel( variable ) }
 						</Button>
 					) ) }
 				</div>

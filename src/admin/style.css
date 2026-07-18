@@ -1,0 +1,8 @@
+/**
+ * Styles - Settings App (General).
+ *
+ * @package Lunar\SEO
+ */
+
+@import '../shared/settings-shell.css';
+@import '../shared/template-field.css';

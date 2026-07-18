@@ -1,0 +1,62 @@
+/**
+ * Settings Shell - Shared Styles.
+ *
+ * Dipakai bersama oleh src/admin/style.css (module General) dan
+ * src/sitemap-admin/style.css (module Sitemap) - keduanya memakai
+ * struktur className yang identik (lunar-settings, lunar-field, dst)
+ * karena mengikuti pola shell yang sama (DESIGN_SYSTEM.md §8 -
+ * Component Consistency).
+ *
+ * Hanya menangani spacing/rhythm dan keterbacaan teks bantu - tidak
+ * ada warna baru di luar palet netral WordPress Admin (DESIGN_SYSTEM.md
+ * §4), tidak ada shadow/animasi dekoratif (§10).
+ */
+
+.lunar-settings__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.lunar-settings__header h1 {
+	margin: 0;
+}
+
+/* Rhythm antar section berulang (mis. Homepage/Post/Page pada Content,
+ * atau Categories/Tags) di dalam satu PanelBody - tanpa ini, judul
+ * section terasa menempel pada field section sebelumnya. */
+.lunar-settings .components-panel__body h3 {
+	margin-top: 32px;
+	margin-bottom: 8px;
+}
+
+.lunar-settings .components-panel__body h3:first-child {
+	margin-top: 0;
+}
+
+/* Struktur field custom (Title Separator, dll) yang tidak memakai
+ * BaseControl bawaan - urutan Section Title -> Description -> Input ->
+ * Help mengikuti DESIGN_SYSTEM.md §16. */
+.lunar-field {
+	margin-bottom: 24px;
+}
+
+.lunar-field__help {
+	margin-top: 4px;
+	margin-bottom: 8px;
+	color: #757575;
+	font-size: 13px;
+}
+
+.lunar-field__preview {
+	margin-top: 8px;
+	padding: 8px 12px;
+	border-left: 3px solid #dcdcde;
+	color: #757575;
+	font-size: 13px;
+	font-style: italic;
+}
