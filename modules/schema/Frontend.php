@@ -57,9 +57,26 @@ final class Frontend {
 			return;
 		}
 
+		/*
+		 * CATATAN KEAMANAN: JANGAN tambahkan JSON_UNESCAPED_SLASHES di sini.
+		 *
+		 * Secara default, json_encode()/wp_json_encode() meng-escape setiap
+		 * karakter "/" menjadi "\/". Ini bukan sekadar gaya penulisan -
+		 * escaping ini mencegah urutan karakter "</script>" muncul utuh
+		 * di dalam JSON yang ditanam ke tag <script> ini. Nilai seperti
+		 * headline (ArticleNode/WebPageNode), nama kategori/page
+		 * (BreadcrumbListNode), atau nama author TIDAK di-escape untuk
+		 * konteks HTML di layer manapun sebelum sampai sini - kalau ada
+		 * yang mengandung literal "</script>" (mis. role Editor yang
+		 * secara default punya capability unfiltered_html di WP
+		 * single-site), tag <script> ini akan tertutup prematur dan
+		 * markup/script apa pun sesudahnya akan dieksekusi browser
+		 * sebagai HTML/JS nyata (stored XSS). JSON_UNESCAPED_UNICODE
+		 * aman dipertahankan - tidak menyentuh karakter "/".
+		 */
 		printf(
 			'<script type="application/ld+json">%s</script>' . "\n",
-			wp_json_encode( $graph, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+			wp_json_encode( $graph, JSON_UNESCAPED_UNICODE )
 		);
 	}
 }
