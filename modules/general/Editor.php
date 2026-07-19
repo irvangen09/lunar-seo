@@ -38,12 +38,6 @@ final class Editor {
 
 	/**
 	 * Directive robots yang diizinkan (whitelist), konsisten dengan
-	 * Settings/RobotsUrl.php.
-	 *
-	 * @var string[]
-	 */
-	/**
-	 * Directive robots yang diizinkan (whitelist), konsisten dengan
 	 * Settings/RobotsUrl.php. "index"/"follow" sengaja tidak
 	 * termasuk - lihat penjelasan di sana.
 	 *

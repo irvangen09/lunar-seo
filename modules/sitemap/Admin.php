@@ -16,6 +16,8 @@
 
 namespace Lunar\SEO\Modules\Sitemap;
 
+use Lunar\SEO\Modules\General\Admin as GeneralAdmin;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -25,9 +27,15 @@ final class Admin {
 	/**
 	 * Slug menu parent (menu top-level "Lunar SEO" dari module General).
 	 *
+	 * Direferensikan langsung ke GeneralAdmin::MENU_SLUG (bukan
+	 * disalin sebagai string literal terpisah) - supaya kalau slug
+	 * menu General berubah, PHP langsung gagal saat load (constant
+	 * tidak ditemukan) alih-alih submenu ini diam-diam berhenti
+	 * muncul tanpa error apapun.
+	 *
 	 * @var string
 	 */
-	private const PARENT_MENU_SLUG = 'lunar-seo-general';
+	private const PARENT_MENU_SLUG = GeneralAdmin::MENU_SLUG;
 
 	/**
 	 * Slug halaman menu admin.

@@ -131,6 +131,15 @@ final class SitemapCache {
 	 * @return void
 	 */
 	public function invalidate_for_post( int $post_id ): void {
+		// save_post juga terpicu untuk setiap revision dan autosave
+		// (berjalan otomatis setiap ~60 detik selama editor terbuka),
+		// bukan hanya publish/update yang disengaja user. Tanpa guard
+		// ini, cache 'authors'/'index'/post-type yang bersangkutan
+		// diinvalidasi jauh lebih sering dari yang perlu.
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
 		$post_type = get_post_type( $post_id );
 
 		if ( false === $post_type ) {

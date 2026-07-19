@@ -105,7 +105,7 @@ export default function Sidebar() {
 						value={ canonical }
 						onChange={ ( value ) => updateMeta( META_KEY_CANONICAL, value ) }
 						placeholder={ permalink }
-						help={ __( 'Kosongkan untuk menggunakan URL default.', 'lunar-seo' ) }
+						help={ __( 'Leave empty to use the default URL.', 'lunar-seo' ) }
 					/>
 				</PanelBody>
 

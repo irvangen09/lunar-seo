@@ -82,8 +82,23 @@ final class Bootstrap {
 			return;
 		}
 
+		$this->load_textdomain();
 		$this->register_shared_services();
 		$this->register_modules();
+	}
+
+	/**
+	 * Muat file terjemahan plugin.
+	 *
+	 * WordPress.org otomatis memuat file bahasa untuk plugin yang
+	 * di-host di sana sejak WP 4.6 - tapi itu TIDAK berlaku untuk
+	 * plugin yang didistribusikan mandiri (GitHub). Tanpa pemanggilan
+	 * ini, file .mo di folder languages/ tidak akan pernah termuat.
+	 *
+	 * @return void
+	 */
+	private function load_textdomain(): void {
+		load_plugin_textdomain( 'lunar-seo', false, dirname( LUNAR_SEO_BASENAME ) . '/languages' );
 	}
 
 	/**
@@ -132,23 +147,5 @@ final class Bootstrap {
 	private function register_modules(): void {
 		$this->module_registry = new ModuleRegistry( $this->option_manager, $this->site_identity );
 		$this->module_registry->register_active_modules();
-	}
-
-	/**
-	 * Akses Option Manager oleh module.
-	 *
-	 * @return OptionManager
-	 */
-	public function get_option_manager(): OptionManager {
-		return $this->option_manager;
-	}
-
-	/**
-	 * Akses Site Identity oleh module.
-	 *
-	 * @return SiteIdentity
-	 */
-	public function get_site_identity(): SiteIdentity {
-		return $this->site_identity;
 	}
 }

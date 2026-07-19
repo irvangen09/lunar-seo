@@ -16,10 +16,10 @@ export default function Preview( { title, description, url } ) {
 		<div className="lunar-seo-preview">
 			<div className="lunar-seo-preview__url">{ url }</div>
 			<div className="lunar-seo-preview__title">
-				{ title || __( '(SEO Title belum diisi)', 'lunar-seo' ) }
+				{ title || __( '(SEO Title not filled in)', 'lunar-seo' ) }
 			</div>
 			<div className="lunar-seo-preview__description">
-				{ description || __( '(Meta Description belum diisi)', 'lunar-seo' ) }
+				{ description || __( '(Meta Description not filled in)', 'lunar-seo' ) }
 			</div>
 		</div>
 	);

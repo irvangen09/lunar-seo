@@ -2,7 +2,7 @@
 
 **Project:** Lunar SEO
 **Module:** General
-**Version:** 1.1
+**Version:** 1.2
 **Status:** LOCKED
 **Document Relationship:** Addendum to `ARCHITECTURE.md` and `PLUGIN_BLUEPRINT.md`. Does not replace them, only clarifies how the global architecture is applied specifically to the General module.
 
@@ -28,6 +28,8 @@ This document was previously named `SEO_MODULE_ARCHITECTURE.md` under the **Game
 **No changes to the architecture, roadmap, or technical decisions** — the module's full scope (Site Info, Content, Categories & Tags, Social, Verification, Robots & URL, Editor) is preserved in full. The Breadcrumb module that was previously planned as a separate module has been **removed** from the roadmap; the remaining modules are: **General, Sitemap, Schema**.
 
 **Revision v1.1 (§7.1 correction):** §7.1 previously stated that data was accessed via `/wp/v2/settings` (WordPress' built-in generic REST API). This is **no longer accurate**, following the discovery of a bug: that generic endpoint fails to save nested object data even though the request appears to succeed. The actual implementation (and the standard pattern for every module since then, including Sitemap) uses a **custom REST route** per module. The §7.1 text has been corrected so the document remains an accurate Single Source of Truth — there is no change in code behavior, purely a documentation sync with the implementation already in place.
+
+**Revision v1.2 (§6.3 correction):** §6.3 previously stated the Renderer contract method is named `render(): void`. The actual implementation uses `init(): void` instead — `TitleRenderer` needs to hook into `pre_get_document_title` (which fires before `wp_head`), while the other Renderers hook into `wp_head` directly; naming the shared method `init()` reflects that every Renderer's job is to *register* its own hook, not to render output immediately when called. This is a documentation sync only — no change in code behavior.
 
 ---
 
@@ -189,7 +191,7 @@ The generation operation is lightweight string manipulation (no extra database q
 
 ## 6.3 Contract Between Renderers
 
-Every Renderer has one consistent public method (`render(): void`). No formal interface/abstract class is used unless proven necessary later — naming consistency is enough for now (`ARCHITECTURE.md` — avoid abstraction that isn't yet needed).
+Every Renderer has one consistent public method: **`init(): void`** (see Revision v1.2 note below). No formal interface/abstract class is used beyond a shared `RendererInterface` declaring this single method — naming consistency is enough for now (`ARCHITECTURE.md` — avoid abstraction that isn't yet needed).
 
 Every Renderer only **consumes** the output of `TitleResolver`/`DescriptionGenerator`/`PlaceholderResolver` (§5) — it never duplicates generation logic.
 

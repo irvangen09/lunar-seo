@@ -11,6 +11,28 @@ const PRIORITY_OPTIONS = [ '1.0', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3
 	( v ) => ( { label: v, value: v } )
 );
 
+/**
+ * Normalisasi nilai priority ke format 1 desimal ("1.0", bukan "1").
+ *
+ * WordPress REST API meng-encode float PHP bulat (1.0, 0.0) sebagai
+ * angka JSON tanpa desimal ("1", "0") karena tidak menyertakan flag
+ * JSON_PRESERVE_ZERO_FRACTION. Tanpa normalisasi ini, String(1) = "1"
+ * tidak akan pernah cocok dengan opsi dropdown "1.0", membuat
+ * SelectControl gagal menampilkan nilai yang benar-benar tersimpan.
+ *
+ * @param {number|string|undefined} value Nilai priority mentah.
+ * @return {string} Nilai dengan format 1 desimal.
+ */
+function normalizePriority( value ) {
+	const numericValue = Number( value ?? 0.3 );
+
+	if ( Number.isNaN( numericValue ) ) {
+		return '0.3';
+	}
+
+	return numericValue.toFixed( 1 );
+}
+
 const FIELDS = [
 	{ key: 'homepage', label: __( 'Homepage', 'lunar-seo' ) },
 	{ key: 'posts', label: __( 'Posts (If auto calculation is disabled)', 'lunar-seo' ) },
@@ -50,7 +72,7 @@ export default function PrioritiesFields( { value, onChange } ) {
 				<SelectControl
 					key={ field.key }
 					label={ field.label }
-					value={ String( data[ field.key ] ?? '0.3' ) }
+					value={ normalizePriority( data[ field.key ] ) }
 					options={ PRIORITY_OPTIONS }
 					onChange={ ( v ) => updateField( field.key, parseFloat( v ) ) }
 				/>

@@ -55,23 +55,23 @@ export default function DocumentPanel() {
 				{ __( 'SEO Title', 'lunar-seo' ) + ': ' }
 				{ seoTitle
 					? sprintf(
-							/* translators: 1: jumlah karakter saat ini, 2: batas karakter yang disarankan */
-							__( '%1$d/%2$d karakter', 'lunar-seo' ),
+							/* translators: 1: current character count, 2: recommended character limit */
+							__( '%1$d/%2$d characters', 'lunar-seo' ),
 							resolvedTitleLength,
 							TITLE_MAX_LENGTH
 					  )
-					: __( 'Memakai judul post (belum di-override)', 'lunar-seo' ) }
+					: __( 'Using the post title (not overridden)', 'lunar-seo' ) }
 			</p>
 			<p>
 				{ __( 'Meta Description', 'lunar-seo' ) + ': ' }
 				{ metaDescription
 					? sprintf(
-							/* translators: 1: jumlah karakter saat ini, 2: batas karakter yang disarankan */
-							__( '%1$d/%2$d karakter', 'lunar-seo' ),
+							/* translators: 1: current character count, 2: recommended character limit */
+							__( '%1$d/%2$d characters', 'lunar-seo' ),
 							metaDescription.length,
 							DESCRIPTION_MAX_LENGTH
 					  )
-					: __( 'Memakai cuplikan otomatis (belum di-override)', 'lunar-seo' ) }
+					: __( 'Using the auto-generated excerpt (not overridden)', 'lunar-seo' ) }
 			</p>
 		</PluginDocumentSettingPanel>
 	);

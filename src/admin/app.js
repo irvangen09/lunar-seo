@@ -12,16 +12,14 @@
  * categories_tags, social, verification, robots_url) di dalam
  * option "lunar_seo_general_settings".
  *
- * Section Site Info sudah lengkap (Website Name, Alternate Website
- * Name, Title Separator, Site Image) sebagai pola rujukan. Section
- * lain masih berupa placeholder accordion kosong.
+ * Seluruh section (Site Info, Content, Categories & Tags, Social,
+ * Verification, Robots & URL) sudah terimplementasi penuh, mengikuti
+ * pola yang sama.
  *
  * @package Lunar\SEO
  */
 
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	TextControl,
@@ -34,6 +32,7 @@ import {
 	PanelBody,
 } from '@wordpress/components';
 
+import useRestSettings from '../shared/use-rest-settings';
 import TitleSeparatorPicker from './components/title-separator-picker';
 import MediaUploadField from './components/media-upload-field';
 import ContentTypeFields from './components/content-type-fields';
@@ -60,18 +59,16 @@ const ROBOTS_PRESET_OPTIONS = [
 ];
 
 export default function App() {
-	const [ settings, setSettings ] = useState( null );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ notice, setNotice ] = useState( null );
-
-	useEffect( () => {
-		apiFetch( { path: REST_PATH } ).then( ( response ) => {
-			setSettings( response || {} );
-		} );
-	}, [] );
+	const { settings, setSettings, isSaving, notice, save } = useRestSettings( REST_PATH );
 
 	if ( null === settings ) {
-		return <Spinner />;
+		return notice ? (
+			<Notice status={ notice.status } isDismissible={ false }>
+				{ notice.message }
+			</Notice>
+		) : (
+			<Spinner />
+		);
 	}
 
 	const siteInfo = settings.site_info || {};
@@ -139,36 +136,11 @@ export default function App() {
 		updateRobotsUrl( 'default_robots_meta', next );
 	};
 
-	const handleSave = () => {
-		setIsSaving( true );
-		setNotice( null );
-
-		apiFetch( {
-			path: REST_PATH,
-			method: 'POST',
-			data: settings,
-		} )
-			.then( ( response ) => {
-				setSettings( response || settings );
-				setNotice( {
-					status: 'success',
-					message: __( 'Pengaturan berhasil disimpan.', 'lunar-seo' ),
-				} );
-			} )
-			.catch( () => {
-				setNotice( {
-					status: 'error',
-					message: __( 'Gagal menyimpan pengaturan.', 'lunar-seo' ),
-				} );
-			} )
-			.finally( () => setIsSaving( false ) );
-	};
-
 	return (
 		<div className="lunar-settings">
 			<div className="lunar-settings__header">
 				<h1>{ __( 'Lunar SEO', 'lunar-seo' ) }</h1>
-				<Button variant="primary" isBusy={ isSaving } disabled={ isSaving } onClick={ handleSave }>
+				<Button variant="primary" isBusy={ isSaving } disabled={ isSaving } onClick={ save }>
 					{ __( 'Save Changes', 'lunar-seo' ) }
 				</Button>
 			</div>

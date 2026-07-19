@@ -66,19 +66,6 @@ final class TitleResolver {
 	}
 
 	/**
-	 * Passthrough ke PlaceholderResolver::get_site_name().
-	 *
-	 * Disediakan agar TitleRenderer tidak perlu menerima
-	 * PlaceholderResolver sebagai dependency terpisah - cukup lewat
-	 * TitleResolver yang sudah dimilikinya.
-	 *
-	 * @return string
-	 */
-	public function get_site_name(): string {
-		return $this->placeholder_resolver->get_site_name();
-	}
-
-	/**
 	 * Passthrough ke PlaceholderResolver::get_homepage_title().
 	 *
 	 * @return string

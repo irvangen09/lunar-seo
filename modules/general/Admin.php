@@ -4,9 +4,12 @@
  *
  * Bertanggung jawab meregistrasikan menu admin dan merender root
  * container untuk React admin app. Data setting diakses oleh JS
- * melalui REST API (/wp/v2/settings), bukan dibaca langsung oleh
- * PHP di sini - sehingga class ini tidak membutuhkan OptionManager
- * (ENGINEERING_PRINCIPLES.md #1 - Write with Purpose).
+ * melalui REST route custom (lunar-seo/v1/general-settings), bukan
+ * endpoint generic /wp/v2/settings (endpoint generic tersebut
+ * terbukti gagal menyimpan data object bersarang, lihat
+ * GENERAL_MODULE_ARCHITECTURE.md §7.1) dan bukan dibaca langsung
+ * oleh PHP di sini - sehingga class ini tidak membutuhkan
+ * OptionManager (ENGINEERING_PRINCIPLES.md #1 - Write with Purpose).
  *
  * Lihat GENERAL_MODULE_ARCHITECTURE.md §7 untuk alasan pendekatan
  * React + REST dibandingkan form PHP klasik.

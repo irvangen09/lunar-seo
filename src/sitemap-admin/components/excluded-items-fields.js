@@ -23,9 +23,54 @@ export default function ExcludedItemsFields( { value, onChange } ) {
 	const [ categories, setCategories ] = useState( [] );
 
 	useEffect( () => {
-		apiFetch( { path: '/wp/v2/categories?per_page=100&orderby=name&order=asc' } ).then(
-			setCategories
-		);
+		let isMounted = true;
+
+		/**
+		 * Ambil SELURUH kategori lewat pagination, bukan hanya 100
+		 * pertama - 100 adalah batas maksimum per_page yang diizinkan
+		 * WP REST API, sehingga kategori di halaman berikutnya perlu
+		 * diambil lewat request terpisah agar tidak ada yang hilang
+		 * dari checklist (relevan untuk situs dengan banyak kategori).
+		 */
+		const fetchAllCategories = async () => {
+			const perPage = 100;
+			let page = 1;
+			let allCategories = [];
+
+			// eslint-disable-next-line no-constant-condition
+			while ( true ) {
+				let batch;
+
+				try {
+					batch = await apiFetch( {
+						path: `/wp/v2/categories?per_page=${ perPage }&page=${ page }&orderby=name&order=asc`,
+					} );
+				} catch ( error ) {
+					// WP REST API menolak page yang melebihi total halaman -
+					// berhenti dengan aman, kategori yang sudah terkumpul
+					// tetap ditampilkan.
+					break;
+				}
+
+				allCategories = allCategories.concat( batch );
+
+				if ( batch.length < perPage ) {
+					break;
+				}
+
+				page += 1;
+			}
+
+			if ( isMounted ) {
+				setCategories( allCategories );
+			}
+		};
+
+		fetchAllCategories();
+
+		return () => {
+			isMounted = false;
+		};
 	}, [] );
 
 	const toggleCategory = ( id, checked ) => {

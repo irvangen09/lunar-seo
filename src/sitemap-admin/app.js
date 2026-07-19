@@ -13,6 +13,7 @@ import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Notice, Spinner, Panel, PanelBody } from '@wordpress/components';
 
+import useRestSettings from '../shared/use-rest-settings';
 import SitemapContentFields from './components/sitemap-content-fields';
 import ExcludedItemsFields from './components/excluded-items-fields';
 import PrioritiesFields from './components/priorities-fields';
@@ -22,54 +23,49 @@ const REST_PATH = '/lunar-seo/v1/sitemap-settings';
 const CONTENT_TYPES_PATH = '/lunar-seo/v1/sitemap-content-types';
 
 export default function App() {
-	const [ settings, setSettings ] = useState( null );
+	const { settings, setSettings, isSaving, notice, save } = useRestSettings( REST_PATH );
 	const [ contentTypes, setContentTypes ] = useState( null );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ notice, setNotice ] = useState( null );
 
 	useEffect( () => {
-		apiFetch( { path: REST_PATH } ).then( ( response ) => setSettings( response || {} ) );
-		apiFetch( { path: CONTENT_TYPES_PATH } ).then( setContentTypes );
+		let isMounted = true;
+
+		apiFetch( { path: CONTENT_TYPES_PATH } )
+			.then( ( response ) => {
+				if ( isMounted ) {
+					setContentTypes( response );
+				}
+			} )
+			.catch( () => {
+				// Gagal ambil daftar Custom Post Type/Taxonomy bukan hal
+				// fatal - SitemapContentFields tetap bisa merender
+				// checkbox WordPress Standard Content tanpa daftar CPT
+				// dinamis apabila contentTypes tetap null.
+			} );
+
+		return () => {
+			isMounted = false;
+		};
 	}, [] );
 
 	if ( null === settings ) {
-		return <Spinner />;
+		return notice ? (
+			<Notice status={ notice.status } isDismissible={ false }>
+				{ notice.message }
+			</Notice>
+		) : (
+			<Spinner />
+		);
 	}
 
 	const updateSection = ( section, value ) => {
 		setSettings( { ...settings, [ section ]: value } );
 	};
 
-	const handleSave = () => {
-		setIsSaving( true );
-		setNotice( null );
-
-		apiFetch( {
-			path: REST_PATH,
-			method: 'POST',
-			data: settings,
-		} )
-			.then( ( response ) => {
-				setSettings( response || settings );
-				setNotice( {
-					status: 'success',
-					message: __( 'Pengaturan berhasil disimpan.', 'lunar-seo' ),
-				} );
-			} )
-			.catch( () => {
-				setNotice( {
-					status: 'error',
-					message: __( 'Gagal menyimpan pengaturan.', 'lunar-seo' ),
-				} );
-			} )
-			.finally( () => setIsSaving( false ) );
-	};
-
 	return (
 		<div className="lunar-settings">
 			<div className="lunar-settings__header">
 				<h1>{ __( 'Lunar SEO - Sitemap', 'lunar-seo' ) }</h1>
-				<Button variant="primary" isBusy={ isSaving } disabled={ isSaving } onClick={ handleSave }>
+				<Button variant="primary" isBusy={ isSaving } disabled={ isSaving } onClick={ save }>
 					{ __( 'Save Changes', 'lunar-seo' ) }
 				</Button>
 			</div>
