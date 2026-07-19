@@ -29,7 +29,7 @@ export default function TaxonomyFields( { value, onChange, titleVariables, descr
 					'Enable to allow archives to appear in search engine results.',
 					'lunar-seo'
 				) }
-				checked={ !! data.show_in_search_results }
+				checked={ data.show_in_search_results ?? true }
 				onChange={ ( checked ) => updateField( 'show_in_search_results', checked ) }
 			/>
 

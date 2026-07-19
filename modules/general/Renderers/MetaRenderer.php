@@ -277,11 +277,49 @@ final class MetaRenderer implements RendererInterface {
 			return $this->resolve_preset( $robots_settings['not_found_robots'] ?? 'noindex_follow', $default_meta );
 		}
 
-		if ( is_category() || is_tag() || is_search() || is_archive() ) {
+		if ( is_category() || is_tag() ) {
+			$directives    = $this->resolve_preset( $robots_settings['archives_robots'] ?? 'default', $default_meta );
+			$taxonomy_type = is_category() ? 'categories' : 'tags';
+
+			// "Show in search results" (Settings > Categories & Tags) adalah
+			// setting per-tipe-taksonomi yang lebih spesifik daripada preset
+			// "archives_robots" global - apabila dinonaktifkan, paksa
+			// "noindex" berlaku terlepas dari preset archives_robots,
+			// konsisten dengan namanya di UI ("Show in search results").
+			if ( ! $this->is_taxonomy_shown_in_search_results( $taxonomy_type ) ) {
+				$directives[] = 'noindex';
+			}
+
+			return array_values( array_unique( $directives ) );
+		}
+
+		if ( is_search() || is_archive() ) {
 			return $this->resolve_preset( $robots_settings['archives_robots'] ?? 'default', $default_meta );
 		}
 
 		return $default_meta;
+	}
+
+	/**
+	 * Baca toggle "Show in search results" untuk tipe taksonomi
+	 * (categories/tags) dari section "categories_tags"
+	 * (Settings/CategoriesTags.php).
+	 *
+	 * Default TRUE (tampil di hasil pencarian) apabila belum pernah
+	 * disimpan sama sekali - sebelum admin menyentuh setting ini,
+	 * tidak ada archive yang tiba-tiba di-noindex secara diam-diam.
+	 *
+	 * @param string $taxonomy_type "categories" atau "tags".
+	 * @return bool
+	 */
+	private function is_taxonomy_shown_in_search_results( string $taxonomy_type ): bool {
+		$data = $this->option_manager->get( self::MODULE_SLUG, 'categories_tags', $taxonomy_type, [] );
+
+		if ( ! is_array( $data ) || ! array_key_exists( 'show_in_search_results', $data ) ) {
+			return true;
+		}
+
+		return (bool) $data['show_in_search_results'];
 	}
 
 	/**

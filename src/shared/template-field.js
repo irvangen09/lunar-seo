@@ -68,12 +68,6 @@ export default function TemplateField( { label, help, value, onChange, variables
 
 	return (
 		<div className="lunar-template-field">
-			<p className="lunar-template-field__label">
-				<strong>{ label }</strong>
-			</p>
-
-			{ help && <p className="lunar-field__help">{ help }</p> }
-
 			{ variables && variables.length > 0 && (
 				<div className="lunar-template-field__variables">
 					{ variables.map( ( variable ) => (
@@ -89,7 +83,21 @@ export default function TemplateField( { label, help, value, onChange, variables
 				</div>
 			) }
 
-			<Control value={ currentValue } onChange={ onChange } placeholder={ placeholder } />
+			{ /*
+			 * label & help diteruskan LANGSUNG ke Control (bukan dirender
+			 * terpisah sebagai <p><strong>) - TextControl/TextareaControl
+			 * merender <label for="..."> yang terhubung dengan benar ke
+			 * id input, memberi accessible name untuk screen reader.
+			 * Merender label secara terpisah (seperti sebelumnya) membuat
+			 * input sama sekali tidak punya nama yang bisa diumumkan.
+			 */ }
+			<Control
+				label={ label }
+				help={ help }
+				value={ currentValue }
+				onChange={ onChange }
+				placeholder={ placeholder }
+			/>
 
 			{ maxLength && (
 				<p className="lunar-field__counter">
