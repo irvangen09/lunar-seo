@@ -37,19 +37,40 @@ final class DescriptionGenerator {
 	private const MAX_LENGTH = 160;
 
 	/**
+	 * Cache hasil generate per post ID dalam satu request - instance
+	 * class ini dibagikan ke MetaRenderer, OpenGraphRenderer, dan
+	 * TwitterCardRenderer (Frontend::register_renderers()), yang pada
+	 * halaman dengan Meta Description + Open Graph + Twitter Card
+	 * sekaligus aktif akan memanggil generate() untuk post yang SAMA
+	 * hingga 3 kali per request tanpa memoization ini
+	 * (CODING_STANDARD.md §13 - "Hindari pemrosesan berulang").
+	 *
+	 * @var array<int, string>
+	 */
+	private array $cache = [];
+
+	/**
 	 * Generate meta description fallback dari sebuah post.
 	 *
 	 * @param \WP_Post $post Post yang akan diekstrak deskripsinya.
 	 * @return string
 	 */
 	public function generate( \WP_Post $post ): string {
+		if ( isset( $this->cache[ $post->ID ] ) ) {
+			return $this->cache[ $post->ID ];
+		}
+
 		$description = $this->get_manual_excerpt( $post );
 
 		if ( '' === $description ) {
 			$description = $this->get_first_paragraph( $post );
 		}
 
-		return $this->trim_to_length( $description, self::MAX_LENGTH );
+		$result = $this->trim_to_length( $description, self::MAX_LENGTH );
+
+		$this->cache[ $post->ID ] = $result;
+
+		return $result;
 	}
 
 	/**

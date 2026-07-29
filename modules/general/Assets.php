@@ -113,6 +113,20 @@ final class Assets {
 	 * @return void
 	 */
 	public function enqueue_editor(): void {
+		// Batasi hanya pada post type yang benar-benar didukung
+		// override (post/page) - tanpa ini, bundle Editor akan
+		// termuat di SETIAP layar Block Editor (termasuk attachment,
+		// Custom Post Type lain, Site Editor/Widgets), padahal
+		// meta key hanya diregistrasikan untuk post/page
+		// (Editor::SUPPORTED_POST_TYPES), melanggar ARCHITECTURE.md
+		// §13 - "Hindari memuat asset secara global apabila hanya
+		// digunakan oleh module tertentu."
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		if ( null === $screen || ! in_array( $screen->post_type, Editor::SUPPORTED_POST_TYPES, true ) ) {
+			return;
+		}
+
 		// CATATAN: @wordpress/scripts menghasilkan output FLAT
 		// (build/editor.js, build/editor.asset.php) untuk entry
 		// bernama "editor" pada webpack.config.js - BUKAN nested

@@ -14,10 +14,18 @@
  * Lihat GENERAL_MODULE_ARCHITECTURE.md §7 untuk alasan pendekatan
  * React + REST dibandingkan form PHP klasik.
  *
+ * Slug menu top-level "Lunar SEO" dimiliki oleh Shared Service
+ * AdminMenu (includes/Services/AdminMenu.php), bukan oleh class ini
+ * secara langsung - agar module lain (Sitemap, Schema, dst) yang
+ * perlu mendaftarkan submenu di bawahnya tidak perlu mengakses class
+ * module General secara langsung (ARCHITECTURE.md §22).
+ *
  * @package Lunar\SEO\Modules\General
  */
 
 namespace Lunar\SEO\Modules\General;
+
+use Lunar\SEO\Services\AdminMenu;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,21 +34,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Admin {
 
 	/**
-	 * Slug halaman menu admin.
-	 *
-	 * Bersifat public agar dapat direferensikan oleh Assets.php
-	 * tanpa menduplikasi string literal (CODING_STANDARD.md §2 - DRY).
-	 *
-	 * @var string
-	 */
-	public const MENU_SLUG = 'lunar-seo-general';
-
-	/**
 	 * ID elemen root untuk di-mount React admin app.
 	 *
 	 * @var string
 	 */
 	private const ROOT_ELEMENT_ID = 'lunar-seo-general-settings-root';
+
+	/**
+	 * Shared service Admin Menu - sumber kebenaran slug menu
+	 * top-level "Lunar SEO".
+	 *
+	 * @var AdminMenu
+	 */
+	private AdminMenu $admin_menu;
 
 	/**
 	 * Hook suffix ASLI yang dikembalikan add_menu_page(), dipakai
@@ -57,6 +63,13 @@ final class Admin {
 	private ?string $hook_suffix = null;
 
 	/**
+	 * @param AdminMenu $admin_menu Shared service Admin Menu.
+	 */
+	public function __construct( AdminMenu $admin_menu ) {
+		$this->admin_menu = $admin_menu;
+	}
+
+	/**
 	 * Inisialisasi - hook registrasi menu ke admin_menu.
 	 *
 	 * @return void
@@ -66,14 +79,7 @@ final class Admin {
 	}
 
 	/**
-	 * Registrasikan menu admin.
-	 *
-	 * Untuk saat ini didaftarkan sebagai menu top-level. Apabila
-	 * module Sitemap/Schema sudah dibangun, pertimbangkan membuat
-	 * parent menu bersama "Lunar SEO" di Shared Services/Admin
-	 * Framework - belum dilakukan sekarang untuk menghindari
-	 * membangun struktur yang belum diperlukan (Minimal Change
-	 * Principle).
+	 * Registrasikan menu top-level "Lunar SEO".
 	 *
 	 * @return void
 	 */
@@ -82,7 +88,7 @@ final class Admin {
 			__( 'Lunar SEO', 'lunar-seo' ),
 			__( 'SEO', 'lunar-seo' ),
 			'manage_options',
-			self::MENU_SLUG,
+			$this->admin_menu->get_top_level_slug(),
 			[ $this, 'render_page' ],
 			'dashicons-search',
 			80

@@ -134,8 +134,8 @@ final class SitemapCache {
 		// save_post juga terpicu untuk setiap revision dan autosave
 		// (berjalan otomatis setiap ~60 detik selama editor terbuka),
 		// bukan hanya publish/update yang disengaja user. Tanpa guard
-		// ini, cache 'authors'/'index'/post-type yang bersangkutan
-		// diinvalidasi jauh lebih sering dari yang perlu.
+		// ini, cache 'authors'/post-type yang bersangkutan diinvalidasi
+		// jauh lebih sering dari yang perlu.
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 			return;
 		}
@@ -152,8 +152,6 @@ final class SitemapCache {
 		if ( 'post' === $post_type ) {
 			$this->delete_entries( 'archives' );
 		}
-
-		$this->delete_entries( 'index' );
 	}
 
 	/**
@@ -167,6 +165,5 @@ final class SitemapCache {
 	 */
 	public function invalidate_for_term( int $term_id, int $tt_id, string $taxonomy ): void {
 		$this->delete_entries( $taxonomy );
-		$this->delete_entries( 'index' );
 	}
 }

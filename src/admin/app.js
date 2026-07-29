@@ -170,7 +170,7 @@ export default function App() {
 					/>
 
 					<div className="lunar-field">
-						<p>
+						<p id="lunar-separator-picker-label">
 							<strong>{ __( 'Title Separator', 'lunar-seo' ) }</strong>
 						</p>
 						<p className="lunar-field__help">
@@ -179,6 +179,7 @@ export default function App() {
 						<TitleSeparatorPicker
 							value={ siteInfo.title_separator || '|' }
 							onChange={ ( value ) => updateSiteInfo( 'title_separator', value ) }
+							labelledBy="lunar-separator-picker-label"
 						/>
 						<p className="lunar-field__preview">
 							{ __( 'Preview', 'lunar-seo' ) }
@@ -335,21 +336,23 @@ export default function App() {
 				</PanelBody>
 
 				<PanelBody title={ __( 'Robots & URL', 'lunar-seo' ) } initialOpen={ false }>
-					<h3>{ __( 'Default Robots Meta', 'lunar-seo' ) }</h3>
+					<h3 id="lunar-robots-meta-label">{ __( 'Default Robots Meta', 'lunar-seo' ) }</h3>
 					<p className="lunar-field__help">
 						{ __(
 							'Choose the default search engine instructions for your site content.',
 							'lunar-seo'
 						) }
 					</p>
-					{ ROBOTS_DIRECTIVES.map( ( directive ) => (
-						<CheckboxControl
-							key={ directive }
-							label={ directive }
-							checked={ defaultRobotsMeta.includes( directive ) }
-							onChange={ () => toggleDefaultRobotsDirective( directive ) }
-						/>
-					) ) }
+					<div role="group" aria-labelledby="lunar-robots-meta-label">
+						{ ROBOTS_DIRECTIVES.map( ( directive ) => (
+							<CheckboxControl
+								key={ directive }
+								label={ directive }
+								checked={ defaultRobotsMeta.includes( directive ) }
+								onChange={ () => toggleDefaultRobotsDirective( directive ) }
+							/>
+						) ) }
+					</div>
 
 					<SelectControl
 						label={ __( 'Default Robots for Archives', 'lunar-seo' ) }

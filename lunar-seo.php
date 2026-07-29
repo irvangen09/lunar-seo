@@ -47,7 +47,7 @@ if ( ! file_exists( $lunar_seo_autoloader ) ) {
 		static function () {
 			printf(
 				'<div class="notice notice-error"><p>%s</p></div>',
-				esc_html__( 'Lunar SEO: Dependency belum terpasang. Jalankan "composer install".', 'lunar-seo' )
+				esc_html__( 'Lunar SEO: Dependencies are not installed. Please run "composer install".', 'lunar-seo' )
 			);
 		}
 	);

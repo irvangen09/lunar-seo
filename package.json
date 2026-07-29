@@ -13,7 +13,6 @@
   "files": [
     "lunar-seo.php",
     "uninstall.php",
-    "README.md",
     "includes",
     "modules",
     "vendor",

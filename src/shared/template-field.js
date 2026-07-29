@@ -100,7 +100,7 @@ export default function TemplateField( { label, help, value, onChange, variables
 			/>
 
 			{ maxLength && (
-				<p className="lunar-field__counter">
+				<p className="lunar-field__counter" aria-live="polite">
 					{ currentValue.length } / { maxLength }
 				</p>
 			) }

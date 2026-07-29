@@ -147,7 +147,13 @@ final class OptionManager {
 		// request untuk render meta tag (lihat GENERAL_MODULE_ARCHITECTURE.md §3.2).
 		$result = update_option( $option_name, $data, true );
 
-		$this->cache[ $module_slug ] = $data;
+		// Cache in-request hanya diperbarui saat penulisan benar-benar
+		// berhasil. Jika update_option() gagal, DB tetap memegang nilai
+		// lama - cache yang tidak diperbarui akan tetap konsisten
+		// dengan kenyataan tersebut untuk sisa request ini.
+		if ( $result ) {
+			$this->cache[ $module_slug ] = $data;
+		}
 
 		return $result;
 	}

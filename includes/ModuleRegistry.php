@@ -12,6 +12,7 @@
 
 namespace Lunar\SEO;
 
+use Lunar\SEO\Services\AdminMenu;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
 
@@ -65,12 +66,25 @@ final class ModuleRegistry {
 	private SiteIdentity $site_identity;
 
 	/**
+	 * Shared service ketiga yang disalurkan SERAGAM ke setiap module,
+	 * sejajar OptionManager/SiteIdentity - slug menu top-level
+	 * "Lunar SEO", dipakai module yang punya halaman Admin (General,
+	 * Sitemap) untuk mendaftarkan menu/submenu tanpa saling
+	 * bergantung langsung satu sama lain (ARCHITECTURE.md §22).
+	 *
+	 * @var AdminMenu
+	 */
+	private AdminMenu $admin_menu;
+
+	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
 	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
+	 * @param AdminMenu     $admin_menu     Shared service Admin Menu.
 	 */
-	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity, AdminMenu $admin_menu ) {
 		$this->option_manager = $option_manager;
 		$this->site_identity  = $site_identity;
+		$this->admin_menu     = $admin_menu;
 	}
 
 	/**
@@ -84,7 +98,7 @@ final class ModuleRegistry {
 				continue;
 			}
 
-			$module = new $module_class( $this->option_manager, $this->site_identity );
+			$module = new $module_class( $this->option_manager, $this->site_identity, $this->admin_menu );
 
 			if ( ! $module instanceof ModuleInterface ) {
 				continue;

@@ -32,9 +32,13 @@ final class Editor {
 	 * memiliki template Post & Page - Categories/Tags dikelola
 	 * lewat term (bukan post meta), sehingga tidak termasuk di sini.
 	 *
+	 * Bersifat public karena juga dipakai Assets.php untuk membatasi
+	 * enqueue asset Editor hanya pada post type yang didukung
+	 * (satu sumber kebenaran, CODING_STANDARD.md §2 - DRY).
+	 *
 	 * @var string[]
 	 */
-	private const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
+	public const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
 
 	/**
 	 * Directive robots yang diizinkan (whitelist), konsisten dengan

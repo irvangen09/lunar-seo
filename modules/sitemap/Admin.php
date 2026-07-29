@@ -7,16 +7,19 @@
  * modules/general/Admin.php.
  *
  * Didaftarkan sebagai SUBMENU di bawah menu top-level "Lunar SEO"
- * yang sudah dibuat module General (bukan menu top-level baru) -
- * menjaga satu titik masuk navigasi yang konsisten untuk seluruh
- * module plugin (DESIGN_SYSTEM.md §14 - Admin Experience).
+ * (slug-nya dimiliki Shared Service AdminMenu, bukan module General
+ * secara langsung - lihat includes/Services/AdminMenu.php) - menjaga
+ * satu titik masuk navigasi yang konsisten untuk seluruh module
+ * plugin (DESIGN_SYSTEM.md §14 - Admin Experience), tanpa module ini
+ * mengakses class module General secara langsung
+ * (ARCHITECTURE.md §22).
  *
  * @package Lunar\SEO\Modules\Sitemap
  */
 
 namespace Lunar\SEO\Modules\Sitemap;
 
-use Lunar\SEO\Modules\General\Admin as GeneralAdmin;
+use Lunar\SEO\Services\AdminMenu;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,17 +28,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Admin {
 
 	/**
-	 * Slug menu parent (menu top-level "Lunar SEO" dari module General).
+	 * Shared service Admin Menu - sumber kebenaran slug menu
+	 * top-level "Lunar SEO" yang menjadi parent submenu ini.
 	 *
-	 * Direferensikan langsung ke GeneralAdmin::MENU_SLUG (bukan
-	 * disalin sebagai string literal terpisah) - supaya kalau slug
-	 * menu General berubah, PHP langsung gagal saat load (constant
-	 * tidak ditemukan) alih-alih submenu ini diam-diam berhenti
-	 * muncul tanpa error apapun.
-	 *
-	 * @var string
+	 * @var AdminMenu
 	 */
-	private const PARENT_MENU_SLUG = GeneralAdmin::MENU_SLUG;
+	private AdminMenu $admin_menu;
 
 	/**
 	 * Slug halaman menu admin.
@@ -60,6 +58,13 @@ final class Admin {
 	private ?string $hook_suffix = null;
 
 	/**
+	 * @param AdminMenu $admin_menu Shared service Admin Menu.
+	 */
+	public function __construct( AdminMenu $admin_menu ) {
+		$this->admin_menu = $admin_menu;
+	}
+
+	/**
 	 * Inisialisasi - hook registrasi menu ke admin_menu.
 	 *
 	 * Prioritas dilebihkan (20) dari registrasi menu top-level di
@@ -79,7 +84,7 @@ final class Admin {
 	 */
 	public function register_menu(): void {
 		$this->hook_suffix = add_submenu_page(
-			self::PARENT_MENU_SLUG,
+			$this->admin_menu->get_top_level_slug(),
 			__( 'Lunar SEO - Sitemap', 'lunar-seo' ),
 			__( 'Sitemap', 'lunar-seo' ),
 			'manage_options',

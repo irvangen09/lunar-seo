@@ -31,6 +31,7 @@ import {
 	ROBOTS_DIRECTIVES,
 	TITLE_MAX_LENGTH,
 	DESCRIPTION_MAX_LENGTH,
+	SUPPORTED_POST_TYPES,
 } from '../constants';
 
 const SIDEBAR_NAME = 'lunar-seo-sidebar';
@@ -44,6 +45,14 @@ export default function Sidebar() {
 	const permalink = useSelect( ( select ) => select( 'core/editor' ).getPermalink(), [] );
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
+
+	// Defense-in-depth: Assets.php sudah membatasi bundle ini agar
+	// hanya termuat di post type yang didukung (post/page) - guard
+	// ini murni jaga-jaga apabila suatu saat bundle tetap termuat
+	// di context lain (attachment, CPT lain, dst).
+	if ( ! SUPPORTED_POST_TYPES.includes( postType ) ) {
+		return null;
+	}
 
 	// meta belum tersedia (misal saat post baru belum tersimpan) -
 	// jangan render form untuk menghindari error pada undefined.
@@ -110,14 +119,16 @@ export default function Sidebar() {
 				</PanelBody>
 
 				<PanelBody title={ __( 'Robots', 'lunar-seo' ) } initialOpen={ false }>
-					{ ROBOTS_DIRECTIVES.map( ( directive ) => (
-						<CheckboxControl
-							key={ directive }
-							label={ directive }
-							checked={ robots.includes( directive ) }
-							onChange={ () => toggleRobotsDirective( directive ) }
-						/>
-					) ) }
+					<div role="group" aria-label={ __( 'Robots', 'lunar-seo' ) }>
+						{ ROBOTS_DIRECTIVES.map( ( directive ) => (
+							<CheckboxControl
+								key={ directive }
+								label={ directive }
+								checked={ robots.includes( directive ) }
+								onChange={ () => toggleRobotsDirective( directive ) }
+							/>
+						) ) }
+					</div>
 				</PanelBody>
 			</PluginSidebar>
 		</>

@@ -81,7 +81,15 @@ function lunar_seo_uninstall_cleanup_site() {
 // setiap site saat dihapus secara network-wide. Single site berjalan
 // seperti biasa lewat cabang else.
 if ( is_multisite() ) {
-	$site_ids = get_sites( array( 'fields' => 'ids' ) );
+	// 'number' => 0 eksplisit (unlimited) - default get_sites() adalah
+	// 100 (WP_Site_Query), yang akan diam-diam melewatkan sebagian
+	// site pada jaringan besar tanpa error apapun.
+	$site_ids = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
 
 	foreach ( $site_ids as $site_id ) {
 		switch_to_blog( $site_id );

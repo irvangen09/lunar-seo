@@ -23,6 +23,7 @@
 namespace Lunar\SEO\Modules\Schema;
 
 use Lunar\SEO\ModuleInterface;
+use Lunar\SEO\Services\AdminMenu;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
 use Lunar\SEO\Modules\Schema\Nodes\ArticleNode;
@@ -66,8 +67,13 @@ final class Module implements ModuleInterface {
 	 *                                      Shared Service yang sama ke semua module),
 	 *                                      TIDAK dipakai module Schema saat ini.
 	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
+	 * @param AdminMenu     $admin_menu     Shared service Admin Menu - diterima agar
+	 *                                      signature konstruktor seragam (pola sama
+	 *                                      dengan $option_manager di atas), TIDAK
+	 *                                      dipakai module Schema saat ini (tidak
+	 *                                      memiliki halaman Admin).
 	 */
-	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity, AdminMenu $admin_menu ) {
 		$this->site_identity = $site_identity;
 	}
 

@@ -18,6 +18,7 @@
 namespace Lunar\SEO\Modules\General;
 
 use Lunar\SEO\ModuleInterface;
+use Lunar\SEO\Services\AdminMenu;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
 
@@ -54,6 +55,15 @@ final class Module implements ModuleInterface {
 	private SiteIdentity $site_identity;
 
 	/**
+	 * Shared service Admin Menu - dipakai Admin.php untuk mendaftarkan
+	 * menu top-level "Lunar SEO" tanpa memiliki slug-nya sendiri
+	 * secara terisolasi (lihat modules/general/Admin.php).
+	 *
+	 * @var AdminMenu
+	 */
+	private AdminMenu $admin_menu;
+
+	/**
 	 * Instance Admin - disimpan sebagai property (bukan variabel
 	 * lokal di boot_admin()) agar dapat dibagikan ke Assets.php,
 	 * yang membutuhkan hook_suffix ASLI dari instance yang SAMA
@@ -66,10 +76,12 @@ final class Module implements ModuleInterface {
 	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
 	 * @param SiteIdentity  $site_identity  Shared service Site Identity.
+	 * @param AdminMenu     $admin_menu     Shared service Admin Menu.
 	 */
-	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity, AdminMenu $admin_menu ) {
 		$this->option_manager = $option_manager;
 		$this->site_identity  = $site_identity;
+		$this->admin_menu     = $admin_menu;
 	}
 
 	/**
@@ -112,7 +124,7 @@ final class Module implements ModuleInterface {
 	 * @return void
 	 */
 	private function boot_admin(): void {
-		$this->admin = new Admin();
+		$this->admin = new Admin( $this->admin_menu );
 		$this->admin->init();
 	}
 

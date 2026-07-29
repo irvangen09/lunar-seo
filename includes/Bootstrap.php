@@ -16,6 +16,7 @@
 
 namespace Lunar\SEO;
 
+use Lunar\SEO\Services\AdminMenu;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
 
@@ -48,11 +49,27 @@ final class Bootstrap {
 	private SiteIdentity $site_identity;
 
 	/**
+	 * Shared service: Admin Menu (slug menu top-level "Lunar SEO"),
+	 * disalurkan seragam ke setiap module lewat Module Registry,
+	 * pola yang sama dengan OptionManager/SiteIdentity.
+	 *
+	 * @var AdminMenu
+	 */
+	private AdminMenu $admin_menu;
+
+	/**
 	 * Module Registry.
 	 *
 	 * @var ModuleRegistry
 	 */
 	private ModuleRegistry $module_registry;
+
+	/**
+	 * Pesan environment check terakhir yang gagal, apabila ada.
+	 *
+	 * @var string|null
+	 */
+	private ?string $environment_error = null;
 
 	/**
 	 * Ambil instance tunggal Bootstrap.
@@ -79,6 +96,7 @@ final class Bootstrap {
 	 */
 	public function run(): void {
 		if ( ! $this->environment_check() ) {
+			$this->show_environment_notice();
 			return;
 		}
 
@@ -114,16 +132,52 @@ final class Bootstrap {
 	 */
 	private function environment_check(): bool {
 		if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
+			$this->environment_error = sprintf(
+				/* translators: %s: minimum required PHP version. */
+				__( 'Lunar SEO requires PHP %s or higher. Please contact your hosting provider to upgrade PHP.', 'lunar-seo' ),
+				'8.0'
+			);
+
 			return false;
 		}
 
 		global $wp_version;
 
 		if ( isset( $wp_version ) && version_compare( $wp_version, '6.9', '<' ) ) {
+			$this->environment_error = sprintf(
+				/* translators: %s: minimum required WordPress version. */
+				__( 'Lunar SEO requires WordPress %s or higher. Please update WordPress.', 'lunar-seo' ),
+				'6.9'
+			);
+
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Tampilkan admin notice ketika environment_check() gagal.
+	 *
+	 * Konsisten dengan pola notice autoloader-missing di
+	 * lunar-seo.php - Fail Gracefully tetap memberi feedback yang
+	 * jelas ke user (CODING_STANDARD.md §11), bukan diam-diam
+	 * tidak melakukan apapun.
+	 *
+	 * @return void
+	 */
+	private function show_environment_notice(): void {
+		$message = $this->environment_error;
+
+		add_action(
+			'admin_notices',
+			static function () use ( $message ) {
+				printf(
+					'<div class="notice notice-error"><p>%s</p></div>',
+					esc_html( (string) $message )
+				);
+			}
+		);
 	}
 
 	/**
@@ -137,6 +191,7 @@ final class Bootstrap {
 	private function register_shared_services(): void {
 		$this->option_manager = new OptionManager();
 		$this->site_identity  = new SiteIdentity( $this->option_manager );
+		$this->admin_menu     = new AdminMenu();
 	}
 
 	/**
@@ -145,7 +200,7 @@ final class Bootstrap {
 	 * @return void
 	 */
 	private function register_modules(): void {
-		$this->module_registry = new ModuleRegistry( $this->option_manager, $this->site_identity );
+		$this->module_registry = new ModuleRegistry( $this->option_manager, $this->site_identity, $this->admin_menu );
 		$this->module_registry->register_active_modules();
 	}
 }

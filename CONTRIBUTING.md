@@ -7,7 +7,7 @@ Thanks for your interest in contributing. This document covers how to set up a d
 Prerequisites: PHP 8.0+, Composer, Node.js (see the `@wordpress/scripts` version in `package.json`), and a local WordPress install (6.9+) for testing.
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/irvangen09/lunar-seo.git
 cd lunar-seo
 
 composer install

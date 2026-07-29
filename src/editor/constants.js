@@ -15,6 +15,14 @@ export const META_KEY_DESCRIPTION = '_lunar_seo_description';
 export const META_KEY_CANONICAL = '_lunar_seo_canonical';
 export const META_KEY_ROBOTS = '_lunar_seo_robots';
 
+// Post type yang didukung override per-post - HARUS sama persis
+// dengan Editor::SUPPORTED_POST_TYPES (PHP). Dipakai sidebar.js/
+// document-panel.js sebagai defense-in-depth: Assets.php sudah
+// membatasi bundle ini agar hanya termuat di post type yang
+// didukung, guard ini murni jaga-jaga apabila suatu saat bundle
+// tetap termuat di context lain.
+export const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
+
 // Variable yang tersedia untuk context post/page (konsisten dengan
 // TitleRenderer.php/MetaRenderer.php).
 export const TITLE_VARIABLES = [ 'title', 'separator', 'site_name', 'tagline' ];

@@ -17,6 +17,7 @@
 namespace Lunar\SEO\Modules\Sitemap;
 
 use Lunar\SEO\ModuleInterface;
+use Lunar\SEO\Services\AdminMenu;
 use Lunar\SEO\Services\OptionManager;
 use Lunar\SEO\Services\SiteIdentity;
 
@@ -52,6 +53,15 @@ final class Module implements ModuleInterface {
 	private Admin $admin;
 
 	/**
+	 * Shared service Admin Menu - dipakai Admin.php untuk mendaftarkan
+	 * submenu di bawah menu top-level "Lunar SEO" tanpa mengakses
+	 * class module General secara langsung (ARCHITECTURE.md §22).
+	 *
+	 * @var AdminMenu
+	 */
+	private AdminMenu $admin_menu;
+
+	/**
 	 * @param OptionManager $option_manager Shared service Option Manager.
 	 * @param SiteIdentity  $site_identity  Shared service Site Identity - diterima
 	 *                                      agar signature konstruktor seragam di
@@ -59,9 +69,11 @@ final class Module implements ModuleInterface {
 	 *                                      Shared Service yang sama ke semua module,
 	 *                                      lihat SCHEMA_MODULE_ARCHITECTURE.md §3),
 	 *                                      TIDAK dipakai module Sitemap saat ini.
+	 * @param AdminMenu     $admin_menu     Shared service Admin Menu.
 	 */
-	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity ) {
+	public function __construct( OptionManager $option_manager, SiteIdentity $site_identity, AdminMenu $admin_menu ) {
 		$this->option_manager = $option_manager;
+		$this->admin_menu     = $admin_menu;
 	}
 
 	/**
@@ -96,7 +108,7 @@ final class Module implements ModuleInterface {
 	 * @return void
 	 */
 	private function boot_admin(): void {
-		$this->admin = new Admin();
+		$this->admin = new Admin( $this->admin_menu );
 		$this->admin->init();
 	}
 

@@ -20,6 +20,7 @@ import {
 	META_KEY_DESCRIPTION,
 	TITLE_MAX_LENGTH,
 	DESCRIPTION_MAX_LENGTH,
+	SUPPORTED_POST_TYPES,
 } from '../constants';
 
 export default function DocumentPanel() {
@@ -30,6 +31,15 @@ export default function DocumentPanel() {
 	);
 
 	const [ meta ] = useEntityProp( 'postType', postType, 'meta' );
+
+	// Defense-in-depth: Assets.php sudah membatasi bundle ini agar
+	// hanya termuat di post type yang didukung (post/page) - guard
+	// ini murni jaga-jaga apabila suatu saat bundle tetap termuat
+	// di context lain (attachment, CPT lain, dst), sama pola dengan
+	// sidebar.js.
+	if ( ! SUPPORTED_POST_TYPES.includes( postType ) ) {
+		return null;
+	}
 
 	// meta belum tersedia (misal saat post baru belum tersimpan) -
 	// jangan render apapun, sama pola dengan sidebar.js.
