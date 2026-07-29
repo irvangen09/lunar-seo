@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-29
+
+Hasil re-audit (regression check) terhadap v1.0.1 — seluruh perbaikan v1.0.1 terverifikasi tanpa regresi. Rilis ini berisi temuan tambahan dari re-audit tersebut.
+
+### Fixed
+
+- Media upload preview images (Site Image, Default Social Image, Default Twitter Image) no longer render at native resolution — previously a selected image at the recommended size (1200×630px) could overflow the settings page horizontally.
+- Excluded Items category checklist (Sitemap) is now height-constrained with scrolling, instead of growing unbounded on sites with many categories.
+- Translated the one remaining Indonesian string (the "Dependencies not installed" admin notice) to English.
+- The plugin now shows a clear admin notice when the PHP or WordPress version requirement isn't met, instead of silently doing nothing.
+- Grouped related checkbox/button controls (Default Robots Meta, per-post Robots override, Title Separator picker) with proper group semantics (`role="group"` + accessible label) for screen readers.
+- The character count indicator (SEO Title/Meta Description fields) is now announced to screen readers as it updates (`aria-live`).
+
+### Changed
+
+- Editor sidebar/document panel assets (General module) are no longer loaded on every Block Editor screen — only on `post`/`page`, the only post types the feature actually supports.
+- Extracted the top-level admin menu slug into a new shared `AdminMenu` service (`includes/Services/AdminMenu.php`), removing a direct dependency of the Sitemap module on the General module's `Admin` class. This supersedes the "references General's menu slug constant directly" note from 1.0.1 — the underlying coupling issue is now fully resolved instead of merely reduced.
+- `OptionManager` no longer updates its in-request cache when a settings write to the database fails.
+- Meta description generation is now memoized per request, avoiding redundant processing when Meta Description, Open Graph, and Twitter Card descriptions are all generated for the same post.
+- `uninstall.php` now explicitly requests an unlimited site list during multisite cleanup, instead of relying on the default 100-site query limit.
+
+### Removed
+
+- Removed dead code in `SitemapCache`: an `'index'` transient key was being deleted on every cache invalidation despite never actually being written anywhere.
+
 ## [1.0.1] - 2026-07-19
 
 ### Security
@@ -47,6 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `uninstall.php` — cleans up all options, post meta, and transients created by the plugin on uninstall.
 - CSS styling for the Settings pages (Admin/Editor) and a friendlier variable placeholder chip UI.
 
-[Unreleased]: ../../compare/1.0.1...HEAD
+[Unreleased]: ../../compare/1.0.2...HEAD
+[1.0.2]: ../../compare/1.0.1...1.0.2
 [1.0.1]: ../../compare/1.0.0...1.0.1
 [1.0.0]: ../../releases/tag/1.0.0
