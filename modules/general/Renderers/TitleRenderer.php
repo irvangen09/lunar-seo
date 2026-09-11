@@ -1,23 +1,11 @@
 <?php
-/**
- * Title Renderer.
- *
- * Meresolusi <title> tag via filter "pre_get_document_title",
- * BUKAN echo manual di wp_head - menghindari konflik dengan tema
- * dan urutan eksekusi WordPress core (lihat catatan pada
- * RendererInterface.php).
- *
- * Belum membaca override per-post (Editor.php belum meregistrasikan
- * post meta-nya) - saat ini murni berdasarkan Global Settings.
- *
- * @package Lunar\SEO\Modules\General\Renderers
- */
 
 namespace Lunar\SEO\Modules\General\Renderers;
 
 use Lunar\SEO\Modules\General\PostMetaKeys;
 use Lunar\SEO\Modules\General\Services\TitleResolver;
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SupportedPostTypes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,51 +13,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class TitleRenderer implements RendererInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'general';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var TitleResolver
-	 */
 	private TitleResolver $title_resolver;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 * @param TitleResolver $title_resolver Service resolusi SEO Title.
-	 */
-	public function __construct( OptionManager $option_manager, TitleResolver $title_resolver ) {
-		$this->option_manager = $option_manager;
-		$this->title_resolver = $title_resolver;
+	private SupportedPostTypes $supported_post_types;
+
+	public function __construct( OptionManager $option_manager, TitleResolver $title_resolver, SupportedPostTypes $supported_post_types ) {
+		$this->option_manager       = $option_manager;
+		$this->title_resolver       = $title_resolver;
+		$this->supported_post_types = $supported_post_types;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function init(): void {
+		// pre_get_document_title, not a manual echo in wp_head - avoids
+		// fighting the theme and WordPress core's own title resolution.
 		add_filter( 'pre_get_document_title', [ $this, 'filter_title' ], 15 );
 	}
 
-	/**
-	 * Callback filter pre_get_document_title.
-	 *
-	 * @param string $title Title default dari WordPress.
-	 * @return string
-	 */
 	public function filter_title( string $title ): string {
 		[ $template, $context_values, $fallback_template ] = $this->resolve_context();
 
 		if ( null === $template ) {
-			// Context tidak dikenali/tidak didukung - biarkan
-			// WordPress menentukan title-nya sendiri.
 			return $title;
 		}
 
@@ -78,59 +45,39 @@ final class TitleRenderer implements RendererInterface {
 		return '' !== $resolved ? $resolved : $title;
 	}
 
-	/**
-	 * Tentukan template, context values, dan fallback template
-	 * berdasarkan halaman yang sedang diakses.
-	 *
-	 * Fallback template WAJIB disuplai secara eksplisit untuk context
-	 * yang tidak memiliki placeholder {title} secara alami (Search,
-	 * 404, Category/Tag) - fallback generik TitleResolver
-	 * ("{title} {separator} {site_name}") akan menyisakan literal
-	 * "{title}" yang tidak ter-resolve apabila dipakai pada context
-	 * tersebut, karena context_values-nya tidak memiliki key 'title'.
-	 *
-	 * @return array{0: string|null, 1: array<string, string>, 2: string}
-	 */
+	// An explicit fallback template is required for contexts without a
+	// natural {title} placeholder (Search, 404, Category/Tag) - the
+	// resolver's generic fallback would otherwise leave a literal
+	// "{title}" unresolved, since context_values has no 'title' key there.
 	private function resolve_context(): array {
 		if ( is_front_page() && ! is_paged() ) {
 			return [
 				$this->get_content_field( 'homepage', 'seo_title' ),
-				// {title} tetap disediakan (memakai get_homepage_title(),
-				// menghormati judul static page apabila ada) untuk
-				// berjaga-jaga kalau admin menulis template custom yang
-				// memakai {title} secara eksplisit.
+				// {title} is still supplied (via get_homepage_title(), which
+				// honours a static page's title if set) in case an admin
+				// writes a custom template that references {title} directly.
 				[ 'title' => $this->title_resolver->get_homepage_title() ],
-				// Fallback KHUSUS Homepage: "{site_name} {separator}
-				// {tagline}" - BUKAN "{title} {separator} {site_name}"
-				// generik. Alasan: pada situs yang Homepage-nya adalah
-				// blog index biasa (bukan static page), {title} tidak
-				// punya nilai alami yang berbeda dari {site_name},
-				// sehingga fallback generik akan menghasilkan nama situs
-				// tertulis dua kali (misal "Lunar WP | Lunar WP").
-				// Fallback ini aman untuk kedua kasus (static page
-				// maupun blog index).
+				// Homepage-specific fallback, not the generic
+				// "{title} {separator} {site_name}": on a blog-index
+				// homepage {title} has no natural value distinct from
+				// {site_name}, so the generic fallback would print the
+				// site name twice (e.g. "Lunar WP | Lunar WP").
 				'{site_name} {separator} {tagline}',
 			];
 		}
 
-		if ( is_singular( 'post' ) ) {
-			$override = $this->get_meta_override( PostMetaKeys::TITLE );
+		if ( is_singular() ) {
+			$content_group = $this->supported_post_types->content_group( (string) get_post_type() );
 
-			return [
-				'' !== $override ? $override : $this->get_content_field( 'post', 'seo_title' ),
-				[ 'title' => get_the_title() ],
-				'',
-			];
-		}
+			if ( null !== $content_group ) {
+				$override = $this->get_meta_override( PostMetaKeys::TITLE );
 
-		if ( is_singular( 'page' ) ) {
-			$override = $this->get_meta_override( PostMetaKeys::TITLE );
-
-			return [
-				'' !== $override ? $override : $this->get_content_field( 'page', 'seo_title' ),
-				[ 'title' => get_the_title() ],
-				'',
-			];
+				return [
+					'' !== $override ? $override : $this->get_content_field( $content_group, 'seo_title' ),
+					[ 'title' => get_the_title() ],
+					'',
+				];
+			}
 		}
 
 		if ( is_search() ) {
@@ -162,12 +109,6 @@ final class TitleRenderer implements RendererInterface {
 		return [ null, [], '' ];
 	}
 
-	/**
-	 * Ambil nilai override post meta untuk post yang sedang tampil.
-	 *
-	 * @param string $meta_key Meta key (lihat PostMetaKeys).
-	 * @return string String kosong apabila tidak diisi.
-	 */
 	private function get_meta_override( string $meta_key ): string {
 		$post_id = get_the_ID();
 
@@ -180,26 +121,12 @@ final class TitleRenderer implements RendererInterface {
 		return is_string( $value ) ? trim( $value ) : '';
 	}
 
-	/**
-	 * Ambil field dari section "content" (homepage/post/page/search/not_found).
-	 *
-	 * @param string $content_type Tipe konten.
-	 * @param string $field        Nama field.
-	 * @return string
-	 */
 	private function get_content_field( string $content_type, string $field ): string {
 		$data = $this->option_manager->get( self::MODULE_SLUG, 'content', $content_type, [] );
 
 		return is_array( $data ) && isset( $data[ $field ] ) ? (string) $data[ $field ] : '';
 	}
 
-	/**
-	 * Ambil field dari section "categories_tags" (categories/tags).
-	 *
-	 * @param string $taxonomy_type Tipe taksonomi.
-	 * @param string $field         Nama field.
-	 * @return string
-	 */
 	private function get_taxonomy_field( string $taxonomy_type, string $field ): string {
 		$data = $this->option_manager->get( self::MODULE_SLUG, 'categories_tags', $taxonomy_type, [] );
 
