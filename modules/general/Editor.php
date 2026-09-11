@@ -1,23 +1,9 @@
 <?php
-/**
- * Editor.
- *
- * Registrasi post meta untuk override per-post (SEO Title, Meta
- * Description, Canonical URL, Robots). Enqueue asset editor menjadi
- * tanggung jawab Assets.php (Single Responsibility).
- *
- * Meta key diawali underscore ("_lunar_seo_...") agar otomatis
- * tersembunyi dari metabox Custom Fields bawaan WordPress (plugin
- * ini menyediakan UI sendiri lewat Gutenberg sidebar), sekaligus
- * tetap ter-expose ke REST API lewat show_in_rest agar dapat diakses
- * React app (GENERAL_MODULE_ARCHITECTURE.md §4).
- *
- * @package Lunar\SEO\Modules\General
- */
 
 namespace Lunar\SEO\Modules\General;
 
 use Lunar\SEO\Services\OptionManager;
+use Lunar\SEO\Services\SupportedPostTypes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,77 +11,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Editor {
 
-	/**
-	 * Post type yang didukung override per-post.
-	 *
-	 * Sesuai scope Content section (Settings/Content.php) yang
-	 * memiliki template Post & Page - Categories/Tags dikelola
-	 * lewat term (bukan post meta), sehingga tidak termasuk di sini.
-	 *
-	 * Bersifat public karena juga dipakai Assets.php untuk membatasi
-	 * enqueue asset Editor hanya pada post type yang didukung
-	 * (satu sumber kebenaran, CODING_STANDARD.md §2 - DRY).
-	 *
-	 * @var string[]
-	 */
-	public const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
-
-	/**
-	 * Directive robots yang diizinkan (whitelist), konsisten dengan
-	 * Settings/RobotsUrl.php. "index"/"follow" sengaja tidak
-	 * termasuk - lihat penjelasan di sana.
-	 *
-	 * @var string[]
-	 */
 	private const ALLOWED_ROBOTS_DIRECTIVES = [ 'noindex', 'nofollow', 'noarchive', 'nosnippet', 'noimageindex' ];
 
-	/**
-	 * Shared service Option Manager - dipakai pada tahap berikutnya
-	 * untuk resolusi nilai fallback/preview.
-	 *
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 */
-	public function __construct( OptionManager $option_manager ) {
-		$this->option_manager = $option_manager;
+	private SupportedPostTypes $supported_post_types;
+
+	public function __construct( OptionManager $option_manager, SupportedPostTypes $supported_post_types ) {
+		$this->option_manager       = $option_manager;
+		$this->supported_post_types = $supported_post_types;
 	}
 
-	/**
-	 * Inisialisasi - hook registrasi post meta.
-	 *
-	 * Enqueue asset editor menjadi tanggung jawab Assets.php
-	 * (Single Responsibility - satu file, satu tanggung jawab),
-	 * bukan Editor.php.
-	 *
-	 * @return void
-	 */
 	public function init(): void {
 		add_action( 'init', [ $this, 'register_meta' ] );
 	}
 
-	/**
-	 * Registrasikan seluruh post meta override untuk tiap post type
-	 * yang didukung.
-	 *
-	 * @return void
-	 */
 	public function register_meta(): void {
-		foreach ( self::SUPPORTED_POST_TYPES as $post_type ) {
+		foreach ( array_keys( $this->supported_post_types->all() ) as $post_type ) {
 			$this->register_meta_for_post_type( $post_type );
 		}
 	}
 
-	/**
-	 * Registrasikan post meta untuk satu post type.
-	 *
-	 * @param string $post_type Post type target.
-	 * @return void
-	 */
 	private function register_meta_for_post_type( string $post_type ): void {
+		// Keys are prefixed with an underscore (see PostMetaKeys), which
+		// WordPress hides from the default Custom Fields metabox while
+		// still exposing them to REST via show_in_rest below.
 		register_post_meta(
 			$post_type,
 			PostMetaKeys::TITLE,
@@ -154,12 +94,6 @@ final class Editor {
 		);
 	}
 
-	/**
-	 * Sanitasi Robots override terhadap whitelist directive.
-	 *
-	 * @param mixed $value Nilai mentah dari REST/editor.
-	 * @return string[]
-	 */
 	public function sanitize_robots_override( $value ): array {
 		if ( ! is_array( $value ) ) {
 			return [];
@@ -170,15 +104,6 @@ final class Editor {
 		);
 	}
 
-	/**
-	 * Auth callback - hanya user yang boleh mengedit post
-	 * bersangkutan yang boleh mengubah meta SEO-nya.
-	 *
-	 * @param bool   $allowed  Status izin default.
-	 * @param string $meta_key Meta key yang diperiksa.
-	 * @param int    $post_id  ID post terkait.
-	 * @return bool
-	 */
 	public function can_edit_meta( bool $allowed, string $meta_key, int $post_id ): bool {
 		return current_user_can( 'edit_post', $post_id );
 	}
