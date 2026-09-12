@@ -2,9 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+### Added
+
+- `lunar_seo_supported_post_types` filter, allowing other plugins to register additional post types for General module SEO title/meta and Schema module Article/WebPage output. Defaults to `post` and `page`; no behavior change for sites where nothing registers into it.
+
+### Changed
+
+- `Editor`, `Assets`, `TitleRenderer`, and `MetaRenderer` (General module), and `ArticleNode` and `WebPageNode` (Schema module), now resolve supported post types through the new filter instead of a hardcoded `post`/`page` list.
+
+## [1.0.2]
+
+Existing release prior to this changelog. Earlier version history is not tracked here.
 
 ## [1.0.2] - 2026-07-29
 
