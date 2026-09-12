@@ -1,48 +1,29 @@
 <?php
-/**
- * WebPage Node.
- *
- * Hanya untuk post type "page" (SCHEMA_MODULE_ARCHITECTURE.md §4,
- * Opsi B dikonfirmasi). Sengaja dibuat generik/minimal (name, url,
- * isPartOf) dibanding ArticleNode - Page bisa berupa halaman apapun
- * (About, Contact, dst) yang belum tentu representasinya sebagai
- * "artikel" (punya headline/author/tanggal terbit dalam pengertian
- * editorial) itu akurat, konsisten dengan prinsip "tidak membuat
- * klaim yang tidak dapat diverifikasi"
- * (LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md §11).
- *
- * "image" tetap disertakan (opsional) - cakupan ImageObject di §0
- * eksplisit berlaku untuk "Post/Page yang punya featured image",
- * bukan hanya Post.
- *
- * @package Lunar\SEO\Modules\Schema\Nodes
- */
 
 namespace Lunar\SEO\Modules\Schema\Nodes;
+
+use Lunar\SEO\Services\SupportedPostTypes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Deliberately generic/minimal (name, url, isPartOf) compared to
+// ArticleNode - a page can be anything (About, Contact, etc.) where
+// headline/author/publish-date framing wouldn't accurately represent it.
 final class WebPageNode implements NodeInterface {
 
-	/**
-	 * @var ImageObjectNode
-	 */
 	private ImageObjectNode $image_object_node;
 
-	/**
-	 * @param ImageObjectNode $image_object_node Helper Primary Image (Tahap 2.6).
-	 */
-	public function __construct( ImageObjectNode $image_object_node ) {
-		$this->image_object_node = $image_object_node;
+	private SupportedPostTypes $supported_post_types;
+
+	public function __construct( ImageObjectNode $image_object_node, SupportedPostTypes $supported_post_types ) {
+		$this->image_object_node    = $image_object_node;
+		$this->supported_post_types = $supported_post_types;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_node(): ?array {
-		if ( ! is_singular( 'page' ) ) {
+		if ( ! is_singular() || 'webpage' !== $this->supported_post_types->schema_node( (string) get_post_type() ) ) {
 			return null;
 		}
 
@@ -71,10 +52,6 @@ final class WebPageNode implements NodeInterface {
 		return $node;
 	}
 
-	/**
-	 * @param \WP_Post $post Page saat ini.
-	 * @return string
-	 */
 	private function get_permalink( \WP_Post $post ): string {
 		$permalink = get_permalink( $post );
 
