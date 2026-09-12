@@ -1,38 +1,42 @@
 # Lunar SEO
 
-A lightweight, modular WordPress SEO plugin. Each module — General, Sitemap, and Schema — works independently, with no required dependency on any other plugin.
+A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards.
 
-## Features
-
-### General
-- SEO title and meta description, built from placeholder-based templates
-- Canonical URLs, robots meta, Open Graph, and Twitter Card output
-- Google, Bing, and Yandex site verification
-- Per-post overrides from the Block Editor sidebar
-
-### Sitemap
-- Automatic XML sitemap covering posts, pages, categories, tags, authors, and any public custom post type or taxonomy
-- Configurable priority and change frequency per content type
-- Cache invalidated automatically when content changes, no manual regeneration needed
-
-### Schema
-- JSON-LD structured data (`@graph`): `WebSite`, `Organization`, `BreadcrumbList`, `Article`/`WebPage`, and featured image data
-- Fully derived from existing site and content data, no configuration required
+Lunar SEO only ships the technical SEO features that are actually needed — a good fit for content-focused websites such as documentation sites, wikis, knowledge bases, and blogs. It is not an "all-in-one" plugin: there's no SEO Score, Readability Analysis, AI Writing, Analytics, or Redirect Manager. A handful of mature features beats a pile of half-finished ones.
 
 ## Requirements
 
-- PHP 8.0 or higher
-- WordPress 6.9 or higher
+| | Minimum |
+|---|---|
+| WordPress | 6.9 |
+| PHP | 8.0 |
 
-## Installation
+## Features
 
-1. Download the latest release, or clone this repository.
-2. Upload the `lunar-seo` folder to `/wp-content/plugins/`.
-3. Activate the plugin from the Plugins screen in WordPress.
+The plugin is built from three independent modules — each can evolve without affecting the others.
+
+### General
+
+- SEO Title & Meta Description (global, with per-post overrides via the Gutenberg sidebar)
+- Canonical URL & Robots Meta
+- Open Graph & Twitter Card
+- Verification for Google Search Console, Bing Webmaster, and Yandex
+- Remove Category/Tag Base from permalinks
+
+### Sitemap
+
+- Automatic XML Sitemap for every content type (posts, pages, categories, tags, authors, custom post types/taxonomies)
+- Updates automatically whenever content is published, edited, or deleted — no manual regeneration needed
+- Content exclusion (Excluded Items) and per-type Priority/Changefreq settings
+
+### Schema
+
+- Automatic structured data (JSON-LD): `WebSite`, `Organization`, `BreadcrumbList`, `Article`/`WebPage`, `ImageObject` (primary image only)
+- Fully derived from data that already exists (title, featured image, category, author, date) — no additional settings to fill in manually
 
 ## Extensibility
 
-By default, only the `post` and `page` post types receive SEO features. Other plugins can register additional post types through a filter:
+By default, only the `post` and `page` post types receive General module SEO title/meta and Schema module structured data. Other plugins can register additional post types through a filter:
 
 ```php
 add_filter( 'lunar_seo_supported_post_types', function ( array $post_types ): array {
@@ -45,18 +49,53 @@ add_filter( 'lunar_seo_supported_post_types', function ( array $post_types ): ar
 } );
 ```
 
-`content_group` determines which General module Content settings apply; `schema_node` determines which Schema module node is generated.
+`content_group` determines which General module Content settings apply; `schema_node` determines whether the post type gets an `Article` or `WebPage` Schema node.
 
-## Development
+## Installation
 
-```bash
-composer install
-npm install
-npm run build
-```
+1. Download the latest release (`.zip`) from the [Releases](../../releases) page, or clone this repository and build it yourself (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+2. Upload it via **Plugins → Add New → Upload Plugin** in wp-admin, or extract it to `/wp-content/plugins/`.
+3. Activate the plugin from the **Plugins** menu.
+4. Open the **Lunar SEO** menu in the admin sidebar to configure General Settings.
+5. Open **Lunar SEO → Sitemap** to configure Sitemap Settings.
+6. The Schema module runs automatically — no additional settings page.
 
-`npm run start` watches JS/CSS while developing. `npm run plugin-zip` produces a distributable zip.
+## FAQ
+
+**Can Lunar SEO be used alongside another SEO plugin?**
+
+Not recommended. Lunar SEO isn't designed to run side-by-side with other SEO plugins that produce similar output (meta tags, sitemaps, structured data), since that risks duplication. Disable the overlapping features on the other plugin, or use only one SEO plugin at a time.
+
+**Is my settings data lost if the plugin is deactivated?**
+
+No. Data is only removed when the plugin is fully deleted (not just deactivated) via the Plugins page. See `uninstall.php` for exactly what gets cleaned up.
+
+**Where can I check the generated XML sitemap?**
+
+Visit `/sitemap.xml` on your site's domain.
+
+## Architecture
+
+Technical architecture documentation for each module (class structure, design decisions, trade-offs) is available under [`docs/architecture/`](docs/architecture/):
+
+- [General](docs/architecture/GENERAL_MODULE_ARCHITECTURE.md)
+- [Sitemap](docs/architecture/SITEMAP_MODULE_ARCHITECTURE.md)
+- [Schema](docs/architecture/SCHEMA_MODULE_ARCHITECTURE.md)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, coding standards, and the pull request workflow.
+
+## Support & Maintenance
+
+See [MAINTENANCE.md](MAINTENANCE.md) for the versioning policy, WordPress/PHP support, and the status of each module.
+
+To report a security vulnerability, do not use public GitHub Issues — follow [SECURITY.md](SECURITY.md) instead.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-GPL-2.0-or-later. See [LICENSE.md](LICENSE.md).
+GPLv2 or later.
