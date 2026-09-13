@@ -2,10 +2,16 @@
 
 **Project:** Lunar SEO
 **Module:** Schema
-**Version:** 1.1 (LOCKED — every 🔶 point has been confirmed)
+**Version:** 1.2 (LOCKED — every 🔶 point has been confirmed; see §0.1 for the 1.2 revision)
 **Status:** LOCKED
 
 > This document defines the technical architecture of the Schema module. It follows the pattern already proven in `GENERAL_MODULE_ARCHITECTURE.md` and `SITEMAP_MODULE_ARCHITECTURE.md`. Scope decisions are sourced from `LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md` and the architecture discussion in that conversation.
+
+---
+
+# 0.1 Revision 1.2 — Article/WebPage Eligibility Generalized
+
+§4 and §5.5 originally hardcoded `ArticleNode` to the `post` post type and `WebPageNode` to the `page` post type (`is_singular('post')` / `is_singular('page')`). This has been generalized behind the `lunar_seo_supported_post_types` filter — see `LUNAR_SEO_WIKI_INTEGRATION_CONTRACT.md` for the full extension point contract. `ArticleNode` now applies to any post type configured with `schema_node => 'article'`, and `WebPageNode` to any post type configured with `schema_node => 'webpage'`. The default configuration still maps `post → article` and `page → webpage`, so the Option B outcome in §4 is unchanged for sites where nothing registers into the filter — only the mechanism is now extensible instead of hardcoded. §4 and §5.5 below are left as originally decided (historical record of Option A vs. B); the generalization is additive on top of that decision, not a reversal of it.
 
 ---
 
@@ -279,7 +285,7 @@ if ( ! empty( $graph['@graph'] ) ) {
 
 **`BreadcrumbListNode`** — for `post`: a chain from the post's primary category (`get_ancestors()` on the first category term, supporting both flat and nested structures) → Home. For `page`: a `get_post_ancestors()` chain (parent pages). Each item: `position`, `name`, `item` (URL). Output only in a singular context.
 
-**`ArticleNode`** (for `post`) / **`WebPageNode`** (for `page`, per 🔶4): `headline` (the post's original title, **not truncated** — Google recommends ≤110 characters but doesn't require it; truncating risks cutting off meaning, so it's left full per `ENGINEERING_PRINCIPLES.md` — avoid over-engineering on assumptions that weren't asked for), `datePublished`/`dateModified` (`post_date`/`post_modified`, ISO 8601 format via `get_post_datetime()`), `author` (`Person`, `name` from `get_the_author_meta('display_name')` — no `url` in Phase 1, not requested), `image` (`@id` → ImageObject if a featured image exists), `publisher` (`@id` → Organization), `isPartOf` (`@id` → WebSite).
+**`ArticleNode`** (for post types configured with `schema_node => 'article'`, `post` by default) / **`WebPageNode`** (for post types configured with `schema_node => 'webpage'`, `page` by default — see §0.1 for how this generalized from the original `post`/`page`-only design in §4): `headline` (the post's original title, **not truncated** — Google recommends ≤110 characters but doesn't require it; truncating risks cutting off meaning, so it's left full per `ENGINEERING_PRINCIPLES.md` — avoid over-engineering on assumptions that weren't asked for), `datePublished`/`dateModified` (`post_date`/`post_modified`, ISO 8601 format via `get_post_datetime()`), `author` (`Person`, `name` from `get_the_author_meta('display_name')` — no `url` in Phase 1, not requested), `image` (`@id` → ImageObject if a featured image exists), `publisher` (`@id` → Organization), `isPartOf` (`@id` → WebSite).
 
 **`ImageObjectNode`** — **not a standalone top-level node**, called internally by `ArticleNode`/`WebPageNode` to build the nested `image` object. Sourced from `get_post_thumbnail_id()` → `wp_get_attachment_image_src( $id, 'full' )` for `url`/`width`/`height`. **No `license`/`creator`/`creditText`/`copyrightNotice` field** at all, per `LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md` §5 (LOCKED in its source document). If a post has no featured image, the parent node's `image` field is skipped — no empty ImageObject is forced in.
 
