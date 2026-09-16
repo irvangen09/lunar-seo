@@ -2,7 +2,7 @@
 
 **Project:** Lunar SEO
 **Module:** General
-**Version:** 1.1
+**Version:** 1.2
 **Status:** LOCKED
 **Document Relationship:** Addendum to `ARCHITECTURE.md` and `PLUGIN_BLUEPRINT.md`. Does not replace them, only clarifies how the global architecture applies specifically to the General module.
 
@@ -28,6 +28,16 @@ This document was previously named `SEO_MODULE_ARCHITECTURE.md` under the **Game
 **No architecture, roadmap, or technical decisions changed** — the full module content (Site Info, Content, Categories & Tags, Social, Verification, Robots & URL, Editor) was fully preserved. The previously separately-planned Breadcrumb module was **removed** from the roadmap; the remaining modules are: **General, Sitemap, Schema**.
 
 **Revision 1.1 (§7.1 correction):** §7.1 previously stated that data is accessed via `/wp/v2/settings` (WordPress's built-in generic REST API). This is **no longer accurate** since a bug was discovered: the generic endpoint fails to save nested object data even though the request appears to succeed. The actual implementation (and the standard pattern for every module since then, including Sitemap) uses a **custom REST route** per module. The §7.1 text was corrected so the document remains an accurate Single Source of Truth — there is no behavior change in the code, purely a documentation sync against the implementation already in production.
+
+---
+
+# 0.1 Revision 1.2 — Renderer Contract Corrected (§6.3)
+
+§6.3 originally specified that each Renderer would expose a single `render(): void` method, with no formal interface — naming consistency alone was judged sufficient. The shipped implementation does not match that, and hasn't for some time: every Renderer implements `RendererInterface`, whose single method is `init(): void`.
+
+The reason the original design didn't survive contact with the code is a real constraint, not drift for its own sake: the Renderers don't all attach to WordPress at the same point. `TitleRenderer` must register on the `pre_get_document_title`/`document_title_parts` filter (§6.2 item 1), which has to be in place before `wp_head` runs at all, while the other four attach to `wp_head` at their own priorities. A single `render(): void` called directly by the orchestrator cannot express that difference — so each Renderer registers its own hook inside `init()`, and the orchestrator stays thin by only calling `init()` on each one, without knowing where any of them attach.
+
+The formal interface earns its place for the same reason: with the orchestrator holding a mixed array of Renderers and calling one method on each, the contract is doing real work rather than being decorative. §6.1 (thin orchestrator), §6.2 (render order), §6.4 (escaping), and §6.5 (skip conditions) are all unaffected. This document had fallen behind the code, not the other way around; §6.3 now describes what actually ships.
 
 ---
 
@@ -188,7 +198,7 @@ Generation is a lightweight string-manipulation operation (no extra database que
 
 ## 6.3 Contract Between Renderers
 
-Each Renderer has one consistent public method (`render(): void`). No formal interface/abstract class unless proven necessary later — naming consistency is enough (`ARCHITECTURE.md` — avoid abstraction that isn't needed yet).
+Each Renderer implements `RendererInterface`, whose single public method is `init(): void`. A Renderer registers its own WordPress hook inside `init()` rather than being called directly by the orchestrator — see §0.1 for why this replaced the original `render(): void` design.
 
 Each Renderer only **consumes** the result of `TitleResolver`/`DescriptionGenerator`/`PlaceholderResolver` (§5) — it never duplicates generation logic.
 
@@ -251,7 +261,7 @@ A Service Locator creates a hidden dependency on global state, conflicting with 
 | 2 | Option Data Model | `wp_options` via the Settings API (1 option per module) + Post Meta for overrides |
 | 3 | Editor Integration | `PluginSidebar` (preview + form) + `PluginDocumentSettingPanel` (optional indicator) |
 | 4 | Auto-generate Service | `Services/`, executed at runtime, meta description = static excerpt |
-| 5 | Frontend Output Renderer | Orchestrator + one Renderer per category, hooked on `wp_head` |
+| 5 | Frontend Output Renderer | Orchestrator + one Renderer per category implementing `RendererInterface::init()` (see §0.1), each registering its own hook |
 | 6 | Admin Settings Page | React app + custom REST route (not `/wp/v2/settings`), consistent with the Editor |
 | 7 | Dependency Injection | Constructor Injection, no Service Locator |
 
