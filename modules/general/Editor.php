@@ -104,6 +104,15 @@ final class Editor {
 		);
 	}
 
+	/**
+	 * Exposes the whitelist to other consumers of the same data contract
+	 * (currently MetaBox, the Classic Editor fallback) so it isn't
+	 * duplicated as a separate literal array.
+	 */
+	public function get_allowed_robots_directives(): array {
+		return self::ALLOWED_ROBOTS_DIRECTIVES;
+	}
+
 	public function can_edit_meta( bool $allowed, string $meta_key, int $post_id ): bool {
 		return current_user_can( 'edit_post', $post_id );
 	}
