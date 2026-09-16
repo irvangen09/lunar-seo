@@ -1,11 +1,9 @@
 /**
- * PluginDocumentSettingPanel - Lunar SEO.
+ * PluginDocumentSettingPanel — Lunar SEO.
  *
- * Indikator status ringkas (quick-glance) di sidebar Document,
- * sejajar dengan panel bawaan WordPress (Categories, Tags, Featured
- * Image). Bukan tempat form lengkap - form lengkap ada di
- * PluginSidebar (lihat sidebar.js), sesuai keputusan Editor
- * Integration Strategy (GENERAL_MODULE_ARCHITECTURE.md §4).
+ * A quick-glance status indicator in the Document sidebar, alongside
+ * WordPress's built-in panels (Categories, Tags, Featured Image). Not
+ * the full form — that lives in PluginSidebar (see sidebar.js).
  *
  * @package Lunar\SEO
  */
@@ -20,7 +18,6 @@ import {
 	META_KEY_DESCRIPTION,
 	TITLE_MAX_LENGTH,
 	DESCRIPTION_MAX_LENGTH,
-	SUPPORTED_POST_TYPES,
 } from '../constants';
 
 export default function DocumentPanel() {
@@ -32,17 +29,8 @@ export default function DocumentPanel() {
 
 	const [ meta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	// Defense-in-depth: Assets.php sudah membatasi bundle ini agar
-	// hanya termuat di post type yang didukung (post/page) - guard
-	// ini murni jaga-jaga apabila suatu saat bundle tetap termuat
-	// di context lain (attachment, CPT lain, dst), sama pola dengan
-	// sidebar.js.
-	if ( ! SUPPORTED_POST_TYPES.includes( postType ) ) {
-		return null;
-	}
-
-	// meta belum tersedia (misal saat post baru belum tersimpan) -
-	// jangan render apapun, sama pola dengan sidebar.js.
+	// Meta isn't available yet (e.g. a new, unsaved post) — render
+	// nothing, same as sidebar.js.
 	if ( ! meta ) {
 		return null;
 	}
@@ -50,10 +38,10 @@ export default function DocumentPanel() {
 	const seoTitle = meta[ META_KEY_TITLE ] || '';
 	const metaDescription = meta[ META_KEY_DESCRIPTION ] || '';
 
-	// SEO Title SELALU resolve ke sesuatu (fallback ke judul post) -
-	// konsisten dengan TitleResolver.php di frontend, sekadar
-	// ditampilkan sebagai quick-glance, bukan preview lengkap (itu
-	// tugas PluginSidebar/Preview.js).
+	// SEO Title always resolves to something (falls back to the post
+	// title), consistent with TitleResolver.php on the frontend — shown
+	// here only as a quick-glance count, not a full preview (that's
+	// PluginSidebar/Preview.js).
 	const resolvedTitleLength = ( seoTitle || postTitle || '' ).length;
 
 	return (
