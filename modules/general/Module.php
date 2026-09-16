@@ -58,7 +58,13 @@ final class Module implements ModuleInterface {
 	}
 
 	private function boot_editor(): void {
-		( new Editor( $this->option_manager, $this->supported_post_types ) )->init();
+		$editor = new Editor( $this->option_manager, $this->supported_post_types );
+		$editor->init();
+
+		// Only ever registers itself where the Block Editor isn't active
+		// for a supported post type (see MetaBox::should_show_on()), so
+		// this never overlaps with the PluginSidebar Editor registers above.
+		( new MetaBox( $editor, $this->supported_post_types ) )->init();
 	}
 
 	private function boot_frontend(): void {
