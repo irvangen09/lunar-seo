@@ -1,14 +1,13 @@
 /**
- * PluginSidebar - Lunar SEO.
+ * PluginSidebar — Lunar SEO.
  *
- * Berisi SEO Preview dan form input (SEO Title, Meta Description,
- * Canonical URL, Robots override), sesuai keputusan Editor
- * Integration Strategy (GENERAL_MODULE_ARCHITECTURE.md §4).
+ * Holds the SEO Preview and the full input form (SEO Title, Meta
+ * Description, Canonical URL, Robots override).
  *
- * Membaca/menulis post meta via useEntityProp - meta key HARUS
- * konsisten dengan yang diregistrasikan di Editor.php/PostMetaKeys.php
- * (PHP). Nilai batas karakter (60/160) hanya sebagai panduan visual
- * bagi penulis, bukan validasi keras.
+ * Reads/writes post meta via useEntityProp — the meta keys must match
+ * what's registered in Editor.php/PostMetaKeys.php (PHP). The character
+ * limits (60/160) are a visual guide for the author only, not hard
+ * validation.
  *
  * @package Lunar\SEO
  */
@@ -31,7 +30,6 @@ import {
 	ROBOTS_DIRECTIVES,
 	TITLE_MAX_LENGTH,
 	DESCRIPTION_MAX_LENGTH,
-	SUPPORTED_POST_TYPES,
 } from '../constants';
 
 const SIDEBAR_NAME = 'lunar-seo-sidebar';
@@ -46,16 +44,8 @@ export default function Sidebar() {
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	// Defense-in-depth: Assets.php sudah membatasi bundle ini agar
-	// hanya termuat di post type yang didukung (post/page) - guard
-	// ini murni jaga-jaga apabila suatu saat bundle tetap termuat
-	// di context lain (attachment, CPT lain, dst).
-	if ( ! SUPPORTED_POST_TYPES.includes( postType ) ) {
-		return null;
-	}
-
-	// meta belum tersedia (misal saat post baru belum tersimpan) -
-	// jangan render form untuk menghindari error pada undefined.
+	// Meta isn't available yet (e.g. a new, unsaved post) — don't render
+	// the form to avoid working with undefined values.
 	if ( ! meta ) {
 		return null;
 	}
