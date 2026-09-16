@@ -2,7 +2,7 @@
 
 **Project:** Lunar SEO
 **Module:** Schema
-**Version:** 1.2 (LOCKED — every 🔶 point has been confirmed; see §0.1 for the 1.2 revision)
+**Version:** 1.3 (LOCKED — every 🔶 point has been confirmed; see §0.1 for the 1.2 revision, §0.2 for the 1.3 revision)
 **Status:** LOCKED
 
 > This document defines the technical architecture of the Schema module. It follows the pattern already proven in `GENERAL_MODULE_ARCHITECTURE.md` and `SITEMAP_MODULE_ARCHITECTURE.md`. Scope decisions are sourced from `LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md` and the architecture discussion in that conversation.
@@ -12,6 +12,12 @@
 # 0.1 Revision 1.2 — Article/WebPage Eligibility Generalized
 
 §4 and §5.5 originally hardcoded `ArticleNode` to the `post` post type and `WebPageNode` to the `page` post type (`is_singular('post')` / `is_singular('page')`). This has been generalized behind the `lunar_seo_supported_post_types` filter — see `LUNAR_SEO_WIKI_INTEGRATION_CONTRACT.md` for the full extension point contract. `ArticleNode` now applies to any post type configured with `schema_node => 'article'`, and `WebPageNode` to any post type configured with `schema_node => 'webpage'`. The default configuration still maps `post → article` and `page → webpage`, so the Option B outcome in §4 is unchanged for sites where nothing registers into the filter — only the mechanism is now extensible instead of hardcoded. §4 and §5.5 below are left as originally decided (historical record of Option A vs. B); the generalization is additive on top of that decision, not a reversal of it.
+
+---
+
+# 0.2 Revision 1.3 — §5.4 Output Flags Corrected (Security)
+
+The `wp_json_encode()` call documented in §5.4 previously included `JSON_UNESCAPED_SLASHES`. That flag has been removed from this document, because none of the values placed into the `@graph` (post `headline`, category/page name via `BreadcrumbListNode`, author display name) are escaped for an HTML context anywhere in the pipeline before reaching this output. Without slash-escaping, a value containing a literal `</script>` sequence — reachable by any user role capable of writing to those fields, such as an Editor with `unfiltered_html` on a single-site install — closes the `<script>` tag early, and the remainder of the page is interpreted as HTML/script by the browser: a stored XSS. `JSON_UNESCAPED_UNICODE` is unaffected and remains safe to use, since it only controls how non-ASCII characters are encoded and never touches the `/` character. The corrected call is `wp_json_encode( $graph, JSON_UNESCAPED_UNICODE )`. This correction was verified against the module's actual shipped implementation, which already uses the corrected flags — this document had fallen behind the code, not the other way around. Anyone extending this pattern to a future node type or another product in the ecosystem should carry the corrected flags forward, not the ones in Revision 1.2 and earlier.
 
 ---
 
@@ -143,16 +149,16 @@ final class SiteIdentity {
     }
 
     /**
-     * Read a field from the NEW location (lunar_seo_site_identity). If
-     * it's empty/never been filled in, fall back to reading from the
-     * OLD location (lunar_seo_general_settings.site_info) - bridging
-     * data users already filled in before SiteIdentity existed,
-     * WITHOUT a migration/copy process that would need a separate
-     * activation hook.
+     * Reads the field from its NEW location (lunar_seo_site_identity).
+     * If empty/never filled in, falls back to reading from the OLD
+     * location (lunar_seo_general_settings.site_info) - bridges data
+     * already filled in by the user before SiteIdentity existed,
+     * WITHOUT a separate migration/copy process that would need its
+     * own activation hook.
      *
-     * Once a user re-saves via the Site Info UI (General), General's
-     * REST handler writes to the NEW location (see §3.5), so this
-     * fallback naturally stops being used for that field.
+     * Once the user saves again via the Site Info UI (General), the
+     * General REST handler writes to the NEW location (see §3.5), so
+     * this fallback naturally stops being used for that field.
      */
     private function get_field( string $key, $default ) {
         $new = get_option( self::OPTION_KEY, [] );
@@ -172,16 +178,16 @@ final class SiteIdentity {
 }
 ```
 
-## 3.5 Changes to the General Module (Minimal Change — 4 points)
+## 3.5 Changes to the General Module (Minimal Change — 4 Points)
 
 | File | Change |
 |---|---|
 | `modules/general/Services/PlaceholderResolver.php` | `get_site_name()`: read via `SiteIdentity::get_website_name()`, not `OptionManager` directly |
-| `modules/general/Renderers/OpenGraphRenderer.php` | Line ~199: `site_image_id` via `SiteIdentity::get_site_image_id()` |
-| `modules/general/Renderers/TwitterCardRenderer.php` | Line ~178: same as above |
-| `modules/general/Settings/Settings.php` | REST *save* handler: the `website_name`/`alternate_website_name`/`site_image_id` fields are now written via `SiteIdentity::set()`, no longer into `lunar_seo_general_settings` |
+| `modules/general/Renderers/OpenGraphRenderer.php` | Around line 199: `site_image_id` via `SiteIdentity::get_site_image_id()` |
+| `modules/general/Renderers/TwitterCardRenderer.php` | Around line 178: same as above |
+| `modules/general/Settings/Settings.php` | REST *save* handler: the `website_name`/`alternate_website_name`/`site_image_id` fields are written via `SiteIdentity::set()`, no longer into `lunar_seo_general_settings` |
 
-**No change** to: `SiteInfo.php` (field schema/sanitization stays exactly the same — only the final *storage destination* differs, sanitization still happens here before being passed to `SiteIdentity`), the React admin app (`src/admin/app.js` — the REST payload shape is unchanged), `Editor.php`, and every other Renderer/Service that doesn't touch `website_name`/`site_image_id`.
+**No change** to: `SiteInfo.php` (the field schema/sanitization stays exactly the same — only the final *storage destination* differs, sanitization still happens here before being passed to `SiteIdentity`), the React admin app (`src/admin/app.js` — the REST payload shape stays the same), `Editor.php`, and every other Renderer/Service that doesn't touch `website_name`/`site_image_id`.
 
 **Constructor Injection**: `PlaceholderResolver`, `OpenGraphRenderer`, `TwitterCardRenderer`, `Settings.php` (General) each receive `SiteIdentity` via the constructor — identical pattern to how `OptionManager` works today, no Service Locator (`GENERAL_MODULE_ARCHITECTURE.md` §8, LOCKED).
 
@@ -270,12 +276,12 @@ $graph = $this->graph_builder->build();
 if ( ! empty( $graph['@graph'] ) ) {
     printf(
         '<script type="application/ld+json">%s</script>' . "\n",
-        wp_json_encode( $graph, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+        wp_json_encode( $graph, JSON_UNESCAPED_UNICODE )
     );
 }
 ```
 
-`wp_json_encode()` (not native `json_encode()`) per `ARCHITECTURE.md` §16 — automatically applies WordPress's security filters. If `@graph` is empty (e.g. on a 404/search page with no applicable schema), **no `<script>` tag is printed at all** — consistent with `ARCHITECTURE.md` §10.
+`wp_json_encode()` (not native `json_encode()`) per `ARCHITECTURE.md` §16 — automatically applies WordPress's security filters. **`JSON_UNESCAPED_SLASHES` is deliberately not used** (see §0.2): none of the field values reaching this output (headline, category/page name, author name) are escaped for an HTML context anywhere earlier in the pipeline, so leaving `/` unescaped would let a value containing a literal `</script>` close the tag early — a stored XSS. `JSON_UNESCAPED_UNICODE` alone is safe to keep, since it only affects non-ASCII character encoding and never touches `/`. If `@graph` is empty (e.g. on a 404/search page with no applicable schema), **no `<script>` tag is printed at all** — consistent with `ARCHITECTURE.md` §10.
 
 ## 5.5 Per-Node Detail
 

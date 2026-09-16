@@ -1,36 +1,28 @@
 /**
- * Konstanta bersama Editor - meta key, batas karakter, variable
- * placeholder, dan whitelist robots directive.
+ * Shared Editor constants — meta keys, character limits, placeholder
+ * variables, and the robots directive whitelist.
  *
- * Dipisah dari sidebar.js supaya document-panel.js (PluginDocumentSettingPanel)
- * dan sidebar.js (PluginSidebar) membaca SATU sumber yang sama - meta
- * key di sini HARUS tetap konsisten dengan PostMetaKeys.php (PHP).
+ * Split out from sidebar.js so document-panel.js (PluginDocumentSettingPanel)
+ * and sidebar.js (PluginSidebar) read from a single source — the meta
+ * keys here must stay in sync with PostMetaKeys.php (PHP).
  *
  * @package Lunar\SEO
  */
 
-// Meta key HARUS sama persis dengan PostMetaKeys.php (PHP).
+// Must match PostMetaKeys.php (PHP) exactly.
 export const META_KEY_TITLE = '_lunar_seo_title';
 export const META_KEY_DESCRIPTION = '_lunar_seo_description';
 export const META_KEY_CANONICAL = '_lunar_seo_canonical';
 export const META_KEY_ROBOTS = '_lunar_seo_robots';
 
-// Post type yang didukung override per-post - HARUS sama persis
-// dengan Editor::SUPPORTED_POST_TYPES (PHP). Dipakai sidebar.js/
-// document-panel.js sebagai defense-in-depth: Assets.php sudah
-// membatasi bundle ini agar hanya termuat di post type yang
-// didukung, guard ini murni jaga-jaga apabila suatu saat bundle
-// tetap termuat di context lain.
-export const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
-
-// Variable yang tersedia untuk context post/page (konsisten dengan
-// TitleRenderer.php/MetaRenderer.php).
+// Placeholder variables available in the post/page context (consistent
+// with TitleRenderer.php/MetaRenderer.php).
 export const TITLE_VARIABLES = [ 'title', 'separator', 'site_name', 'tagline' ];
 export const DESCRIPTION_VARIABLES = [ 'title', 'site_name', 'tagline' ];
 
-// Whitelist directive - konsisten dengan Settings/RobotsUrl.php (PHP).
-// "index"/"follow" sengaja TIDAK termasuk - keduanya perilaku default
-// crawler yang tidak perlu dinyatakan eksplisit (lihat MetaRenderer.php).
+// Directive whitelist — consistent with Settings/RobotsUrl.php (PHP).
+// "index"/"follow" are deliberately excluded — both are the crawler's
+// default behavior and don't need to be stated explicitly (see MetaRenderer.php).
 export const ROBOTS_DIRECTIVES = [ 'noindex', 'nofollow', 'noarchive', 'nosnippet', 'noimageindex' ];
 
 export const TITLE_MAX_LENGTH = 60;
