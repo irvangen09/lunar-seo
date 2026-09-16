@@ -2,10 +2,18 @@
 
 **Project:** Lunar SEO
 **Module:** Sitemap
-**Version:** 1.1 (LOCKED - 3 🔶 points confirmed via live end-to-end testing on stg1.gamestuff.id)
+**Version:** 1.2 (LOCKED - 3 🔶 points confirmed via live end-to-end testing on stg1.gamestuff.id; see §0.1 for the 1.2 documentation correction)
 **Status:** LOCKED
 
 > This document defines the technical architecture of the Sitemap module. It follows the pattern already proven in `GENERAL_MODULE_ARCHITECTURE.md` — sections that are simply pattern reuse are described briefly, while the 3 points that are genuinely new (and carry real trade-offs) are marked 🔶 and have been confirmed through real testing (see §9).
+
+---
+
+# 0.1 Revision 1.2 — Date Archives Documented (§1, §3)
+
+The date-archive sitemap type was present in the code and passing live tests, but was missing from the two most structural parts of this document. §1 listed four Providers and omitted `DateArchiveProvider.php`; §3's URL table had no row for `/archives-sitemap.xml`, even though `Frontend::CORE_TYPE_PREFIXES` has always included an `archives` entry that produces exactly that URL.
+
+This was a documentation gap, not a half-built feature — the rest of the document already covered it: §2's Option Data Model lists an `archives` field in both `priorities` and `changefreq`, and §9 records *"Include Archives — confirmed as assumed (monthly archives, /YYYY/MM/)"* among the scenarios that passed live end-to-end testing. Both sections have now been filled in so the Provider list and the URL table match what ships. No behavior change.
 
 ---
 
@@ -31,7 +39,8 @@ modules/sitemap/
 │   ├── HomepageProvider.php       → Homepage (1 entry)
 │   ├── PostTypeProvider.php       → GENERIC - used for any Posts/Pages/CPT (parametrized by post type slug)
 │   ├── TaxonomyProvider.php       → GENERIC - used for any Categories/Tags/custom taxonomy (parametrized by taxonomy slug)
-│   └── AuthorProvider.php         → Author archive pages
+│   ├── AuthorProvider.php         → Author archive pages
+│   └── DateArchiveProvider.php    → Date-based archive pages (monthly, /YYYY/MM/)
 ├── Frontend.php                   → Orchestrator: rewrite rules + request interception + XML output
 ├── Admin.php                      → Menu + React root container (same pattern as General)
 └── Assets.php                     → Enqueue assets (same pattern as General)
@@ -109,6 +118,7 @@ Per a previous decision — the document is the source of truth, with one gap (A
 | Categories | `/category-sitemap.xml` |
 | Tags | `/tags-sitemap.xml` |
 | Authors | `/authors-sitemap.xml` |
+| Archives | `/archives-sitemap.xml` |
 | Custom Post Type `x` | `/x-sitemap.xml` |
 | Custom Taxonomy `y` | `/y-sitemap.xml` |
 
