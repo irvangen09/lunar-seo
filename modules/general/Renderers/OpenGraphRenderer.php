@@ -2,10 +2,9 @@
 /**
  * Open Graph Renderer.
  *
- * Mencetak og:title, og:description, og:image ke <head>. Renderer
- * ini di-skip sepenuhnya (tidak ada satupun tag dicetak) apabila
- * toggle "Enable Open Graph" nonaktif di Global Settings
- * (ARCHITECTURE.md §10).
+ * Prints og:title, og:description, og:image to <head>. This Renderer
+ * is skipped entirely (no tag printed at all) if the "Enable Open
+ * Graph" toggle is off in Global Settings.
  *
  * @package Lunar\SEO\Modules\General\Renderers
  */
@@ -23,42 +22,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class OpenGraphRenderer implements RendererInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
+	use SocialMetaTrait;
+
 	private const MODULE_SLUG = 'general';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var PlaceholderResolver
-	 */
 	private PlaceholderResolver $placeholder_resolver;
 
-	/**
-	 * @var DescriptionGenerator
-	 */
 	private DescriptionGenerator $description_generator;
 
-	/**
-	 * Shared Service untuk site_image_id (fallback og:image),
-	 * SCHEMA_MODULE_ARCHITECTURE.md §3.
-	 *
-	 * @var SiteIdentity
-	 */
 	private SiteIdentity $site_identity;
 
-	/**
-	 * @param OptionManager        $option_manager         Shared service Option Manager.
-	 * @param PlaceholderResolver  $placeholder_resolver   Service resolusi placeholder.
-	 * @param DescriptionGenerator $description_generator  Service fallback description.
-	 * @param SiteIdentity         $site_identity          Shared service Site Identity.
-	 */
 	public function __construct(
 		OptionManager $option_manager,
 		PlaceholderResolver $placeholder_resolver,
@@ -71,17 +46,12 @@ final class OpenGraphRenderer implements RendererInterface {
 		$this->site_identity         = $site_identity;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function init(): void {
 		add_action( 'wp_head', [ $this, 'output' ], 3 );
 	}
 
 	/**
-	 * Cetak seluruh og: tag, atau skip penuh apabila toggle nonaktif.
-	 *
-	 * @return void
+	 * Prints every og: tag, or skips entirely if the toggle is off.
 	 */
 	public function output(): void {
 		$social = $this->option_manager->get_section( self::MODULE_SLUG, 'social' );
@@ -100,92 +70,14 @@ final class OpenGraphRenderer implements RendererInterface {
 		$this->output_url_tag( 'og:image', $image_url );
 	}
 
-	/**
-	 * Cetak satu og: meta tag, skip apabila value kosong.
-	 *
-	 * @param string $property Nama property og:.
-	 * @param string $value    Nilai konten.
-	 * @return void
-	 */
-	private function output_tag( string $property, string $value ): void {
-		if ( '' === $value ) {
-			return;
-		}
-
-		printf(
-			'<meta property="%s" content="%s" />' . "\n",
-			esc_attr( $property ),
-			esc_attr( $value )
-		);
+	protected function meta_attribute(): string {
+		return 'property';
 	}
 
 	/**
-	 * Cetak satu og: meta tag yang nilainya berupa URL (og:url,
-	 * og:image), skip apabila value kosong.
-	 *
-	 * Dipisah dari output_tag() karena URL butuh esc_url() - bukan
-	 * esc_attr() - agar konsisten dengan escaping sesuai konteks
-	 * (ARCHITECTURE.md §16, CODING_STANDARD.md §12).
-	 *
-	 * @param string $property Nama property og:.
-	 * @param string $url      Nilai URL.
-	 * @return void
-	 */
-	private function output_url_tag( string $property, string $url ): void {
-		if ( '' === $url ) {
-			return;
-		}
-
-		printf(
-			'<meta property="%s" content="%s" />' . "\n",
-			esc_attr( $property ),
-			esc_url( $url )
-		);
-	}
-
-	/**
-	 * Resolusi title halaman saat ini secara sederhana (native
-	 * WordPress), tidak menggunakan template SEO Title agar og:title
-	 * tetap mencerminkan judul asli konten yang dibagikan.
-	 *
-	 * @return string
-	 */
-	private function resolve_title(): string {
-		if ( is_front_page() ) {
-			return $this->placeholder_resolver->get_homepage_title();
-		}
-
-		if ( is_singular() ) {
-			return get_the_title();
-		}
-
-		if ( is_category() || is_tag() ) {
-			return single_term_title( '', false );
-		}
-
-		return '';
-	}
-
-	/**
-	 * Resolusi description halaman saat ini, hanya untuk konten
-	 * singular yang memiliki excerpt/konten (post/page).
-	 *
-	 * @return string
-	 */
-	private function resolve_description(): string {
-		if ( ! is_singular() ) {
-			return '';
-		}
-
-		$post = get_post();
-
-		return $post instanceof \WP_Post ? $this->description_generator->generate( $post ) : '';
-	}
-
-	/**
-	 * Resolusi URL halaman saat ini.
-	 *
-	 * @return string
+	 * Resolves the current page's URL — only relevant to Open Graph
+	 * (og:url); Twitter Card has no equivalent tag, so this stays here
+	 * rather than in the shared trait.
 	 */
 	private function resolve_url(): string {
 		if ( is_front_page() ) {
@@ -202,44 +94,6 @@ final class OpenGraphRenderer implements RendererInterface {
 			$term_link = get_term_link( get_queried_object() );
 
 			return is_wp_error( $term_link ) ? '' : $term_link;
-		}
-
-		return '';
-	}
-
-	/**
-	 * Resolusi URL gambar dengan prioritas: Featured Image post saat
-	 * ini -> Default Social Image (Global Settings) -> Site Image
-	 * (Site Info). Skip apabila tidak ada satupun tersedia.
-	 *
-	 * @param int $default_social_image_id Attachment ID Default Social Image.
-	 * @return string
-	 */
-	private function resolve_image_url( int $default_social_image_id ): string {
-		if ( is_singular() && has_post_thumbnail() ) {
-			$url = get_the_post_thumbnail_url( null, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
-		}
-
-		if ( $default_social_image_id > 0 ) {
-			$url = wp_get_attachment_image_url( $default_social_image_id, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
-		}
-
-		$site_image_id = $this->site_identity->get_site_image_id();
-
-		if ( $site_image_id > 0 ) {
-			$url = wp_get_attachment_image_url( $site_image_id, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
 		}
 
 		return '';
