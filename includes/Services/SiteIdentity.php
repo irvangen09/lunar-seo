@@ -2,15 +2,10 @@
 /**
  * Site Identity.
  *
- * Shared Service untuk data identitas situs (Website Name, Alternate
- * Website Name, Site Image) yang dipakai lebih dari satu module -
- * module General (Site Info, placeholder title, Open Graph/Twitter
- * image fallback) dan module Schema (Organization, WebSite).
- *
- * Dipromosikan dari module General sesuai SCHEMA_MODULE_ARCHITECTURE.md
- * §3, karena data ini terbukti dibutuhkan lebih dari satu module -
- * skenario yang sudah diantisipasi di GENERAL_MODULE_ARCHITECTURE.md
- * §2.3 (ARCHITECTURE.md §11 - Shared Services).
+ * Shared Service for site identity data (Website Name, Alternate
+ * Website Name, Site Image) consumed by more than one module — General
+ * (Site Info, the {site_name} placeholder, Open Graph/Twitter image
+ * fallback) and Schema (Organization, WebSite).
  *
  * @package Lunar\SEO\Services
  */
@@ -23,75 +18,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class SiteIdentity {
 
-	/**
-	 * Nama option penyimpanan lokasi BARU.
-	 *
-	 * @var string
-	 */
 	private const OPTION_KEY = 'lunar_seo_site_identity';
 
-	/**
-	 * Dipakai untuk Fallback Read ke lokasi LAMA
-	 * (lunar_seo_general_settings.site_info), lihat get_field().
-	 *
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @param OptionManager $option_manager Dependency Injection, tanpa Service Locator
-	 *                                      (GENERAL_MODULE_ARCHITECTURE.md §8, LOCKED).
-	 */
 	public function __construct( OptionManager $option_manager ) {
 		$this->option_manager = $option_manager;
 	}
 
-	/**
-	 * Nama situs (Website Name).
-	 *
-	 * Dipakai General untuk placeholder {site_name} dan Schema untuk
-	 * Organization.name / WebSite.name.
-	 *
-	 * @return string
-	 */
 	public function get_website_name(): string {
 		return (string) $this->get_field( 'website_name', '' );
 	}
 
 	/**
-	 * Nama alternatif situs (Alternate Website Name).
-	 *
-	 * Dipakai Schema untuk Organization.alternateName.
-	 *
-	 * @return string
+	 * Same as get_website_name(), but falls back to the site's native
+	 * title (get_bloginfo('name')) when the field has never been filled
+	 * in. Every consumer that needs a display-ready site name (the
+	 * {site_name} placeholder, Schema's WebSite.name/Organization.name)
+	 * should call this instead of re-implementing the same fallback.
 	 */
+	public function get_effective_website_name(): string {
+		$name = $this->get_website_name();
+
+		return '' !== $name ? $name : get_bloginfo( 'name' );
+	}
+
 	public function get_alternate_website_name(): string {
 		return (string) $this->get_field( 'alternate_website_name', '' );
 	}
 
-	/**
-	 * ID attachment gambar situs (Site Image).
-	 *
-	 * Dipakai General untuk fallback og:image/twitter:image, dan
-	 * Schema untuk Organization.logo (nested ImageObject).
-	 *
-	 * @return int
-	 */
 	public function get_site_image_id(): int {
 		return (int) $this->get_field( 'site_image_id', 0 );
 	}
 
-	/**
-	 * Simpan satu/lebih field identitas situs ke lokasi BARU.
-	 *
-	 * Dipanggil oleh REST handler General (Settings.php) saat user
-	 * menyimpan ulang lewat UI Site Info - setelah ini, Fallback Read
-	 * di get_field() otomatis tidak lagi terpakai untuk field yang
-	 * baru disimpan (SCHEMA_MODULE_ARCHITECTURE.md §3.4).
-	 *
-	 * @param array $data Data yang sudah disanitasi oleh pemanggil.
-	 * @return bool
-	 */
 	public function set( array $data ): bool {
 		$current = get_option( self::OPTION_KEY, [] );
 
@@ -99,23 +58,19 @@ final class SiteIdentity {
 			$current = [];
 		}
 
-		// Autoload "yes" - dibaca tiap frontend request untuk render
-		// meta tag/schema (sama alasan dengan pola General/Sitemap).
+		// autoload=yes: read on every frontend request to render meta
+		// tags/schema, same rationale as the General/Sitemap options.
 		return update_option( self::OPTION_KEY, array_merge( $current, $data ), true );
 	}
 
 	/**
-	 * Baca field dari lokasi BARU (lunar_seo_site_identity). Apabila
-	 * kosong/belum pernah diisi, fallback baca dari lokasi LAMA
-	 * (lunar_seo_general_settings.site_info) - menjembatani data yang
-	 * sudah diisi user sebelum SiteIdentity ada, TANPA migration
-	 * routine/hook aktivasi terpisah (disepakati di percakapan: plugin
-	 * masih di staging, biaya migration routine penuh belum sepadan
-	 * saat ini - lihat SCHEMA_MODULE_ARCHITECTURE.md §3.4).
-	 *
-	 * @param string $key     Nama field.
-	 * @param mixed  $default Nilai default apabila tidak ditemukan di kedua lokasi.
-	 * @return mixed
+	 * Reads a field from the NEW storage location. If it's empty/never
+	 * been filled in, falls back to the OLD location
+	 * (lunar_seo_general_settings.site_info) — this bridges data the
+	 * user already filled in before SiteIdentity existed, without a
+	 * separate migration/activation-hook process. Once Settings.php
+	 * (General) saves a field here, this fallback naturally stops being
+	 * used for that field.
 	 */
 	private function get_field( string $key, $default ) {
 		$new = get_option( self::OPTION_KEY, [] );
