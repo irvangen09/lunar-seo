@@ -2,18 +2,15 @@
 /**
  * Twitter Card Renderer.
  *
- * Mencetak twitter:card, twitter:title, twitter:description,
- * twitter:image ke <head>. Renderer ini di-skip sepenuhnya apabila
- * toggle "Enable Twitter Card" nonaktif di Global Settings
- * (ARCHITECTURE.md §10).
+ * Prints twitter:card, twitter:title, twitter:description,
+ * twitter:image to <head>. This Renderer is skipped entirely if the
+ * "Enable Twitter Card" toggle is off in Global Settings.
  *
- * Logic resolusi title/description/image identik dengan
- * OpenGraphRenderer secara konsep, namun sengaja tidak digabung
- * menjadi satu class - keduanya punya sumber pengaturan (toggle +
- * image) yang independen di Global Settings (Enable Open Graph
- * terpisah dari Enable Twitter Card), sehingga tetap dipisah agar
- * salah satu bisa dinonaktifkan tanpa memengaruhi yang lain
- * (Separation of Responsibilities - ARCHITECTURE.md §22).
+ * Shares its title/description/image resolution logic with
+ * OpenGraphRenderer via SocialMetaTrait — each class still reads its
+ * own toggle and Default Image setting independently, so Open Graph
+ * and Twitter Card can be enabled or disabled separately from each
+ * other.
  *
  * @package Lunar\SEO\Modules\General\Renderers
  */
@@ -31,42 +28,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class TwitterCardRenderer implements RendererInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
+	use SocialMetaTrait;
+
 	private const MODULE_SLUG = 'general';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var PlaceholderResolver
-	 */
 	private PlaceholderResolver $placeholder_resolver;
 
-	/**
-	 * @var DescriptionGenerator
-	 */
 	private DescriptionGenerator $description_generator;
 
-	/**
-	 * Shared Service untuk site_image_id (fallback twitter:image),
-	 * SCHEMA_MODULE_ARCHITECTURE.md §3.
-	 *
-	 * @var SiteIdentity
-	 */
 	private SiteIdentity $site_identity;
 
-	/**
-	 * @param OptionManager        $option_manager         Shared service Option Manager.
-	 * @param PlaceholderResolver  $placeholder_resolver   Service resolusi placeholder.
-	 * @param DescriptionGenerator $description_generator  Service fallback description.
-	 * @param SiteIdentity         $site_identity          Shared service Site Identity.
-	 */
 	public function __construct(
 		OptionManager $option_manager,
 		PlaceholderResolver $placeholder_resolver,
@@ -79,17 +52,12 @@ final class TwitterCardRenderer implements RendererInterface {
 		$this->site_identity         = $site_identity;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function init(): void {
 		add_action( 'wp_head', [ $this, 'output' ], 4 );
 	}
 
 	/**
-	 * Cetak seluruh twitter: tag, atau skip penuh apabila toggle nonaktif.
-	 *
-	 * @return void
+	 * Prints every twitter: tag, or skips entirely if the toggle is off.
 	 */
 	public function output(): void {
 		$social  = $this->option_manager->get_section( self::MODULE_SLUG, 'social' );
@@ -107,120 +75,7 @@ final class TwitterCardRenderer implements RendererInterface {
 		$this->output_url_tag( 'twitter:image', $image_url );
 	}
 
-	/**
-	 * Cetak satu twitter: meta tag, skip apabila value kosong.
-	 *
-	 * @param string $name  Nama twitter: meta tag.
-	 * @param string $value Nilai konten.
-	 * @return void
-	 */
-	private function output_tag( string $name, string $value ): void {
-		if ( '' === $value ) {
-			return;
-		}
-
-		printf(
-			'<meta name="%s" content="%s" />' . "\n",
-			esc_attr( $name ),
-			esc_attr( $value )
-		);
-	}
-
-	/**
-	 * Cetak satu twitter: meta tag yang nilainya berupa URL
-	 * (twitter:image), skip apabila value kosong.
-	 *
-	 * Dipisah dari output_tag() karena URL butuh esc_url() - bukan
-	 * esc_attr() - agar konsisten dengan escaping sesuai konteks
-	 * (ARCHITECTURE.md §16, CODING_STANDARD.md §12).
-	 *
-	 * @param string $name Nama twitter: meta tag.
-	 * @param string $url  Nilai URL.
-	 * @return void
-	 */
-	private function output_url_tag( string $name, string $url ): void {
-		if ( '' === $url ) {
-			return;
-		}
-
-		printf(
-			'<meta name="%s" content="%s" />' . "\n",
-			esc_attr( $name ),
-			esc_url( $url )
-		);
-	}
-
-	/**
-	 * Resolusi title halaman saat ini (native WordPress).
-	 *
-	 * @return string
-	 */
-	private function resolve_title(): string {
-		if ( is_front_page() ) {
-			return $this->placeholder_resolver->get_homepage_title();
-		}
-
-		if ( is_singular() ) {
-			return get_the_title();
-		}
-
-		if ( is_category() || is_tag() ) {
-			return single_term_title( '', false );
-		}
-
-		return '';
-	}
-
-	/**
-	 * Resolusi description, hanya untuk konten singular.
-	 *
-	 * @return string
-	 */
-	private function resolve_description(): string {
-		if ( ! is_singular() ) {
-			return '';
-		}
-
-		$post = get_post();
-
-		return $post instanceof \WP_Post ? $this->description_generator->generate( $post ) : '';
-	}
-
-	/**
-	 * Resolusi URL gambar dengan prioritas: Featured Image post saat
-	 * ini -> Default Twitter Image (Global Settings) -> Site Image
-	 * (Site Info).
-	 *
-	 * @param int $default_twitter_image_id Attachment ID Default Twitter Image.
-	 * @return string
-	 */
-	private function resolve_image_url( int $default_twitter_image_id ): string {
-		if ( is_singular() && has_post_thumbnail() ) {
-			$url = get_the_post_thumbnail_url( null, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
-		}
-
-		if ( $default_twitter_image_id > 0 ) {
-			$url = wp_get_attachment_image_url( $default_twitter_image_id, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
-		}
-
-		$site_image_id = $this->site_identity->get_site_image_id();
-
-		if ( $site_image_id > 0 ) {
-			$url = wp_get_attachment_image_url( $site_image_id, 'full' );
-
-			if ( false !== $url ) {
-				return $url;
-			}
-		}
-
-		return '';
+	protected function meta_attribute(): string {
+		return 'name';
 	}
 }
