@@ -2,7 +2,7 @@
 /**
  * Organization Node.
  *
- * Sitewide - output di semua halaman (SCHEMA_MODULE_ARCHITECTURE.md §5.5).
+ * Sitewide — output on every page.
  *
  * @package Lunar\SEO\Modules\Schema\Nodes
  */
@@ -17,14 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class OrganizationNode implements NodeInterface {
 
-	/**
-	 * @var SiteIdentity
-	 */
 	private SiteIdentity $site_identity;
 
-	/**
-	 * @param SiteIdentity $site_identity Shared service Site Identity.
-	 */
 	public function __construct( SiteIdentity $site_identity ) {
 		$this->site_identity = $site_identity;
 	}
@@ -32,14 +26,14 @@ final class OrganizationNode implements NodeInterface {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Organization selalu applicable (tidak pernah null), sama alasan
-	 * dengan WebSiteNode.
+	 * Organization is always applicable (never null), same rationale as
+	 * WebSiteNode.
 	 */
 	public function get_node(): ?array {
 		$node = [
 			'@type' => 'Organization',
 			'@id'   => SchemaId::organization(),
-			'name'  => $this->get_name(),
+			'name'  => $this->site_identity->get_effective_website_name(),
 			'url'   => home_url( '/' ),
 		];
 
@@ -59,33 +53,15 @@ final class OrganizationNode implements NodeInterface {
 	}
 
 	/**
-	 * Nama organisasi, fallback ke Site Title WordPress - konsisten
-	 * dengan WebSiteNode::get_name() (satu sumber "nama situs" yang
-	 * sama dipakai kedua node ini).
+	 * Logo as a nested ImageObject (url, width, height). The "logo"
+	 * field is skipped ENTIRELY (not rendered empty) if site_image_id
+	 * hasn't been filled in, or the attachment is no longer valid (e.g.
+	 * the media was deleted from the Media Library).
 	 *
-	 * @return string
-	 */
-	private function get_name(): string {
-		$name = $this->site_identity->get_website_name();
-
-		return '' !== $name ? $name : get_bloginfo( 'name' );
-	}
-
-	/**
-	 * Logo sebagai nested ImageObject (url, width, height). Field
-	 * "logo" di-skip SELURUHNYA (bukan render kosong) apabila
-	 * site_image_id belum diisi atau attachment sudah tidak valid
-	 * (misal media sudah dihapus dari Media Library) - konsisten pola
-	 * "Kondisi Skip Output" GENERAL_MODULE_ARCHITECTURE.md §6.5.
-	 *
-	 * Tidak ada field license/creator/creditText/copyrightNotice sama
-	 * sekali, sesuai LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md §5
-	 * (LOCKED di dokumen sumbernya) - logo Organization bukan
-	 * screenshot gameplay, tapi prinsip "tidak membuat klaim yang
-	 * tidak dapat diverifikasi" tetap berlaku secara konsisten di
-	 * seluruh module Schema.
-	 *
-	 * @return array<string, mixed>|null
+	 * No license/creator/creditText/copyrightNotice field at all — the
+	 * logo isn't a gameplay screenshot, but the same "don't make claims
+	 * that can't be verified" principle is applied consistently across
+	 * the whole Schema module.
 	 */
 	private function get_logo(): ?array {
 		$site_image_id = $this->site_identity->get_site_image_id();
