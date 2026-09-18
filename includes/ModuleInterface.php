@@ -1,10 +1,9 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap module.
+ * Contract every module must implement.
  *
- * Interface ini sengaja dibuat minimal (bukan abstract class dengan
- * banyak method) untuk menghindari over-engineering sesuai
- * ENGINEERING_PRINCIPLES.md - "Hindari abstraction yang belum diperlukan".
+ * Deliberately minimal (not an abstract class with many methods) to
+ * avoid over-engineering.
  *
  * @package Lunar\SEO
  */
@@ -18,21 +17,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface ModuleInterface {
 
 	/**
-	 * Slug unik module, digunakan sebagai key registrasi dan
-	 * penentu status aktif/nonaktif.
-	 *
-	 * @return string
+	 * The module's unique slug, used as its registration key and to
+	 * determine its active/inactive status.
 	 */
 	public function get_slug(): string;
 
 	/**
-	 * Inisialisasi module.
+	 * Initializes the module.
 	 *
-	 * Dipanggil oleh Module Registry HANYA apabila module berstatus
-	 * aktif. Module yang nonaktif tidak boleh memanggil method ini,
-	 * sehingga tidak memuat asset maupun hook (ARCHITECTURE.md §7).
-	 *
-	 * @return void
+	 * Called by the Module Registry ONLY when the module is active. An
+	 * inactive module never has this called, so it never loads assets
+	 * or hooks either.
 	 */
 	public function init(): void;
 }
