@@ -20,6 +20,18 @@ final class SupportedPostTypes {
 	];
 
 	public function all(): array {
+		/**
+		 * Filters the post types Lunar SEO treats as supported for its
+		 * per-post SEO fields (Editor/MetaBox), Content settings
+		 * section, and Schema node type.
+		 *
+		 * @since Unreleased
+		 *
+		 * @param array $post_types Post type slug => [
+		 *                              'content_group' => 'post'|'page',
+		 *                              'schema_node'   => 'article'|'webpage',
+		 *                          ].
+		 */
 		return apply_filters( 'lunar_seo_supported_post_types', self::DEFAULT );
 	}
 
