@@ -2,12 +2,12 @@
 /**
  * Option Manager.
  *
- * Shared Service untuk mengelola konfigurasi seluruh module secara
- * konsisten menggunakan WordPress Options API (ARCHITECTURE.md §12).
+ * Shared Service that manages every module's configuration
+ * consistently through the WordPress Options API.
  *
- * Pola penyimpanan: 1 option per module, berisi nested array per
- * section, dengan autoload aktif karena dibaca di setiap frontend
- * request untuk keperluan render meta tag.
+ * Storage pattern: one option per module, holding a nested array per
+ * section, with autoload enabled since it's read on every frontend
+ * request to render meta tags.
  *
  * @package Lunar\SEO\Services
  */
@@ -20,40 +20,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class OptionManager {
 
-	/**
-	 * Prefix option sesuai Plugin Blueprint §3.
-	 *
-	 * @var string
-	 */
 	private const OPTION_PREFIX = 'lunar_seo_';
 
 	/**
-	 * Cache data option per module dalam satu request, untuk
-	 * menghindari pemrosesan berulang (CODING_STANDARD.md §13).
+	 * Per-module option data cached within a single request, so the
+	 * same option isn't fetched from the database more than once per
+	 * request.
 	 *
 	 * @var array<string, array>
 	 */
 	private array $cache = [];
 
 	/**
-	 * Bangun nama option untuk sebuah module.
-	 *
-	 * Bersifat public agar dapat dipakai komponen lain (misal
-	 * Settings.php) tanpa menduplikasi logic penamaan (DRY).
-	 *
-	 * @param string $module_slug Slug module, contoh: "general".
-	 * @return string
+	 * Builds a module's option name. Public so other components (e.g.
+	 * Settings.php) can reuse it without duplicating the naming logic.
 	 */
 	public function get_option_name( string $module_slug ): string {
 		return self::OPTION_PREFIX . $module_slug . '_settings';
 	}
 
-	/**
-	 * Ambil seluruh setting milik sebuah module.
-	 *
-	 * @param string $module_slug Slug module.
-	 * @return array
-	 */
 	public function get_all( string $module_slug ): array {
 		if ( isset( $this->cache[ $module_slug ] ) ) {
 			return $this->cache[ $module_slug ];
@@ -71,13 +56,7 @@ final class OptionManager {
 	}
 
 	/**
-	 * Ambil setting satu section pada sebuah module.
-	 *
-	 * Contoh: get_section( 'general', 'site_info' ).
-	 *
-	 * @param string $module_slug Slug module.
-	 * @param string $section     Nama section.
-	 * @return array
+	 * Example: get_section( 'general', 'site_info' ).
 	 */
 	public function get_section( string $module_slug, string $section ): array {
 		$all = $this->get_all( $module_slug );
@@ -87,15 +66,6 @@ final class OptionManager {
 			: [];
 	}
 
-	/**
-	 * Ambil satu field pada section tertentu.
-	 *
-	 * @param string $module_slug Slug module.
-	 * @param string $section     Nama section.
-	 * @param string $field       Nama field.
-	 * @param mixed  $default     Nilai default apabila field tidak ditemukan.
-	 * @return mixed
-	 */
 	public function get( string $module_slug, string $section, string $field, $default = null ) {
 		$section_data = $this->get_section( $module_slug, $section );
 
@@ -103,15 +73,9 @@ final class OptionManager {
 	}
 
 	/**
-	 * Perbarui satu section pada module tanpa mengganggu section lain.
-	 *
-	 * Setiap Settings/*.php pada module hanya mengelola section-nya
-	 * sendiri melalui method ini (ARCHITECTURE.md §8).
-	 *
-	 * @param string $module_slug Slug module.
-	 * @param string $section     Nama section yang diperbarui.
-	 * @param array  $data        Data baru untuk section tersebut (data harus sudah disanitasi oleh pemanggil).
-	 * @return bool
+	 * Updates one section without touching any other section. Every
+	 * Settings/*.php in a module only manages its own section, through
+	 * this method.
 	 */
 	public function update_section( string $module_slug, string $section, array $data ): bool {
 		$all             = $this->get_all( $module_slug );
@@ -121,36 +85,24 @@ final class OptionManager {
 	}
 
 	/**
-	 * Simpan seluruh data module (replace penuh).
-	 *
-	 * Digunakan pada kasus khusus seperti import/reset setting.
-	 *
-	 * @param string $module_slug Slug module.
-	 * @param array  $data        Seluruh data module (data harus sudah disanitasi oleh pemanggil).
-	 * @return bool
+	 * Replaces a module's entire data set. Used for special cases like
+	 * import/reset.
 	 */
 	public function update_all( string $module_slug, array $data ): bool {
 		return $this->persist( $module_slug, $data );
 	}
 
-	/**
-	 * Simpan data ke database dan perbarui cache request.
-	 *
-	 * @param string $module_slug Slug module.
-	 * @param array  $data        Data lengkap yang akan disimpan.
-	 * @return bool
-	 */
 	private function persist( string $module_slug, array $data ): bool {
 		$option_name = $this->get_option_name( $module_slug );
 
-		// Autoload "yes" karena option ini dibaca di setiap frontend
-		// request untuk render meta tag (lihat GENERAL_MODULE_ARCHITECTURE.md §3.2).
+		// autoload=yes: this option is read on every frontend request
+		// to render meta tags.
 		$result = update_option( $option_name, $data, true );
 
-		// Cache in-request hanya diperbarui saat penulisan benar-benar
-		// berhasil. Jika update_option() gagal, DB tetap memegang nilai
-		// lama - cache yang tidak diperbarui akan tetap konsisten
-		// dengan kenyataan tersebut untuk sisa request ini.
+		// The in-request cache is only updated once the write actually
+		// succeeds. If update_option() fails, the DB still holds the
+		// old value — leaving the cache unchanged keeps it consistent
+		// with that for the rest of this request.
 		if ( $result ) {
 			$this->cache[ $module_slug ] = $data;
 		}
