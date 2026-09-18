@@ -2,23 +2,16 @@
 /**
  * Admin.
  *
- * Bertanggung jawab meregistrasikan menu admin dan merender root
- * container untuk React admin app. Data setting diakses oleh JS
- * melalui REST route custom (lunar-seo/v1/general-settings), bukan
- * endpoint generic /wp/v2/settings (endpoint generic tersebut
- * terbukti gagal menyimpan data object bersarang, lihat
- * GENERAL_MODULE_ARCHITECTURE.md §7.1) dan bukan dibaca langsung
- * oleh PHP di sini - sehingga class ini tidak membutuhkan
- * OptionManager (ENGINEERING_PRINCIPLES.md #1 - Write with Purpose).
+ * Registers the admin menu and renders the root container for the
+ * React admin app. Settings data is read by the JS app through the
+ * custom REST route (lunar-seo/v1/general-settings) — not read
+ * directly by PHP here — so this class has no need for OptionManager.
  *
- * Lihat GENERAL_MODULE_ARCHITECTURE.md §7 untuk alasan pendekatan
- * React + REST dibandingkan form PHP klasik.
- *
- * Slug menu top-level "Lunar SEO" dimiliki oleh Shared Service
- * AdminMenu (includes/Services/AdminMenu.php), bukan oleh class ini
- * secara langsung - agar module lain (Sitemap, Schema, dst) yang
- * perlu mendaftarkan submenu di bawahnya tidak perlu mengakses class
- * module General secara langsung (ARCHITECTURE.md §22).
+ * The "Lunar SEO" top-level menu slug is owned by the AdminMenu Shared
+ * Service (includes/Services/AdminMenu.php), not by this class
+ * directly, so other modules (Sitemap, Schema, etc.) that need to
+ * register a submenu under it never have to reach into General's own
+ * class.
  *
  * @package Lunar\SEO\Modules\General
  */
@@ -33,56 +26,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Admin {
 
-	/**
-	 * ID elemen root untuk di-mount React admin app.
-	 *
-	 * @var string
-	 */
 	private const ROOT_ELEMENT_ID = 'lunar-seo-general-settings-root';
 
-	/**
-	 * Shared service Admin Menu - sumber kebenaran slug menu
-	 * top-level "Lunar SEO".
-	 *
-	 * @var AdminMenu
-	 */
 	private AdminMenu $admin_menu;
 
 	/**
-	 * Hook suffix ASLI yang dikembalikan add_menu_page(), dipakai
-	 * Assets.php untuk membatasi enqueue hanya di halaman ini.
+	 * The ACTUAL hook suffix returned by add_menu_page(), used by
+	 * Assets.php to restrict its enqueue to this one page.
 	 *
-	 * Disimpan sebagai nilai asli (bukan ditebak ulang via string
-	 * concatenation) agar tidak ada risiko mismatch format hook
-	 * suffix WordPress (CODING_STANDARD.md #17 - AI Coding Guidelines:
-	 * tidak berasumsi terhadap detail internal WordPress apabila
-	 * WordPress sendiri menyediakan nilai yang pasti).
-	 *
-	 * @var string|null
+	 * Stored as the real returned value (not guessed via string
+	 * concatenation), so there's no risk of a mismatch with
+	 * WordPress's own hook suffix format.
 	 */
 	private ?string $hook_suffix = null;
 
-	/**
-	 * @param AdminMenu $admin_menu Shared service Admin Menu.
-	 */
 	public function __construct( AdminMenu $admin_menu ) {
 		$this->admin_menu = $admin_menu;
 	}
 
-	/**
-	 * Inisialisasi - hook registrasi menu ke admin_menu.
-	 *
-	 * @return void
-	 */
 	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'register_menu' ] );
 	}
 
-	/**
-	 * Registrasikan menu top-level "Lunar SEO".
-	 *
-	 * @return void
-	 */
 	public function register_menu(): void {
 		$this->hook_suffix = add_menu_page(
 			__( 'Lunar SEO', 'lunar-seo' ),
@@ -96,13 +61,9 @@ final class Admin {
 	}
 
 	/**
-	 * Render halaman admin.
-	 *
-	 * Hanya berupa root container kosong - seluruh UI (Site Info,
-	 * Content, Categories & Tags, dst) dirender oleh React app yang
-	 * di-enqueue melalui Assets.php.
-	 *
-	 * @return void
+	 * Just an empty root container — the entire UI (Site Info, Content,
+	 * Categories & Tags, etc.) is rendered by the React app enqueued
+	 * via Assets.php.
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -116,10 +77,7 @@ final class Admin {
 	}
 
 	/**
-	 * Ambil hook suffix ASLI halaman ini (dari add_menu_page()),
-	 * dipakai Assets.php untuk membatasi enqueue.
-	 *
-	 * @return string|null Null apabila admin_menu belum berjalan.
+	 * Null if admin_menu hasn't run yet.
 	 */
 	public function get_hook_suffix(): ?string {
 		return $this->hook_suffix;
