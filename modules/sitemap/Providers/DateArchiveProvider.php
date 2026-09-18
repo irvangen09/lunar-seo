@@ -2,16 +2,15 @@
 /**
  * Date Archive Provider.
  *
- * Menghasilkan entry untuk setiap arsip bulanan yang memiliki
- * minimal satu post terpublish (interpretasi dari toggle
- * "Include archives" pada dokumen - lihat catatan pada Frontend.php
- * soal asumsi ini).
+ * Produces one entry per monthly archive that has at least one
+ * published post. Scoped to the native `post` post type only, and to
+ * monthly granularity (not yearly) — WordPress's own date archive
+ * URLs are monthly (/YYYY/MM/), so that's the natural unit here.
  *
- * Memakai query $wpdb langsung karena tidak ada WordPress API
- * bawaan yang menghasilkan daftar kombinasi tahun/bulan unik secara
- * efisien (wp_get_archives() dirancang untuk output HTML widget,
- * bukan data terstruktur) - pengecualian yang sama seperti pada
- * SitemapCache::flush_all().
+ * Uses a direct $wpdb query because no WordPress API produces the list
+ * of distinct year/month combinations efficiently (wp_get_archives()
+ * is built for HTML widget output, not structured data) — the same
+ * exception as SitemapCache::flush_all().
  *
  * @package Lunar\SEO\Modules\Sitemap\Providers
  */
@@ -26,28 +25,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class DateArchiveProvider implements ProviderInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'sitemap';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 */
 	public function __construct( OptionManager $option_manager ) {
 		$this->option_manager = $option_manager;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_entries(): array {
 		global $wpdb;
 
@@ -57,7 +42,7 @@ final class DateArchiveProvider implements ProviderInterface {
 		$priority         = (float) ( $priorities['archives'] ?? 0.3 );
 		$entry_changefreq = $changefreq['archives'] ?? 'monthly';
 
-		// phpcs:ignore -- Tidak ada parameter dari input pengguna, query statis.
+		// phpcs:ignore -- No user input involved, this is a static query.
 		$months = $wpdb->get_results(
 			"SELECT DISTINCT YEAR(post_date) AS year, MONTH(post_date) AS month
 			FROM {$wpdb->posts}
