@@ -63,6 +63,16 @@ final class ModuleRegistry {
 	}
 
 	private function is_module_active( string $module_slug ): bool {
+		/**
+		 * Filters whether a Lunar SEO module (general, sitemap, schema)
+		 * should be initialized on this request.
+		 *
+		 * @since Unreleased
+		 *
+		 * @param bool   $active      Whether the module is active. Default true.
+		 * @param string $module_slug The module's slug, as returned by its
+		 *                            Module::get_slug().
+		 */
 		return (bool) apply_filters( 'lunar_seo_module_is_active', true, $module_slug );
 	}
 
