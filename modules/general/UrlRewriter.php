@@ -2,16 +2,16 @@
 /**
  * URL Rewriter.
  *
- * Implementasi nyata dari 3 toggle pada Settings/RobotsUrl.php:
- * Remove Category Base, Remove Tag Base, Redirect Attachments to
- * Parent. Berbeda dari Renderers/ (yang hanya mencetak meta tag di
- * <head>), class ini mengubah struktur URL/routing WordPress itu
- * sendiri, sehingga ditempatkan sebagai komponen terpisah, bukan
- * bagian dari Frontend.php.
+ * The actual implementation behind the three toggles in
+ * Settings/RobotsUrl.php: Remove Category Base, Remove Tag Base,
+ * Redirect Attachments to Parent. Unlike Renderers/ (which only print
+ * meta tags into <head>), this class changes WordPress's own
+ * URL/routing structure, so it's kept as a separate component rather
+ * than folded into Frontend.php.
  *
- * Category dan Tag ditangani dengan logic yang identik secara
- * struktural (hanya beda taxonomy), sehingga digabung lewat method
- * privat bersama untuk menghindari duplikasi (CODING_STANDARD.md §2).
+ * Category and Tag are handled with structurally identical logic
+ * (only the taxonomy differs), so they share private helper methods
+ * to avoid duplicating that logic per taxonomy.
  *
  * @package Lunar\SEO\Modules\General
  */
@@ -26,31 +26,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class UrlRewriter {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'general';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 */
 	public function __construct( OptionManager $option_manager ) {
 		$this->option_manager = $option_manager;
 	}
 
 	/**
-	 * Inisialisasi - hook hanya didaftarkan apabila toggle terkait
-	 * aktif (ARCHITECTURE.md §10 - output/perilaku hanya dimuat
-	 * apabila diperlukan).
-	 *
-	 * @return void
+	 * Hooks are only registered for a toggle that's actually enabled.
 	 */
 	public function init(): void {
 		$settings = $this->option_manager->get_section( self::MODULE_SLUG, 'robots_url' );
@@ -80,32 +65,14 @@ final class UrlRewriter {
 	// Category
 	// =========================================================
 
-	/**
-	 * Hapus "/category/" dari URL category yang di-generate WordPress.
-	 *
-	 * @param string $link URL asli.
-	 * @return string
-	 */
 	public function filter_category_link( string $link ): string {
 		return $this->strip_taxonomy_base( $link, $this->get_taxonomy_base( 'category' ) );
 	}
 
-	/**
-	 * Tambahkan rewrite rule agar URL category tanpa base tetap
-	 * ter-routing benar.
-	 *
-	 * @param \WP_Rewrite $wp_rewrite Instance WP_Rewrite.
-	 * @return \WP_Rewrite
-	 */
 	public function add_category_rewrite_rules( \WP_Rewrite $wp_rewrite ): \WP_Rewrite {
 		return $this->add_taxonomy_rewrite_rules( $wp_rewrite, 'category', 'category_name', 'category_redirect' );
 	}
 
-	/**
-	 * Redirect 301 dari URL category lama (dengan base) ke URL baru.
-	 *
-	 * @return void
-	 */
 	public function maybe_redirect_category_base(): void {
 		$this->maybe_redirect_taxonomy_base( 'category_redirect', 'category' );
 	}
@@ -114,32 +81,14 @@ final class UrlRewriter {
 	// Tag
 	// =========================================================
 
-	/**
-	 * Hapus "/tag/" dari URL tag yang di-generate WordPress.
-	 *
-	 * @param string $link URL asli.
-	 * @return string
-	 */
 	public function filter_tag_link( string $link ): string {
 		return $this->strip_taxonomy_base( $link, $this->get_taxonomy_base( 'post_tag' ) );
 	}
 
-	/**
-	 * Tambahkan rewrite rule agar URL tag tanpa base tetap
-	 * ter-routing benar.
-	 *
-	 * @param \WP_Rewrite $wp_rewrite Instance WP_Rewrite.
-	 * @return \WP_Rewrite
-	 */
 	public function add_tag_rewrite_rules( \WP_Rewrite $wp_rewrite ): \WP_Rewrite {
 		return $this->add_taxonomy_rewrite_rules( $wp_rewrite, 'post_tag', 'tag', 'tag_redirect' );
 	}
 
-	/**
-	 * Redirect 301 dari URL tag lama (dengan base) ke URL baru.
-	 *
-	 * @return void
-	 */
 	public function maybe_redirect_tag_base(): void {
 		$this->maybe_redirect_taxonomy_base( 'tag_redirect', 'post_tag' );
 	}
@@ -148,12 +97,6 @@ final class UrlRewriter {
 	// Shared helper (Category & Tag)
 	// =========================================================
 
-	/**
-	 * Daftarkan query var tambahan untuk mekanisme redirect base lama.
-	 *
-	 * @param string[] $vars Daftar query var yang sudah ada.
-	 * @return string[]
-	 */
 	public function add_redirect_query_vars( array $vars ): array {
 		$vars[] = 'category_redirect';
 		$vars[] = 'tag_redirect';
@@ -162,11 +105,8 @@ final class UrlRewriter {
 	}
 
 	/**
-	 * Ambil base taxonomy (category_base/tag_base) dari WordPress,
-	 * fallback ke default bawaan apabila belum diatur.
-	 *
-	 * @param string $taxonomy "category" atau "post_tag".
-	 * @return string
+	 * Reads the taxonomy base (category_base/tag_base) from WordPress,
+	 * falling back to the native default if it was never set.
 	 */
 	private function get_taxonomy_base( string $taxonomy ): string {
 		$option_key = 'category' === $taxonomy ? 'category_base' : 'tag_base';
@@ -178,30 +118,31 @@ final class UrlRewriter {
 	}
 
 	/**
-	 * Hapus segmen base dari URL.
+	 * Removes the base segment from a link.
 	 *
-	 * @param string $link URL asli.
-	 * @param string $base Base yang akan dihapus (tanpa slash).
-	 * @return string
+	 * Only the FIRST "/{base}/" occurrence is removed (via strpos +
+	 * substr_replace), not every occurrence a plain str_replace() would
+	 * catch — a term slug that happens to match the base string
+	 * elsewhere later in the path is left alone.
 	 */
 	private function strip_taxonomy_base( string $link, string $base ): string {
-		return str_replace( '/' . $base . '/', '/', $link );
+		$needle = '/' . $base . '/';
+		$pos    = strpos( $link, $needle );
+
+		if ( false === $pos ) {
+			return $link;
+		}
+
+		return substr_replace( $link, '/', $pos, strlen( $needle ) );
 	}
 
 	/**
-	 * Tambahkan rewrite rule untuk satu taxonomy (category/tag).
+	 * Registers rewrite rules for one taxonomy (category/tag).
 	 *
-	 * Mengikuti pola yang sudah teruji dan umum dipakai untuk
-	 * kebutuhan ini di ekosistem WordPress: daftar ulang seluruh
-	 * term sebagai rewrite rule eksplisit, plus satu rule tambahan
-	 * yang menangkap URL lama (dengan base) untuk diteruskan ke
-	 * mekanisme redirect (bukan 404).
-	 *
-	 * @param \WP_Rewrite $wp_rewrite  Instance WP_Rewrite.
-	 * @param string      $taxonomy    "category" atau "post_tag".
-	 * @param string      $query_var   Query var tujuan ("category_name"/"tag").
-	 * @param string      $redirect_var Query var redirect ("category_redirect"/"tag_redirect").
-	 * @return \WP_Rewrite
+	 * Follows the common, well-tested pattern for this: re-register
+	 * every term as an explicit rewrite rule, plus one extra rule that
+	 * catches the old URL shape (with the base) and routes it to the
+	 * redirect mechanism instead of a 404.
 	 */
 	private function add_taxonomy_rewrite_rules( \WP_Rewrite $wp_rewrite, string $taxonomy, string $query_var, string $redirect_var ): \WP_Rewrite {
 		$rewrite = [];
@@ -224,8 +165,8 @@ final class UrlRewriter {
 
 		$base = $this->get_taxonomy_base( $taxonomy );
 
-		// Tangkap URL lama (dengan base) agar diteruskan ke redirect,
-		// bukan berakhir 404.
+		// Catches the old URL shape (with the base) so it lands on the
+		// redirect handler instead of a 404.
 		$rewrite[ $base . '/(.*)$' ] = 'index.php?' . $redirect_var . '=$matches[1]';
 
 		$wp_rewrite->rules = array_merge( $rewrite, $wp_rewrite->rules );
@@ -233,13 +174,6 @@ final class UrlRewriter {
 		return $wp_rewrite;
 	}
 
-	/**
-	 * Redirect 301 dari URL base lama ke URL baru (tanpa base).
-	 *
-	 * @param string $redirect_query_var Query var redirect ("category_redirect"/"tag_redirect").
-	 * @param string $taxonomy           "category" atau "post_tag".
-	 * @return void
-	 */
 	private function maybe_redirect_taxonomy_base( string $redirect_query_var, string $taxonomy ): void {
 		$path = get_query_var( $redirect_query_var );
 
@@ -269,10 +203,8 @@ final class UrlRewriter {
 	// =========================================================
 
 	/**
-	 * Redirect 301 halaman attachment ke permalink induknya
-	 * (post/page). Skip apabila attachment tidak memiliki induk.
-	 *
-	 * @return void
+	 * Redirects an attachment page to its parent post/page permalink.
+	 * Skipped if the attachment has no parent.
 	 */
 	public function redirect_attachment_to_parent(): void {
 		if ( ! is_attachment() ) {
