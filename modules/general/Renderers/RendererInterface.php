@@ -1,18 +1,18 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap Renderer output frontend.
+ * Contract every frontend output Renderer must implement.
  *
- * Kontrak menggunakan init() (bukan render() yang dipanggil manual
- * dari satu loop wp_head) karena masing-masing kategori output
- * punya titik integrasi WordPress yang berbeda:
- * - Title  -> filter "pre_get_document_title" (harus terdaftar
- *             SEBELUM wp_head, karena WordPress core mencetak tag
- *             <title> di wp_head prioritas 1).
- * - Meta, Open Graph, Twitter Card, Verification -> action "wp_head".
+ * The contract uses init() (not a render() called manually from a
+ * single wp_head loop) because each output category has a different
+ * WordPress integration point:
+ * - Title -> the "pre_get_document_title" filter (must be registered
+ *            BEFORE wp_head, since WordPress core prints the <title>
+ *            tag at wp_head priority 1).
+ * - Meta, Open Graph, Twitter Card, Verification -> the "wp_head" action.
  *
- * Setiap Renderer bertanggung jawab mendaftarkan hook yang sesuai
- * di dalam init()-nya sendiri, bukan disamaratakan oleh orchestrator
- * (Frontend.php).
+ * Each Renderer is responsible for registering its own appropriate
+ * hook inside its own init() — the orchestrator (Frontend.php) doesn't
+ * treat them uniformly.
  *
  * @package Lunar\SEO\Modules\General\Renderers
  */
@@ -26,14 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface RendererInterface {
 
 	/**
-	 * Daftarkan hook WordPress yang sesuai untuk Renderer ini.
+	 * Registers this Renderer's appropriate WordPress hook.
 	 *
-	 * Implementasi wajib melakukan escaping sesuai konteks
-	 * (esc_attr/esc_url) dan early-return apabila kondisi render
-	 * tidak terpenuhi (toggle nonaktif, field kosong, context tidak
-	 * relevan) - tidak mencetak tag kosong.
-	 *
-	 * @return void
+	 * Implementations must escape output for its context
+	 * (esc_attr/esc_url) and return early when the render condition
+	 * isn't met (toggle off, field empty, context not relevant) —
+	 * never print an empty tag.
 	 */
 	public function init(): void;
 }
