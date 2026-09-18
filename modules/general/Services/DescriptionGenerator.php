@@ -2,21 +2,20 @@
 /**
  * Description Generator.
  *
- * Bertanggung jawab menghasilkan Meta Description fallback secara
- * rule-based (BUKAN AI generatif) apabila admin/penulis tidak
- * mengisi Meta Description secara manual.
+ * Generates a rule-based (NOT generative AI) fallback Meta Description
+ * when the admin/author hasn't filled one in manually.
  *
- * Urutan fallback (GENERAL_MODULE_ARCHITECTURE.md §5.2):
- * 1. Excerpt manual WordPress (has_excerpt()).
- * 2. Paragraf pertama konten yang bermakna.
- * 3. Dipotong ±160 karakter tanpa memotong kata di tengah.
+ * Fallback order (GENERAL_MODULE_ARCHITECTURE.md §5.2):
+ * 1. WordPress's manual excerpt (has_excerpt()).
+ * 2. The first meaningful paragraph of the content.
+ * 3. Trimmed to ~160 characters without cutting a word in half.
  *
- * Class ini TIDAK menggunakan PlaceholderResolver - berbeda dengan
- * Meta Description template pada Global Settings (yang mendukung
- * placeholder), fallback ini murni ekstraksi dari konten asli post,
- * bukan template. Deskripsi bersifat statis (sama untuk semua
- * pengunjung) sesuai keputusan pada §5.2 - tidak digenerate secara
- * dinamis per search query pengguna.
+ * This class does NOT use PlaceholderResolver — unlike the Meta
+ * Description template in Global Settings (which supports
+ * placeholders), this fallback is a pure extraction from the post's
+ * own content, not a template. The description is static (the same
+ * for every visitor) per the §5.2 decision — it isn't generated
+ * dynamically per visitor search query.
  *
  * @package Lunar\SEO\Modules\General\Services
  */
@@ -29,32 +28,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class DescriptionGenerator {
 
-	/**
-	 * Panjang maksimum meta description (karakter).
-	 *
-	 * @var int
-	 */
 	private const MAX_LENGTH = 160;
 
 	/**
-	 * Cache hasil generate per post ID dalam satu request - instance
-	 * class ini dibagikan ke MetaRenderer, OpenGraphRenderer, dan
-	 * TwitterCardRenderer (Frontend::register_renderers()), yang pada
-	 * halaman dengan Meta Description + Open Graph + Twitter Card
-	 * sekaligus aktif akan memanggil generate() untuk post yang SAMA
-	 * hingga 3 kali per request tanpa memoization ini
-	 * (CODING_STANDARD.md §13 - "Hindari pemrosesan berulang").
+	 * Per-post-ID cache within a single request. This class's instance
+	 * is shared across MetaRenderer, OpenGraphRenderer, and
+	 * TwitterCardRenderer (Frontend::register_renderers()) — on a page
+	 * with Meta Description + Open Graph + Twitter Card all enabled,
+	 * generate() would otherwise be called for the SAME post up to 3
+	 * times per request.
 	 *
 	 * @var array<int, string>
 	 */
 	private array $cache = [];
 
-	/**
-	 * Generate meta description fallback dari sebuah post.
-	 *
-	 * @param \WP_Post $post Post yang akan diekstrak deskripsinya.
-	 * @return string
-	 */
 	public function generate( \WP_Post $post ): string {
 		if ( isset( $this->cache[ $post->ID ] ) ) {
 			return $this->cache[ $post->ID ];
@@ -73,12 +60,6 @@ final class DescriptionGenerator {
 		return $result;
 	}
 
-	/**
-	 * Ambil excerpt manual WordPress apabila tersedia.
-	 *
-	 * @param \WP_Post $post Post terkait.
-	 * @return string
-	 */
 	private function get_manual_excerpt( \WP_Post $post ): string {
 		if ( ! has_excerpt( $post ) ) {
 			return '';
@@ -88,13 +69,8 @@ final class DescriptionGenerator {
 	}
 
 	/**
-	 * Ambil paragraf pertama konten yang bermakna.
-	 *
-	 * Shortcode dan tag HTML di-strip terlebih dahulu agar tidak
-	 * ikut terpotong di tengah markup.
-	 *
-	 * @param \WP_Post $post Post terkait.
-	 * @return string
+	 * Shortcodes and HTML tags are stripped first so they can't end up
+	 * cut in half by the trim below.
 	 */
 	private function get_first_paragraph( \WP_Post $post ): string {
 		$content = strip_shortcodes( $post->post_content );
@@ -119,18 +95,16 @@ final class DescriptionGenerator {
 	}
 
 	/**
-	 * Potong teks ke panjang maksimum tanpa memotong kata di tengah.
-	 *
-	 * @param string $text       Teks yang akan dipotong.
-	 * @param int    $max_length Panjang maksimum karakter.
-	 * @return string
+	 * Trims text to a maximum length without cutting a word in half.
+	 * Encoding is passed explicitly to mb_strlen()/mb_substr() rather
+	 * than relying on the server's mb_internal_encoding() default.
 	 */
 	private function trim_to_length( string $text, int $max_length ): string {
-		if ( mb_strlen( $text ) <= $max_length ) {
+		if ( mb_strlen( $text, 'UTF-8' ) <= $max_length ) {
 			return $text;
 		}
 
-		$trimmed    = mb_substr( $text, 0, $max_length );
+		$trimmed    = mb_substr( $text, 0, $max_length, 'UTF-8' );
 		$last_space = strrpos( $trimmed, ' ' );
 
 		if ( false !== $last_space ) {
