@@ -2,15 +2,15 @@
 /**
  * Section: Content.
  *
- * Mengelola default SEO Title & Meta Description untuk:
- * Homepage, Post, Page (dengan opsi auto-generate description),
- * serta SEO Title Template untuk Search dan 404 (tanpa description,
- * karena halaman tersebut tidak memiliki konten nyata untuk digenerate).
+ * Manages default SEO Title & Meta Description for: Homepage, Post,
+ * Page (with an auto-generate description option), plus an SEO Title
+ * Template for Search and 404 (no description, since those pages have
+ * no real content to generate one from).
  *
- * CATATAN: Key "404" pada mockup direpresentasikan sebagai
- * "not_found" secara internal, karena PHP secara otomatis mengubah
- * key array numerik ("404") menjadi integer - berpotensi
- * menyebabkan perilaku tak terduga saat encode ke JSON/REST.
+ * NOTE: the "404" key on the mockup is represented internally as
+ * "not_found", because PHP automatically converts a numeric array key
+ * ("404") to an integer — which can cause unexpected behavior when
+ * encoding to JSON/REST.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -23,40 +23,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Content implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'content';
 
-	/**
-	 * Tipe konten yang memiliki SEO Title & Meta Description
-	 * (dengan opsi auto-generate).
-	 *
-	 * @var string[]
-	 */
+	// Content types with both SEO Title & Meta Description (with an
+	// auto-generate option).
 	private const TYPES_WITH_DESCRIPTION = [ 'homepage', 'post', 'page' ];
 
-	/**
-	 * Tipe konten yang hanya memiliki SEO Title Template
-	 * (tidak ada Meta Description - Search & 404 tidak punya
-	 * konten nyata untuk digenerate).
-	 *
-	 * @var string[]
-	 */
+	// Content types with only an SEO Title Template (no Meta
+	// Description — Search & 404 have no real content to generate one
+	// from).
 	private const TYPES_TITLE_ONLY = [ 'search', 'not_found' ];
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		$sanitized = [];
 
@@ -73,12 +54,6 @@ final class Content implements SectionInterface {
 		return $sanitized;
 	}
 
-	/**
-	 * Sanitasi tipe konten yang memiliki SEO Title & Meta Description.
-	 *
-	 * @param array $raw Data mentah satu tipe konten.
-	 * @return array
-	 */
 	private function sanitize_with_description( array $raw ): array {
 		return [
 			'seo_title'                 => isset( $raw['seo_title'] )
@@ -91,12 +66,6 @@ final class Content implements SectionInterface {
 		];
 	}
 
-	/**
-	 * Sanitasi tipe konten yang hanya memiliki SEO Title Template.
-	 *
-	 * @param array $raw Data mentah satu tipe konten.
-	 * @return array
-	 */
 	private function sanitize_title_only( array $raw ): array {
 		return [
 			'seo_title' => isset( $raw['seo_title'] )
