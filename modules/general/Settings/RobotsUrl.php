@@ -2,10 +2,10 @@
 /**
  * Section: Robots & URL.
  *
- * Mengelola Default Robots Meta (whitelist directive), Default
- * Robots untuk Archives & 404 (preset whitelist), serta URL
- * settings (Remove Category Base, Remove Tag Base, Redirect
- * Attachments to Parent).
+ * Manages the Default Robots Meta (directive whitelist), Default
+ * Robots for Archives & 404 (preset whitelist), and URL settings
+ * (Remove Category Base, Remove Tag Base, Redirect Attachments to
+ * Parent).
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -18,54 +18,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class RobotsUrl implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'robots_url';
 
-	/**
-	 * Directive robots meta yang diizinkan (whitelist).
-	 *
-	 * "index"/"follow" SENGAJA TIDAK termasuk - keduanya adalah
-	 * perilaku default crawler yang tidak memiliki representasi
-	 * eksplisit pada robots meta tag (WordPress core "wp_robots()"
-	 * juga tidak pernah mencetak string "index"/"follow" secara
-	 * harfiah). Hanya directive NEGATIF yang benar-benar berarti
-	 * sesuatu untuk dicetak.
-	 *
-	 * @var string[]
-	 */
+	// "index"/"follow" are DELIBERATELY NOT included — both are the
+	// crawler's default behavior with no explicit representation in a
+	// robots meta tag (WordPress core's own wp_robots() never prints
+	// the literal string "index"/"follow" either). Only the NEGATIVE
+	// directives actually mean something worth printing.
 	private const ALLOWED_ROBOTS_DIRECTIVES = [ 'noindex', 'nofollow', 'noarchive', 'nosnippet', 'noimageindex' ];
 
-	/**
-	 * Default directive apabila option belum pernah diisi sama
-	 * sekali. Array kosong = tidak ada restriksi (index+follow,
-	 * perilaku default WordPress/crawler).
-	 *
-	 * @var string[]
-	 */
+	// Default when the option has never been filled in at all. An
+	// empty array = no restriction (index+follow, WordPress/crawler's
+	// default behavior).
 	private const DEFAULT_ROBOTS_DIRECTIVES = [];
 
-	/**
-	 * Preset dropdown untuk Robots Archives & 404 (whitelist).
-	 * "default" berarti mengikuti Default Robots Meta di atasnya.
-	 *
-	 * @var string[]
-	 */
+	// "default" means follow the Default Robots Meta above it.
 	private const ALLOWED_ROBOTS_PRESETS = [ 'default', 'index_follow', 'noindex_follow', 'noindex_nofollow' ];
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		return [
 			'default_robots_meta' => $this->sanitize_directives( $input['default_robots_meta'] ?? [] ),
@@ -78,15 +51,10 @@ final class RobotsUrl implements SectionInterface {
 	}
 
 	/**
-	 * Sanitasi daftar directive robots meta terhadap whitelist.
-	 *
-	 * Array kosong adalah PILIHAN SAH (admin sengaja uncheck seluruh
-	 * directive), bukan indikasi input tidak valid - hanya fallback
-	 * ke default apabila $value bukan array sama sekali (option
-	 * belum pernah diisi/rusak).
-	 *
-	 * @param mixed $value Nilai mentah dari input.
-	 * @return string[]
+	 * An empty array is a VALID CHOICE (the admin deliberately
+	 * unchecked every directive), not a sign of invalid input — this
+	 * only falls back to the default when $value isn't an array at all
+	 * (option never filled in, or corrupted).
 	 */
 	private function sanitize_directives( $value ): array {
 		if ( ! is_array( $value ) ) {
@@ -98,13 +66,6 @@ final class RobotsUrl implements SectionInterface {
 		);
 	}
 
-	/**
-	 * Sanitasi preset dropdown Robots (Archives/404) terhadap whitelist.
-	 *
-	 * @param mixed  $value           Nilai mentah dari input.
-	 * @param string $default_preset  Preset default apabila nilai tidak valid.
-	 * @return string
-	 */
 	private function sanitize_preset( $value, string $default_preset ): string {
 		if ( ! is_string( $value ) ) {
 			return $default_preset;
