@@ -1,18 +1,18 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap Schema Node.
+ * Contract every Schema Node must implement.
  *
- * Sengaja dibuat minimal (satu method) untuk menghindari
- * over-engineering (ENGINEERING_PRINCIPLES.md - "Hindari abstraction
- * yang belum diperlukan"), mengikuti pola ModuleInterface/
- * RendererInterface/ProviderInterface yang sudah terbukti di module
- * General dan Sitemap.
+ * Deliberately minimal (one method) to avoid over-engineering,
+ * following the same proven pattern as ModuleInterface/
+ * RendererInterface/ProviderInterface in the General and Sitemap
+ * modules.
  *
- * Setiap Node MENENTUKAN SENDIRI apakah dirinya applicable pada
- * context saat ini (misal ArticleNode hanya applicable pada
- * is_singular('post')) - SchemaGraphBuilder (orchestrator) tidak
- * perlu tahu logic per-type, murni agregator
- * (SCHEMA_MODULE_ARCHITECTURE.md §5.3).
+ * Each Node DECIDES FOR ITSELF whether it's applicable in the current
+ * context (e.g. ArticleNode is only applicable for a post type
+ * configured as its 'article' schema_node via
+ * lunar_seo_supported_post_types) — SchemaGraphBuilder (the
+ * orchestrator) doesn't need to know any per-type logic, it's a pure
+ * aggregator.
  *
  * @package Lunar\SEO\Modules\Schema\Nodes
  */
@@ -26,11 +26,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface NodeInterface {
 
 	/**
-	 * Hasilkan array node JSON-LD siap masuk ke dalam "@graph", atau
-	 * null apabila node ini tidak applicable pada context saat ini
-	 * (bukan render array kosong - SCHEMA_MODULE_ARCHITECTURE.md §5.4,
-	 * konsisten dengan ARCHITECTURE.md §10 - "Output frontend hanya
-	 * dimuat apabila diperlukan").
+	 * Produces a JSON-LD node array ready to go into the "@graph", or
+	 * null if this node isn't applicable in the current context (not
+	 * an empty array — a null result means the parent skips this node
+	 * entirely).
 	 *
 	 * @return array<string, mixed>|null
 	 */
