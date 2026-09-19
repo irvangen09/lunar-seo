@@ -2,9 +2,9 @@
 /**
  * Frontend Schema.
  *
- * Orchestrator tipis - hook ke wp_head, panggil SchemaGraphBuilder,
- * output <script type="application/ld+json"> (SCHEMA_MODULE_ARCHITECTURE.md §5.4).
- * Pola sama dengan Frontend.php General/Sitemap.
+ * Thin orchestrator — hooks wp_head, calls SchemaGraphBuilder, outputs
+ * <script type="application/ld+json">. Same pattern as
+ * Frontend.php in General/Sitemap.
  *
  * @package Lunar\SEO\Modules\Schema
  */
@@ -19,36 +19,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Frontend {
 
-	/**
-	 * @var SchemaGraphBuilder
-	 */
 	private SchemaGraphBuilder $graph_builder;
 
-	/**
-	 * @param SchemaGraphBuilder $graph_builder Perakit @graph JSON-LD.
-	 */
 	public function __construct( SchemaGraphBuilder $graph_builder ) {
 		$this->graph_builder = $graph_builder;
 	}
 
-	/**
-	 * @return void
-	 */
 	public function init(): void {
 		add_action( 'wp_head', [ $this, 'render' ] );
 	}
 
 	/**
-	 * Output script JSON-LD.
-	 *
-	 * Kalau "@graph" kosong (misal halaman 404/search yang tidak
-	 * relevan schema apapun - WebSite/Organization SELALU applicable
-	 * jadi @graph praktis tidak akan pernah benar-benar kosong,
-	 * pengecekan ini tetap dipertahankan sebagai defense-in-depth),
-	 * TIDAK ADA <script> yang dicetak sama sekali - konsisten
-	 * ARCHITECTURE.md §10.
-	 *
-	 * @return void
+	 * If "@graph" is empty (e.g. a 404/search page with no applicable
+	 * schema — WebSite/Organization are ALWAYS applicable so @graph is
+	 * practically never truly empty in normal operation, this check is
+	 * still kept as defense-in-depth), NO <script> is printed at all.
 	 */
 	public function render(): void {
 		$graph = $this->graph_builder->build();
@@ -58,21 +43,23 @@ final class Frontend {
 		}
 
 		/*
-		 * CATATAN KEAMANAN: JANGAN tambahkan JSON_UNESCAPED_SLASHES di sini.
+		 * SECURITY NOTE: DO NOT add JSON_UNESCAPED_SLASHES here.
 		 *
-		 * Secara default, json_encode()/wp_json_encode() meng-escape setiap
-		 * karakter "/" menjadi "\/". Ini bukan sekadar gaya penulisan -
-		 * escaping ini mencegah urutan karakter "</script>" muncul utuh
-		 * di dalam JSON yang ditanam ke tag <script> ini. Nilai seperti
-		 * headline (ArticleNode/WebPageNode), nama kategori/page
-		 * (BreadcrumbListNode), atau nama author TIDAK di-escape untuk
-		 * konteks HTML di layer manapun sebelum sampai sini - kalau ada
-		 * yang mengandung literal "</script>" (mis. role Editor yang
-		 * secara default punya capability unfiltered_html di WP
-		 * single-site), tag <script> ini akan tertutup prematur dan
-		 * markup/script apa pun sesudahnya akan dieksekusi browser
-		 * sebagai HTML/JS nyata (stored XSS). JSON_UNESCAPED_UNICODE
-		 * aman dipertahankan - tidak menyentuh karakter "/".
+		 * By default, json_encode()/wp_json_encode() escapes every "/"
+		 * character to "\/". This isn't just a stylistic choice — that
+		 * escaping is what prevents the literal character sequence
+		 * "</script>" from ever appearing intact inside the JSON
+		 * embedded in this <script> tag. Values such as headline
+		 * (ArticleNode/WebPageNode), category/page name
+		 * (BreadcrumbListNode), or author name are NOT escaped for an
+		 * HTML context at any earlier layer before reaching here — if
+		 * one of them contains a literal "</script>" (e.g. from an
+		 * Editor role, which by default has the unfiltered_html
+		 * capability on a WP single-site install), this <script> tag
+		 * would close prematurely, and whatever markup/script follows
+		 * it would be executed by the browser as real HTML/JS (a
+		 * stored XSS). JSON_UNESCAPED_UNICODE is safe to keep — it
+		 * doesn't touch the "/" character.
 		 */
 		printf(
 			'<script type="application/ld+json">%s</script>' . "\n",
