@@ -2,17 +2,16 @@
 /**
  * Section: Site Info.
  *
- * Mengelola field: Website Name, Alternate Website Name,
- * Title Separator, Site Image.
+ * Manages: Website Name, Alternate Website Name, Title Separator,
+ * Site Image.
  *
- * CATATAN PENTING: Field "Tagline" pada mockup TIDAK disimpan di
- * section ini. Tagline diproxy langsung ke setting native
- * WordPress (get_bloginfo('description') / opsi core
- * "blogdescription"), yang sudah otomatis ter-expose lewat REST
- * endpoint bawaan WordPress (/wp/v2/settings, field "description")
- * tanpa perlu kode tambahan. Ini menghindari duplikasi data antara
- * setting kita dan setting native WordPress
- * (ENGINEERING_PRINCIPLES.md #7 - WordPress Native).
+ * IMPORTANT: the "Tagline" field on the mockup is NOT stored in this
+ * section. Tagline is proxied directly to WordPress's own native
+ * setting (get_bloginfo('description') / the core "blogdescription"
+ * option), which is already automatically exposed through WordPress's
+ * built-in REST endpoint (/wp/v2/settings, "description" field) with
+ * no extra code needed. This avoids duplicating data between our
+ * setting and WordPress's native one.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -25,39 +24,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class SiteInfo implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'site_info';
 
-	/**
-	 * Daftar karakter separator yang diizinkan, sesuai pilihan pada
-	 * UI mockup Site Info. Bersifat whitelist (bukan free-text)
-	 * untuk mencegah input yang tidak diharapkan (CODING_STANDARD.md §12).
-	 *
-	 * @var string[]
-	 */
+	// Whitelist (not free text) to prevent unexpected input, matching
+	// the choices on the Site Info UI mockup.
 	private const ALLOWED_SEPARATORS = [ '|', '-', '—', ':', '.', '•', '*', '~', '«', '»', '/', '\\', '>', '<' ];
 
-	/**
-	 * Separator default apabila nilai yang dikirim tidak valid.
-	 *
-	 * @var string
-	 */
 	private const DEFAULT_SEPARATOR = '|';
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		return [
 			'website_name'           => isset( $input['website_name'] )
@@ -73,13 +51,6 @@ final class SiteInfo implements SectionInterface {
 		];
 	}
 
-	/**
-	 * Sanitasi Title Separator terhadap whitelist karakter yang
-	 * diizinkan.
-	 *
-	 * @param mixed $value Nilai mentah dari input.
-	 * @return string
-	 */
 	private function sanitize_separator( $value ): string {
 		if ( ! is_string( $value ) ) {
 			return self::DEFAULT_SEPARATOR;
