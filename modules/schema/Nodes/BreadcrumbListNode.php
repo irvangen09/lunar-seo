@@ -2,15 +2,15 @@
 /**
  * BreadcrumbList Node.
  *
- * Output HANYA di context singular (post/page) - SCHEMA_MODULE_ARCHITECTURE.md §5.5.
+ * Output ONLY in a singular context (post/page).
  *
- * Untuk post type "post": rantai dari kategori utama (kategori pertama
- * dari get_the_category()) naik ke root via get_ancestors(), mendukung
- * baik struktur flat (satu kategori = satu game, sesuai
- * LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md §3) maupun
- * kategori nested apabila suatu saat dipakai.
+ * For the "post" post type: a chain from the primary category (the
+ * first category from get_the_category()) up to the root via
+ * get_ancestors(), supporting both a flat structure (one category =
+ * one game) and nested categories if that's ever used.
  *
- * Untuk post type "page": rantai parent page via get_post_ancestors().
+ * For the "page" post type: a parent-page chain via
+ * get_post_ancestors().
  *
  * @package Lunar\SEO\Modules\Schema\Nodes
  */
@@ -23,9 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class BreadcrumbListNode implements NodeInterface {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_node(): ?array {
 		if ( ! is_singular() ) {
 			return null;
@@ -48,11 +45,8 @@ final class BreadcrumbListNode implements NodeInterface {
 	}
 
 	/**
-	 * Bangun seluruh itemListElement: Home -> rantai (kategori/parent
-	 * page) -> post/page saat ini.
-	 *
-	 * @param \WP_Post $post Post/page saat ini.
-	 * @return array<int, array<string, mixed>>
+	 * Builds the full itemListElement: Home -> chain (category/parent
+	 * page) -> the current post/page.
 	 */
 	private function build_item_list( \WP_Post $post ): array {
 		$trail = [
@@ -77,17 +71,13 @@ final class BreadcrumbListNode implements NodeInterface {
 	}
 
 	/**
-	 * Rantai kategori utama, dari root (ancestor terjauh) turun ke
-	 * kategori terdekat dengan post - get_ancestors() mengembalikan
-	 * urutan dari ancestor TERDEKAT ke TERJAUH, sehingga di-reverse
-	 * agar breadcrumb terbaca dari umum ke spesifik.
+	 * The primary category chain, from the root (furthest ancestor)
+	 * down to the category closest to the post — get_ancestors()
+	 * returns the order from CLOSEST ancestor to FURTHEST, so it's
+	 * reversed here for the breadcrumb to read general-to-specific.
 	 *
-	 * Kembalikan array kosong apabila post tidak memiliki kategori
-	 * (Uncategorized dianggap tidak menghasilkan trail tambahan,
-	 * bukan error).
-	 *
-	 * @param \WP_Post $post Post saat ini.
-	 * @return array<int, array<string, string>>
+	 * Returns an empty array if the post has no category (Uncategorized
+	 * is treated as producing no additional trail, not an error).
 	 */
 	private function build_category_trail( \WP_Post $post ): array {
 		$categories = get_the_category( $post->ID );
@@ -96,9 +86,8 @@ final class BreadcrumbListNode implements NodeInterface {
 			return [];
 		}
 
-		// Kategori PERTAMA dianggap kategori utama - konsisten dengan
-		// struktur situs "satu kategori = satu game"
-		// (LUNAR_SEO_IMAGEOBJECT_ARCHITECTURE_BRIEF_REVISED.md §3).
+		// The FIRST category is treated as the primary one, consistent
+		// with this site's "one category = one game" structure.
 		$primary_category = $categories[0];
 
 		$ancestor_ids = array_reverse(
@@ -123,12 +112,9 @@ final class BreadcrumbListNode implements NodeInterface {
 	}
 
 	/**
-	 * Konversi WP_Term jadi entry trail (name + url), skip URL
-	 * apabila get_term_link() gagal (WP_Error) - name tetap
-	 * ditampilkan tanpa url daripada gagal seluruhnya.
-	 *
-	 * @param \WP_Term $term Term kategori.
-	 * @return array<string, string>
+	 * Converts a WP_Term into a trail entry (name + url), skipping the
+	 * URL if get_term_link() fails (WP_Error) — the name is still shown
+	 * without a url rather than failing entirely.
 	 */
 	private function term_to_trail_entry( \WP_Term $term ): array {
 		$term_link = get_term_link( $term );
@@ -140,12 +126,9 @@ final class BreadcrumbListNode implements NodeInterface {
 	}
 
 	/**
-	 * Rantai parent page, dari root turun ke parent terdekat -
-	 * get_post_ancestors() mengembalikan urutan dari parent TERDEKAT
-	 * ke TERJAUH, sehingga di-reverse (sama alasan dengan kategori).
-	 *
-	 * @param \WP_Post $post Page saat ini.
-	 * @return array<int, array<string, string>>
+	 * The parent-page chain, from the root down to the closest parent —
+	 * get_post_ancestors() returns the order from CLOSEST parent to
+	 * FURTHEST, so it's reversed (same reason as the category chain).
 	 */
 	private function build_page_ancestor_trail( \WP_Post $post ): array {
 		$ancestor_ids = array_reverse( get_post_ancestors( $post ) );
@@ -165,11 +148,8 @@ final class BreadcrumbListNode implements NodeInterface {
 	}
 
 	/**
-	 * Konversi trail (name + url) jadi array ListItem sesuai
-	 * Schema.org, dengan position berurutan mulai dari 1.
-	 *
-	 * @param array<int, array<string, string>> $trail Trail sederhana.
-	 * @return array<int, array<string, mixed>>
+	 * Converts a trail (name + url) into a Schema.org-compliant
+	 * ListItem array, with sequential position starting at 1.
 	 */
 	private function to_list_items( array $trail ): array {
 		$items = [];
