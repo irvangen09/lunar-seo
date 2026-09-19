@@ -1,13 +1,13 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap section settings.
+ * Contract every settings section must implement.
  *
- * Setiap section (Site Info, Content, Categories & Tags, Social,
- * Verification, Robots & URL) mengelola field dan sanitasinya
- * sendiri, didaftarkan ke Settings.php sebagai orchestrator.
+ * Each section (Site Info, Content, Categories & Tags, Social,
+ * Verification, Robots & URL) manages its own fields and sanitization,
+ * and registers itself with Settings.php as the orchestrator.
  *
- * Interface sengaja minimal (2 method) sesuai prinsip menghindari
- * abstraction yang belum diperlukan.
+ * Deliberately minimal (2 methods), avoiding abstraction that isn't
+ * needed yet.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -21,22 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface SectionInterface {
 
 	/**
-	 * Key unik section, dipakai sebagai key nested array pada
-	 * option module (contoh: "site_info", "categories_tags").
-	 *
-	 * @return string
+	 * This section's unique key, used as the nested array key in the
+	 * module's option (e.g. "site_info", "categories_tags").
 	 */
 	public function get_section_key(): string;
 
 	/**
-	 * Sanitasi data mentah milik section ini sebelum disimpan.
+	 * Sanitizes this section's raw data before it's saved.
 	 *
-	 * Menerima HANYA sub-array milik section ini (bukan seluruh
-	 * option module), agar setiap section tidak perlu mengetahui
-	 * struktur section lain (ARCHITECTURE.md §8).
-	 *
-	 * @param array $input Data mentah dari input pengguna.
-	 * @return array Data yang telah tersanitasi.
+	 * Receives ONLY this section's own sub-array (not the whole
+	 * module option), so no section needs to know another section's
+	 * structure.
 	 */
 	public function sanitize( array $input ): array;
 }
