@@ -2,11 +2,10 @@
 /**
  * Schema Graph Builder.
  *
- * Orchestrator tipis - murni agregator, TIDAK tahu logic per-type
- * (apakah suatu Node applicable di context tertentu ditentukan Node
- * itu sendiri lewat get_node(), lihat NodeInterface). Pola sama
- * dengan Frontend.php General yang jadi "orchestrator tipis"
- * (GENERAL_MODULE_ARCHITECTURE.md §6.1, SCHEMA_MODULE_ARCHITECTURE.md §5.3).
+ * Thin orchestrator — a pure aggregator, it does NOT know any per-type
+ * logic (whether a Node is applicable in a given context is decided by
+ * the Node itself through get_node(), see NodeInterface). Same pattern
+ * as General's Frontend.php, which is also a "thin orchestrator".
  *
  * @package Lunar\SEO\Modules\Schema\Services
  */
@@ -27,21 +26,19 @@ final class SchemaGraphBuilder {
 	private array $nodes;
 
 	/**
-	 * @param NodeInterface[] $nodes Daftar seluruh Node yang mungkin applicable
-	 *                                (WebSite, Organization, BreadcrumbList,
-	 *                                Article, WebPage - urutan ditentukan
-	 *                                pemanggil, lihat Frontend.php Tahap 2.9).
+	 * @param NodeInterface[] $nodes Every potentially-applicable Node
+	 *                                (WebSite, Organization,
+	 *                                BreadcrumbList, Article, WebPage)
+	 *                                — order is decided by the caller.
 	 */
 	public function __construct( array $nodes ) {
 		$this->nodes = $nodes;
 	}
 
 	/**
-	 * Rakit "@graph" dari seluruh Node yang applicable pada context
-	 * saat ini. Node yang get_node()-nya mengembalikan null di-skip
-	 * seluruhnya (bukan disisipkan sebagai entry kosong) - konsisten
-	 * ARCHITECTURE.md §10 ("Output frontend hanya dimuat apabila
-	 * diperlukan").
+	 * Assembles the "@graph" from every Node applicable in the current
+	 * context. A Node whose get_node() returns null is skipped
+	 * entirely (not inserted as an empty entry).
 	 *
 	 * @return array{"@context": string, "@graph": array<int, array<string, mixed>>}
 	 */
