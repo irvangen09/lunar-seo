@@ -2,11 +2,11 @@
 /**
  * Section: Verification.
  *
- * Mengelola kode verifikasi kepemilikan situs untuk Google Search
- * Console, Bing Webmaster, dan Yandex Webmaster.
+ * Manages site-ownership verification codes for Google Search
+ * Console, Bing Webmaster, and Yandex Webmaster.
  *
- * Pinterest sengaja tidak termasuk - dikeluarkan dari scope module
- * General sesuai keputusan project.
+ * Pinterest verification is out of scope — not supported by this
+ * section.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -19,30 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Verification implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'verification';
 
-	/**
-	 * Platform verifikasi yang didukung.
-	 *
-	 * @var string[]
-	 */
 	private const PLATFORMS = [ 'google', 'bing', 'yandex' ];
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		$sanitized = [];
 
