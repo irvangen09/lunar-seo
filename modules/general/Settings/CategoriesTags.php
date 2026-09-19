@@ -2,13 +2,13 @@
 /**
  * Section: Categories & Tags.
  *
- * Mengelola setting untuk archive Categories dan Tags:
- * Show in Search Results, SEO Title, Meta Description
- * (dengan opsi auto-generate).
+ * Manages settings for the Categories and Tags archives: Show in
+ * Search Results, SEO Title, Meta Description (with an auto-generate
+ * option).
  *
- * Struktur data kedua tipe (categories/tags) identik, sehingga
- * logic sanitasi dibagi lewat satu method privat untuk menghindari
- * duplikasi (CODING_STANDARD.md §2 - DRY).
+ * Both types (categories/tags) share an identical data structure, so
+ * the sanitization logic is shared through one private method to
+ * avoid duplication.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -21,30 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class CategoriesTags implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'categories_tags';
 
-	/**
-	 * Tipe taksonomi yang dikelola section ini.
-	 *
-	 * @var string[]
-	 */
 	private const TAXONOMY_TYPES = [ 'categories', 'tags' ];
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		$sanitized = [];
 
@@ -56,12 +40,6 @@ final class CategoriesTags implements SectionInterface {
 		return $sanitized;
 	}
 
-	/**
-	 * Sanitasi satu tipe taksonomi (categories atau tags).
-	 *
-	 * @param array $raw Data mentah satu tipe taksonomi.
-	 * @return array
-	 */
 	private function sanitize_taxonomy( array $raw ): array {
 		return [
 			'show_in_search_results'    => ! empty( $raw['show_in_search_results'] ),
