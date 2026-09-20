@@ -2,17 +2,15 @@
 /**
  * Admin.
  *
- * Bertanggung jawab meregistrasikan submenu admin dan merender root
- * container untuk React admin app. Pola identik dengan
- * modules/general/Admin.php.
+ * Registers the admin submenu and renders the root container for the
+ * React admin app. Same pattern as modules/general/Admin.php.
  *
- * Didaftarkan sebagai SUBMENU di bawah menu top-level "Lunar SEO"
- * (slug-nya dimiliki Shared Service AdminMenu, bukan module General
- * secara langsung - lihat includes/Services/AdminMenu.php) - menjaga
- * satu titik masuk navigasi yang konsisten untuk seluruh module
- * plugin (DESIGN_SYSTEM.md §14 - Admin Experience), tanpa module ini
- * mengakses class module General secara langsung
- * (ARCHITECTURE.md §22).
+ * Registered as a SUBMENU under the "Lunar SEO" top-level menu (its
+ * slug is owned by the AdminMenu Shared Service, not by the General
+ * module directly — see includes/Services/AdminMenu.php), keeping one
+ * consistent navigation entry point across every module in the
+ * plugin, without this module reaching into General's own class
+ * directly.
  *
  * @package Lunar\SEO\Modules\Sitemap
  */
@@ -27,61 +25,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Admin {
 
-	/**
-	 * Shared service Admin Menu - sumber kebenaran slug menu
-	 * top-level "Lunar SEO" yang menjadi parent submenu ini.
-	 *
-	 * @var AdminMenu
-	 */
 	private AdminMenu $admin_menu;
 
-	/**
-	 * Slug halaman menu admin.
-	 *
-	 * @var string
-	 */
 	public const MENU_SLUG = 'lunar-seo-sitemap';
 
-	/**
-	 * ID elemen root untuk di-mount React admin app.
-	 *
-	 * @var string
-	 */
 	private const ROOT_ELEMENT_ID = 'lunar-seo-sitemap-settings-root';
 
-	/**
-	 * Hook suffix ASLI yang dikembalikan add_submenu_page(), dipakai
-	 * Assets.php untuk membatasi enqueue.
-	 *
-	 * @var string|null
-	 */
 	private ?string $hook_suffix = null;
 
-	/**
-	 * @param AdminMenu $admin_menu Shared service Admin Menu.
-	 */
 	public function __construct( AdminMenu $admin_menu ) {
 		$this->admin_menu = $admin_menu;
 	}
 
 	/**
-	 * Inisialisasi - hook registrasi menu ke admin_menu.
-	 *
-	 * Prioritas dilebihkan (20) dari registrasi menu top-level di
-	 * General (default 10), memastikan menu top-level "Lunar SEO"
-	 * sudah terdaftar lebih dulu sebelum submenu ini ditambahkan.
-	 *
-	 * @return void
+	 * Priority is later (20) than the top-level menu registration in
+	 * General (default 10), making sure the "Lunar SEO" top-level menu
+	 * is already registered before this submenu is added.
 	 */
 	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'register_menu' ], 20 );
 	}
 
-	/**
-	 * Registrasikan submenu admin.
-	 *
-	 * @return void
-	 */
 	public function register_menu(): void {
 		$this->hook_suffix = add_submenu_page(
 			$this->admin_menu->get_top_level_slug(),
@@ -94,9 +58,7 @@ final class Admin {
 	}
 
 	/**
-	 * Render halaman admin - root container kosong untuk React app.
-	 *
-	 * @return void
+	 * Just an empty root container for the React app.
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -109,11 +71,6 @@ final class Admin {
 		);
 	}
 
-	/**
-	 * Ambil hook suffix ASLI halaman ini, dipakai Assets.php.
-	 *
-	 * @return string|null
-	 */
 	public function get_hook_suffix(): ?string {
 		return $this->hook_suffix;
 	}
