@@ -2,16 +2,14 @@
 /**
  * Post Type Provider.
  *
- * GENERIK - satu class ini dipakai untuk Posts, Pages, MAUPUN
- * Custom Post Type apapun (termasuk WooCommerce "product" bila
- * situs memakainya), diparametrisasi lewat $post_type di
- * constructor. Tidak perlu class baru setiap ada Custom Post Type
- * baru (SITEMAP_MODULE_ARCHITECTURE.md §1).
+ * GENERIC — this one class is used for Posts, Pages, AND any Custom
+ * Post Type (including WooCommerce's "product" if the site uses it),
+ * parametrized via $post_type in the constructor. No new class is
+ * needed every time a new Custom Post Type appears.
  *
- * Automatic Priority Calculation HANYA berlaku untuk post type
- * "post" (sesuai dokumen - "Untuk Posts, Lunar SEO mendukung dua
- * mode"), Pages dan Custom Post Type lain selalu memakai nilai
- * priority statis dari Settings.
+ * Automatic Priority Calculation ONLY applies to the "post" post
+ * type — Pages and every other Custom Post Type always use a static
+ * priority value from Settings.
  *
  * @package Lunar\SEO\Modules\Sitemap\Providers
  */
@@ -27,44 +25,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class PostTypeProvider implements ProviderInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'sitemap';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var PriorityCalculator
-	 */
 	private PriorityCalculator $priority_calculator;
 
-	/**
-	 * Post type yang ditangani instance ini (contoh: "post", "page", "product").
-	 *
-	 * @var string
-	 */
+	// The post type this instance handles (e.g. "post", "page", "product").
 	private string $post_type;
 
-	/**
-	 * @param OptionManager       $option_manager       Shared service Option Manager.
-	 * @param PriorityCalculator  $priority_calculator  Service kalkulasi Automatic Priority.
-	 * @param string              $post_type            Post type yang ditangani.
-	 */
 	public function __construct( OptionManager $option_manager, PriorityCalculator $priority_calculator, string $post_type ) {
 		$this->option_manager      = $option_manager;
 		$this->priority_calculator = $priority_calculator;
 		$this->post_type           = $post_type;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_entries(): array {
 		$excluded_items = $this->option_manager->get_section( self::MODULE_SLUG, 'excluded_items' );
 		$excluded_posts = $excluded_items['excluded_posts'] ?? [];
@@ -120,9 +95,9 @@ final class PostTypeProvider implements ProviderInterface {
 	}
 
 	/**
-	 * Tentukan field Priority/Changefreq yang sesuai berdasarkan
-	 * post type (Post/Page pakai field khusus, CPT lain pakai
-	 * default bersama).
+	 * Determines the matching Priority/Changefreq field for this post
+	 * type (Post/Page use their own dedicated field, any other CPT
+	 * uses the shared default).
 	 *
 	 * @return array{0: string, 1: string}
 	 */
