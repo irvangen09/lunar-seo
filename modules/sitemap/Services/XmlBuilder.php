@@ -2,15 +2,13 @@
 /**
  * XML Builder.
  *
- * Bangun string XML (sitemap index maupun urlset per tipe konten)
- * dari array entries mentah. Format mengikuti protokol resmi
- * sitemaps.org, dikonfirmasi cocok dengan referensi mockup yang
- * diberikan pengguna.
+ * Builds an XML string (either a sitemap index or a urlset for one
+ * content type) from a raw entries array. The format follows the
+ * official sitemaps.org protocol.
  *
- * Method pagination di sini murni operasi array (array_slice) pada
- * data yang SUDAH di-cache oleh SitemapCache - tidak melakukan
- * query database, sehingga ringan dipanggil berkali-kali
- * (SITEMAP_MODULE_ARCHITECTURE.md §4).
+ * The pagination methods here are pure array operations
+ * (array_slice) on data ALREADY cached by SitemapCache — no database
+ * query, so calling them repeatedly is cheap.
  *
  * @package Lunar\SEO\Modules\Sitemap\Services
  */
@@ -24,11 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class XmlBuilder {
 
 	/**
-	 * Bangun XML urlset (daftar URL) dari array entries.
-	 *
-	 * @param array $entries                Daftar entry, tiap entry: [ 'loc', 'lastmod'?, 'changefreq'?, 'priority'? ].
-	 * @param bool  $include_last_modified  Apakah <lastmod> disertakan (Sitemap Content - "Include the last modification time").
-	 * @return string
+	 * @param array $entries               Each entry: [ 'loc', 'lastmod'?, 'changefreq'?, 'priority'? ].
+	 * @param bool  $include_last_modified Whether <lastmod> is included (Sitemap Content — "Include the last modification time").
 	 */
 	public function build_urlset( array $entries, bool $include_last_modified ): string {
 		$xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -59,10 +54,7 @@ final class XmlBuilder {
 	}
 
 	/**
-	 * Bangun XML sitemap index (daftar sitemap) dari array sitemaps.
-	 *
-	 * @param array $sitemaps Daftar sitemap, tiap entry: [ 'loc', 'lastmod'? ].
-	 * @return string
+	 * @param array $sitemaps Each entry: [ 'loc', 'lastmod'? ].
 	 */
 	public function build_sitemap_index( array $sitemaps ): string {
 		$xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -85,12 +77,9 @@ final class XmlBuilder {
 	}
 
 	/**
-	 * Potong entries sesuai halaman & Links Per Page (pagination).
-	 *
-	 * @param array $entries        Seluruh entries (dari cache).
-	 * @param int   $links_per_page Batas URL per halaman.
-	 * @param int   $page           Nomor halaman (1-based).
-	 * @return array
+	 * @param array $entries        Every entry (from cache).
+	 * @param int   $links_per_page The URL-per-page limit.
+	 * @param int   $page           Page number (1-based).
 	 */
 	public function paginate_entries( array $entries, int $links_per_page, int $page ): array {
 		if ( $links_per_page <= 0 ) {
@@ -102,14 +91,6 @@ final class XmlBuilder {
 		return array_slice( $entries, $offset, $links_per_page );
 	}
 
-	/**
-	 * Hitung jumlah halaman yang dibutuhkan berdasarkan total
-	 * entries dan Links Per Page.
-	 *
-	 * @param array $entries        Seluruh entries.
-	 * @param int   $links_per_page Batas URL per halaman.
-	 * @return int
-	 */
 	public function count_pages( array $entries, int $links_per_page ): int {
 		if ( empty( $entries ) || $links_per_page <= 0 ) {
 			return 0;
