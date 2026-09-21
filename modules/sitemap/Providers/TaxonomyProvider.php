@@ -2,15 +2,14 @@
 /**
  * Taxonomy Provider.
  *
- * GENERIK - satu class ini dipakai untuk Categories, Tags, MAUPUN
- * Custom Taxonomy apapun (termasuk WooCommerce product_cat/
- * product_tag bila situs memakainya), diparametrisasi lewat
- * $taxonomy di constructor.
+ * GENERIC — this one class is used for Categories, Tags, AND any
+ * Custom Taxonomy (including WooCommerce's product_cat/product_tag if
+ * the site uses it), parametrized via $taxonomy in the constructor.
  *
- * Excluded Categories (dari Settings Excluded Items) HANYA berlaku
- * spesifik untuk taxonomy "category", sesuai scope yang
- * didokumentasikan (dokumen hanya menyebut "Excluded categories",
- * tidak ada "Excluded tags" atau exclusion untuk taxonomy lain).
+ * Excluded Categories (from the Excluded Items setting) ONLY applies
+ * specifically to the "category" taxonomy, per the documented scope
+ * (the setting is only named "Excluded categories" — there's no
+ * "Excluded tags" or exclusion for any other taxonomy).
  *
  * @package Lunar\SEO\Modules\Sitemap\Providers
  */
@@ -25,37 +24,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class TaxonomyProvider implements ProviderInterface {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'sitemap';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * Taxonomy yang ditangani instance ini (contoh: "category", "post_tag").
-	 *
-	 * @var string
-	 */
+	// The taxonomy this instance handles (e.g. "category", "post_tag").
 	private string $taxonomy;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 * @param string        $taxonomy       Taxonomy yang ditangani.
-	 */
 	public function __construct( OptionManager $option_manager, string $taxonomy ) {
 		$this->option_manager = $option_manager;
 		$this->taxonomy       = $taxonomy;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_entries(): array {
 		$term_args = [
 			'taxonomy'   => $this->taxonomy,
@@ -92,8 +72,8 @@ final class TaxonomyProvider implements ProviderInterface {
 
 			$entries[] = [
 				'loc'        => $link,
-				// Term WordPress tidak memiliki "modified date" native
-				// seperti post - lastmod sengaja dikosongkan.
+				// WordPress terms have no native "modified date" like
+				// posts do — lastmod is deliberately left empty.
 				'lastmod'    => null,
 				'changefreq' => $entry_changefreq,
 				'priority'   => $priority,
@@ -104,9 +84,9 @@ final class TaxonomyProvider implements ProviderInterface {
 	}
 
 	/**
-	 * Tentukan field Priority/Changefreq yang sesuai berdasarkan
-	 * taxonomy (Category/Tag pakai field khusus, taxonomy lain
-	 * pakai default bersama).
+	 * Determines the matching Priority/Changefreq field for this
+	 * taxonomy (Category/Tag use their own dedicated field, any other
+	 * taxonomy uses the shared default).
 	 *
 	 * @return array{0: string, 1: string}
 	 */
