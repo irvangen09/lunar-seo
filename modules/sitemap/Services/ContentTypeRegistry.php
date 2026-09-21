@@ -2,12 +2,12 @@
 /**
  * Content Type Registry.
  *
- * Mendeteksi Custom Post Type dan Custom Taxonomy yang terdaftar di
- * situs (termasuk yang didaftarkan plugin lain, misal WooCommerce -
- * TANPA kita perlu tahu atau hardcode nama plugin tersebut sama
- * sekali). Post type/taxonomy bawaan yang sudah ditangani secara
- * eksplisit (post, page, category, post_tag) dikecualikan dari
- * daftar "custom" agar tidak muncul dua kali di UI.
+ * Detects Custom Post Types and Custom Taxonomies registered on the
+ * site (including ones registered by other plugins, e.g. WooCommerce
+ * — WITHOUT needing to know or hardcode that plugin's name at all).
+ * Native post types/taxonomies already handled explicitly (post,
+ * page, category, post_tag) are excluded from the "custom" list so
+ * they don't appear twice in the UI.
  *
  * @package Lunar\SEO\Modules\Sitemap\Services
  */
@@ -20,26 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class ContentTypeRegistry {
 
-	/**
-	 * Post type bawaan yang sudah ditangani eksplisit oleh Sitemap
-	 * Content (Posts, Pages) - dikecualikan dari daftar Custom Post Type.
-	 *
-	 * @var string[]
-	 */
+	// Native post types already explicitly handled by Sitemap Content
+	// (Posts, Pages) — excluded from the Custom Post Type list.
 	private const BUILT_IN_POST_TYPES = [ 'post', 'page', 'attachment' ];
 
-	/**
-	 * Taxonomy bawaan yang sudah ditangani eksplisit oleh Sitemap
-	 * Content (Categories, Tags) - dikecualikan dari daftar Custom Taxonomy.
-	 *
-	 * @var string[]
-	 */
+	// Native taxonomies already explicitly handled by Sitemap Content
+	// (Categories, Tags) — excluded from the Custom Taxonomy list.
 	private const BUILT_IN_TAXONOMIES = [ 'category', 'post_tag', 'post_format' ];
 
 	/**
-	 * Ambil daftar Custom Post Type yang terdaftar di situs (public,
-	 * di luar bawaan WordPress).
-	 *
 	 * @return \WP_Post_Type[] Keyed by post type slug.
 	 */
 	public function get_custom_post_types(): array {
@@ -49,9 +38,6 @@ final class ContentTypeRegistry {
 	}
 
 	/**
-	 * Ambil daftar Custom Taxonomy yang terdaftar di situs (public,
-	 * di luar bawaan WordPress).
-	 *
 	 * @return \WP_Taxonomy[] Keyed by taxonomy slug.
 	 */
 	public function get_custom_taxonomies(): array {
