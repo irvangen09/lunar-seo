@@ -2,11 +2,11 @@
 /**
  * Frontend.
  *
- * Orchestrator rewrite rules + intercept request + output XML
- * sitemap. Rewrite rule didaftarkan SECARA DINAMIS berdasarkan
- * toggle Include pada Settings (hanya sitemap yang aktif yang
- * mendapat rule), mengikuti pola yang sama dengan UrlRewriter.php
- * pada module General.
+ * Orchestrates rewrite rules + request interception + XML sitemap
+ * output. Rewrite rules are registered DYNAMICALLY based on the
+ * Include toggles in Settings (only an active sitemap type gets a
+ * rule), following the same pattern as UrlRewriter.php in the General
+ * module.
  *
  * @package Lunar\SEO\Modules\Sitemap
  */
@@ -30,22 +30,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Frontend {
 
-	/**
-	 * Slug module, dipakai untuk membaca Global Settings.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'sitemap';
 
-	/**
-	 * Pemetaan key tipe internal ke prefix nama file URL.
-	 *
-	 * Key "post_tag" sengaja dipetakan ke prefix "tags" (bukan
-	 * "post_tag") - mengikuti Default Sitemap URLs pada dokumen
-	 * (SITEMAP_MODULE_ARCHITECTURE.md §3).
-	 *
-	 * @var array<string, string>
-	 */
+	// The "post_tag" key is deliberately mapped to the "tags" URL
+	// prefix (not "post_tag").
 	private const CORE_TYPE_PREFIXES = [
 		'homepage' => 'homepage',
 		'post'     => 'post',
@@ -56,29 +44,14 @@ final class Frontend {
 		'archives' => 'archives',
 	];
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var PriorityCalculator
-	 */
 	private PriorityCalculator $priority_calculator;
 
-	/**
-	 * @var SitemapCache
-	 */
 	private SitemapCache $cache;
 
-	/**
-	 * @var XmlBuilder
-	 */
 	private XmlBuilder $xml_builder;
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 */
 	public function __construct( OptionManager $option_manager ) {
 		$this->option_manager      = $option_manager;
 		$this->priority_calculator = new PriorityCalculator();
@@ -86,11 +59,6 @@ final class Frontend {
 		$this->xml_builder          = new XmlBuilder();
 	}
 
-	/**
-	 * Inisialisasi - hook rewrite rules, query vars, dan intercept request.
-	 *
-	 * @return void
-	 */
 	public function init(): void {
 		$this->cache->register_invalidation_hooks();
 
@@ -98,41 +66,36 @@ final class Frontend {
 		add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
 		add_action( 'template_redirect', [ $this, 'maybe_output_sitemap' ] );
 
-		// Setting Sitemap berubah -> struktur URL yang aktif bisa
-		// berubah (toggle Include) -> flush rewrite rules.
+		// A Sitemap setting change -> the active URL structure can
+		// change (an Include toggle) -> flush rewrite rules.
 		add_action( 'lunar_seo_sitemap_settings_updated', 'flush_rewrite_rules' );
 
-		// WordPress Core memiliki XML Sitemap bawaan sendiri sejak
-		// versi 5.5 (/wp-sitemap.xml). Lunar SEO sudah menghasilkan
-		// sitemap sendiri (/sitemap.xml) yang lebih lengkap (Priority,
-		// Changefreq, Excluded Items, custom post type/taxonomy) -
-		// membiarkan keduanya aktif bersamaan menghasilkan 2 sitemap
-		// berbeda yang membingungkan search engine dan berpotensi
-		// dianggap konten duplikat. Matikan sitemap native WP Core
-		// sepenuhnya (ditemukan lewat pengujian live robots.txt,
-		// lihat catatan Go-Live Checklist).
+		// WordPress Core has had its own built-in XML Sitemap since
+		// version 5.5 (/wp-sitemap.xml). Lunar SEO already produces
+		// its own, more complete sitemap (/sitemap.xml — Priority,
+		// Changefreq, Excluded Items, custom post type/taxonomy
+		// support) — leaving both active at once produces two
+		// different sitemaps that confuse search engines and risk
+		// being treated as duplicate content. Disable WP Core's native
+		// sitemap entirely (found through live robots.txt testing).
 		add_filter( 'wp_sitemaps_enabled', '__return_false' );
 
-		// wp_sitemaps_enabled() di atas otomatis mencegah WP Core
-		// meng-hook baris "Sitemap: .../wp-sitemap.xml" (WP_Sitemaps
-		// hanya mendaftarkan filter robots_txt apabila sitemaps_enabled()
-		// bernilai true - lihat WP_Sitemaps::init()). Lunar SEO
-		// menulis baris Sitemap: miliknya sendiri lewat filter yang
-		// sama, menunjuk ke index /sitemap.xml.
+		// The wp_sitemaps_enabled filter above automatically stops WP
+		// Core from hooking its own "Sitemap: .../wp-sitemap.xml" line
+		// (WP_Sitemaps only registers the robots_txt filter when
+		// sitemaps_enabled() is true — see WP_Sitemaps::init()). Lunar
+		// SEO writes its own Sitemap: line through that same filter,
+		// pointing to its /sitemap.xml index.
 		add_filter( 'robots_txt', [ $this, 'add_robots_sitemap_line' ], 10, 2 );
 	}
 
 	/**
-	 * Tambahkan baris "Sitemap:" ke virtual robots.txt WordPress,
-	 * menunjuk ke Sitemap Index milik Lunar SEO sendiri. Mengikuti
-	 * pola persis WP_Sitemaps::add_robots() (hook filter `robots_txt`,
-	 * BUKAN action - virtual robots.txt WordPress dibangun via
-	 * apply_filters( 'robots_txt', $output, $public ) di dalam
+	 * Adds a "Sitemap:" line to WordPress's virtual robots.txt,
+	 * pointing to Lunar SEO's own Sitemap Index. Follows the exact
+	 * pattern WP_Sitemaps::add_robots() uses (the `robots_txt` FILTER
+	 * hook, NOT an action — WordPress's virtual robots.txt is built via
+	 * apply_filters( 'robots_txt', $output, $public ) inside
 	 * do_robots()).
-	 *
-	 * @param string $output Isi robots.txt yang sudah ada.
-	 * @param bool   $public Apakah situs public (Settings > Reading).
-	 * @return string
 	 */
 	public function add_robots_sitemap_line( string $output, bool $public ): string {
 		if ( ! $public ) {
@@ -142,12 +105,6 @@ final class Frontend {
 		return $output . "\nSitemap: " . esc_url( home_url( '/sitemap.xml' ) ) . "\n";
 	}
 
-	/**
-	 * Daftarkan query var tambahan.
-	 *
-	 * @param string[] $vars Query var yang sudah ada.
-	 * @return string[]
-	 */
 	public function add_query_vars( array $vars ): array {
 		$vars[] = 'lunar_seo_sitemap';
 		$vars[] = 'lunar_seo_sitemap_page';
@@ -156,24 +113,20 @@ final class Frontend {
 	}
 
 	/**
-	 * Tambahkan rewrite rule sitemap index + setiap tipe yang aktif
-	 * ke $wp_rewrite.
+	 * Adds the sitemap index + every active type's rewrite rules to
+	 * $wp_rewrite.
 	 *
-	 * Sengaja menggunakan filter `generate_rewrite_rules` (BUKAN
-	 * add_rewrite_rule() di hook 'init'), mengikuti pola yang sama
-	 * dengan UrlRewriter::add_taxonomy_rewrite_rules() di module
-	 * General. Alasan: add_rewrite_rule() di 'init' hanya membaca
-	 * Settings SEKALI per request, pada saat 'init' fire - yang
-	 * terjadi SEBELUM REST API request menyimpan Settings baru.
-	 * Akibatnya saat flush_rewrite_rules() dipanggil pada request
-	 * yang sama (setelah save), rule yang ikut ter-flush masih versi
-	 * LAMA, sehingga /post-sitemap.xml bisa 404 sampai save
-	 * berikutnya. generate_rewrite_rules dieksekusi PERSIS saat
-	 * regenerasi ruleset terjadi, sehingga selalu membaca Settings
-	 * versi terbaru.
-	 *
-	 * @param \WP_Rewrite $wp_rewrite Instance WP_Rewrite.
-	 * @return \WP_Rewrite
+	 * Deliberately uses the `generate_rewrite_rules` filter (NOT
+	 * add_rewrite_rule() on the 'init' hook), following the same
+	 * pattern as UrlRewriter::add_taxonomy_rewrite_rules() in the
+	 * General module. Reason: add_rewrite_rule() on 'init' only reads
+	 * Settings ONCE per request, at the moment 'init' fires — which
+	 * happens BEFORE a REST API request saves new Settings. As a
+	 * result, when flush_rewrite_rules() is called within that same
+	 * request (right after the save), the rules that get flushed are
+	 * still the OLD version, so /post-sitemap.xml could 404 until the
+	 * next save. generate_rewrite_rules runs EXACTLY when the ruleset
+	 * is regenerated, so it always reads the latest Settings.
 	 */
 	public function add_sitemap_rewrite_rules( \WP_Rewrite $wp_rewrite ): \WP_Rewrite {
 		$rules = [
@@ -191,10 +144,10 @@ final class Frontend {
 	}
 
 	/**
-	 * Tentukan tipe konten mana saja yang aktif (sesuai toggle
-	 * Include di Settings), beserta prefix nama file URL-nya.
+	 * Determines which content types are active (per the Include
+	 * toggles in Settings), along with their URL filename prefix.
 	 *
-	 * @return array<string, string> Key = identifier tipe internal, Value = prefix URL.
+	 * @return array<string, string> Key = internal type identifier, value = URL prefix.
 	 */
 	private function get_active_type_prefixes(): array {
 		$content  = $this->option_manager->get_section( self::MODULE_SLUG, 'sitemap_content' );
@@ -231,11 +184,6 @@ final class Frontend {
 		return $prefixes;
 	}
 
-	/**
-	 * Intercept request - output XML apabila query var sitemap terdeteksi.
-	 *
-	 * @return void
-	 */
 	public function maybe_output_sitemap(): void {
 		$type = get_query_var( 'lunar_seo_sitemap' );
 
@@ -252,11 +200,6 @@ final class Frontend {
 		$this->output_type( (string) $type );
 	}
 
-	/**
-	 * Output XML sitemap index (/sitemap.xml).
-	 *
-	 * @return void
-	 */
 	private function output_index(): void {
 		$content        = $this->option_manager->get_section( self::MODULE_SLUG, 'sitemap_content' );
 		$links_per_page = (int) ( $content['links_per_page'] ?? 1000 );
@@ -283,12 +226,6 @@ final class Frontend {
 		exit;
 	}
 
-	/**
-	 * Output XML urlset untuk satu tipe konten (dengan pagination).
-	 *
-	 * @param string $type Identifier tipe konten.
-	 * @return void
-	 */
 	private function output_type( string $type ): void {
 		$entries = $this->get_entries_for_type( $type );
 
@@ -305,11 +242,8 @@ final class Frontend {
 	}
 
 	/**
-	 * Ambil entries untuk satu tipe, dari cache apabila tersedia,
-	 * generate ulang via Provider apabila cache miss.
-	 *
-	 * @param string $type Identifier tipe konten.
-	 * @return array
+	 * Reads entries for one type from cache if available, regenerating
+	 * through a Provider on a cache miss.
 	 */
 	private function get_entries_for_type( string $type ): array {
 		$cached = $this->cache->get_entries( $type );
@@ -327,10 +261,7 @@ final class Frontend {
 	}
 
 	/**
-	 * Tentukan Provider yang sesuai untuk satu tipe konten.
-	 *
-	 * @param string $type Identifier tipe konten.
-	 * @return ProviderInterface|null Null apabila tipe tidak dikenali.
+	 * @return ProviderInterface|null Null if the type isn't recognized.
 	 */
 	private function resolve_provider( string $type ): ?ProviderInterface {
 		if ( 'homepage' === $type ) {
@@ -357,11 +288,8 @@ final class Frontend {
 	}
 
 	/**
-	 * Cari nilai lastmod terbaru dari sekumpulan entries, dipakai
-	 * sebagai lastmod sitemap index untuk tipe terkait.
-	 *
-	 * @param array $entries Daftar entries.
-	 * @return string|null
+	 * Finds the latest lastmod value across a set of entries, used as
+	 * the sitemap index's lastmod for that type.
 	 */
 	private function resolve_latest_lastmod( array $entries ): ?string {
 		$lastmods = array_filter( array_column( $entries, 'lastmod' ) );
@@ -375,11 +303,6 @@ final class Frontend {
 		return $lastmods[0];
 	}
 
-	/**
-	 * Kirim header Content-Type XML sebelum output.
-	 *
-	 * @return void
-	 */
 	private function send_xml_headers(): void {
 		header( 'Content-Type: application/xml; charset=UTF-8' );
 	}
