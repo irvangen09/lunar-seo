@@ -1,11 +1,12 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap Provider konten sitemap.
+ * Contract every sitemap content Provider must implement.
  *
- * Setiap Provider bertanggung jawab menghasilkan daftar URL entry
- * mentah untuk SATU tipe konten. Provider tidak menangani caching
- * (itu tanggung jawab SitemapCache di level Frontend.php) maupun
- * rendering XML (itu tanggung jawab XmlBuilder) - murni sumber data.
+ * Each Provider is responsible for producing a list of raw URL
+ * entries for ONE content type. A Provider does NOT handle caching
+ * (that's SitemapCache's responsibility at the Frontend.php level) or
+ * XML rendering (that's XmlBuilder's responsibility) — a pure data
+ * source.
  *
  * @package Lunar\SEO\Modules\Sitemap\Providers
  */
@@ -19,8 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface ProviderInterface {
 
 	/**
-	 * Hasilkan daftar URL entry mentah.
-	 *
 	 * @return array<int, array{loc: string, lastmod: string|null, changefreq: string|null, priority: float|null}>
 	 */
 	public function get_entries(): array;
