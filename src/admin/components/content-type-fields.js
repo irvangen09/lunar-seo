@@ -1,9 +1,9 @@
 /**
  * Content Type Fields.
  *
- * Fields untuk satu tipe konten pada section Content. Homepage/Post/
- * Page memiliki SEO Title + Meta Description + toggle auto-generate;
- * Search/404 hanya SEO Title (konsisten dengan
+ * Fields for one content type in the Content section. Homepage/Post/
+ * Page have SEO Title + Meta Description + an auto-generate toggle;
+ * Search/404 have only SEO Title (consistent with
  * Settings/Content.php::TYPES_WITH_DESCRIPTION vs TYPES_TITLE_ONLY).
  *
  * @package Lunar\SEO
