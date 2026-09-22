@@ -1,23 +1,22 @@
 /**
  * Template Field.
  *
- * Komponen reusable untuk field yang mendukung placeholder/variable
- * (SEO Title, Meta Description). Menyediakan tombol "insert
- * variable" yang menambahkan token {variable} ke akhir teks, serta
- * character counter opsional.
+ * A reusable component for a field that supports placeholders/
+ * variables (SEO Title, Meta Description). Provides an "insert
+ * variable" button that appends a {variable} token to the end of the
+ * text, plus an optional character counter.
  *
- * Ditempatkan di src/shared/ (bukan src/admin/ atau src/editor/)
- * karena dipakai oleh KEDUA bundle - Admin Settings app maupun
- * Editor Sidebar - menghindari duplikasi kode antar dua webpack
- * entry yang berbeda (CODING_STANDARD.md §2 - DRY). Masing-masing
- * bundle tetap meng-import file ini secara independen saat build
- * (sedikit duplikasi ukuran bundle, trade-off yang wajar
- * dibandingkan duplikasi kode sumber).
+ * Placed in src/shared/ (not src/admin/ or src/editor/) because it's
+ * used by BOTH bundles — the Admin Settings app and the Editor
+ * Sidebar — avoiding duplicated code across two different webpack
+ * entries. Each bundle still imports this file independently at build
+ * time (a small amount of duplicated bundle size, a reasonable
+ * trade-off against duplicating the source code).
  *
- * Penyisipan variable dilakukan di akhir teks (bukan pada posisi
- * kursor) - penyederhanaan yang disengaja untuk menghindari
- * kompleksitas tracking cursor position (over-engineering untuk
- * kebutuhan saat ini).
+ * Variable insertion happens at the end of the text (not at the
+ * cursor position) — a deliberate simplification to avoid the
+ * complexity of cursor-position tracking (over-engineering for what's
+ * actually needed right now).
  *
  * @package Lunar\SEO
  */
@@ -26,15 +25,14 @@ import { TextControl, TextareaControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Label ramah-pengguna untuk tiap variable slug. Satu tempat ini
- * menjadi Single Source of Truth supaya penamaan konsisten di
- * seluruh pemakaian TemplateField (Admin Settings & Editor Sidebar) -
- * menghindari label yang beda-beda tiap tempat dipakai (DRY,
- * DESIGN_SYSTEM.md §18 - Component Consistency).
+ * A user-friendly label for each variable slug. This one place is the
+ * Single Source of Truth so naming stays consistent everywhere
+ * TemplateField is used (Admin Settings & Editor Sidebar) — avoiding
+ * a label that reads differently in each place it's used (DRY).
  *
- * Slug yang tidak terdaftar tetap tampil (fallback format otomatis),
- * jadi menambah variable baru di masa depan tidak wajib mengubah
- * dictionary ini.
+ * An unregistered slug still displays fine (automatic fallback
+ * formatting), so adding a new variable later doesn't require
+ * updating this dictionary.
  */
 const VARIABLE_LABELS = {
 	title: __( 'Title', 'lunar-seo' ),
@@ -84,12 +82,12 @@ export default function TemplateField( { label, help, value, onChange, variables
 			) }
 
 			{ /*
-			 * label & help diteruskan LANGSUNG ke Control (bukan dirender
-			 * terpisah sebagai <p><strong>) - TextControl/TextareaControl
-			 * merender <label for="..."> yang terhubung dengan benar ke
-			 * id input, memberi accessible name untuk screen reader.
-			 * Merender label secara terpisah (seperti sebelumnya) membuat
-			 * input sama sekali tidak punya nama yang bisa diumumkan.
+			 * label & help are passed DIRECTLY to Control (not rendered
+			 * separately as <p><strong>) — TextControl/TextareaControl
+			 * renders a <label for="..."> correctly associated with the
+			 * input's id, giving it an accessible name for screen
+			 * readers. Rendering the label separately (as it was
+			 * before) left the input with no announceable name at all.
 			 */ }
 			<Control
 				label={ label }
