@@ -2,12 +2,12 @@
 /**
  * Section: Priorities.
  *
- * Mengelola nilai <priority> XML Sitemap per tipe konten, serta
- * toggle mode Automatic/Manual khusus untuk Posts (rumus Automatic
- * dijelaskan di Services/PriorityCalculator.php).
+ * Manages the XML Sitemap <priority> value per content type, plus the
+ * Automatic/Manual mode toggle specific to Posts (the Automatic
+ * formula is explained in Services/PriorityCalculator.php).
  *
- * "Minimum Post Priority" SELALU berlaku sebagai batas bawah, baik
- * mode Automatic maupun Manual aktif (sesuai dokumen).
+ * "Minimum Post Priority" ALWAYS applies as the floor, whether
+ * Automatic or Manual mode is active.
  *
  * @package Lunar\SEO\Modules\Sitemap\Settings
  */
@@ -20,18 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Priorities implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'priorities';
 
-	/**
-	 * Default value per field, sesuai nilai pada mockup.
-	 *
-	 * @var array<string, float>
-	 */
 	private const DEFAULTS = [
 		'homepage'                 => 1.0,
 		'posts'                    => 0.8,
@@ -45,16 +35,10 @@ final class Priorities implements SectionInterface {
 		'custom_taxonomy_default'  => 0.3,
 	];
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		$sanitized = [];
 
@@ -68,12 +52,8 @@ final class Priorities implements SectionInterface {
 	}
 
 	/**
-	 * Sanitasi nilai priority - numerik, dibulatkan 1 desimal,
-	 * dibatasi rentang valid protokol sitemap (0.0 - 1.0).
-	 *
-	 * @param mixed $value   Nilai mentah.
-	 * @param float $default Nilai default apabila tidak valid.
-	 * @return float
+	 * Numeric, rounded to 1 decimal, clamped to the sitemap protocol's
+	 * valid range (0.0–1.0).
 	 */
 	private function sanitize_priority( $value, float $default ): float {
 		if ( ! is_numeric( $value ) ) {
