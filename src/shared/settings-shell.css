@@ -1,15 +1,14 @@
 /**
  * Settings Shell - Shared Styles.
  *
- * Dipakai bersama oleh src/admin/style.css (module General) dan
- * src/sitemap-admin/style.css (module Sitemap) - keduanya memakai
- * struktur className yang identik (lunar-settings, lunar-field, dst)
- * karena mengikuti pola shell yang sama (DESIGN_SYSTEM.md §8 -
- * Component Consistency).
+ * Shared by both src/admin/style.css (General module) and
+ * src/sitemap-admin/style.css (Sitemap module) — both use an
+ * identical className structure (lunar-settings, lunar-field, etc.)
+ * since they follow the same shell pattern.
  *
- * Hanya menangani spacing/rhythm dan keterbacaan teks bantu - tidak
- * ada warna baru di luar palet netral WordPress Admin (DESIGN_SYSTEM.md
- * §4), tidak ada shadow/animasi dekoratif (§10).
+ * Only handles spacing/rhythm and helper-text readability — no new
+ * color outside WordPress Admin's neutral palette, no decorative
+ * shadow/animation.
  */
 
 .lunar-settings__header {
@@ -26,9 +25,9 @@
 	margin: 0;
 }
 
-/* Rhythm antar section berulang (mis. Homepage/Post/Page pada Content,
- * atau Categories/Tags) di dalam satu PanelBody - tanpa ini, judul
- * section terasa menempel pada field section sebelumnya. */
+/* Rhythm between repeated sections (e.g. Homepage/Post/Page in
+ * Content, or Categories/Tags) inside one PanelBody - without this,
+ * a section's title reads as stuck to the previous section's field. */
 .lunar-settings .components-panel__body h3 {
 	margin-top: 32px;
 	margin-bottom: 8px;
@@ -38,9 +37,9 @@
 	margin-top: 0;
 }
 
-/* Struktur field custom (Title Separator, dll) yang tidak memakai
- * BaseControl bawaan - urutan Section Title -> Description -> Input ->
- * Help mengikuti DESIGN_SYSTEM.md §16. */
+/* Structure for custom fields (Title Separator, etc.) that don't use
+ * the built-in BaseControl - the order Section Title -> Description ->
+ * Input -> Help. */
 .lunar-field {
 	margin-bottom: 24px;
 }
@@ -61,9 +60,9 @@
 	font-style: italic;
 }
 
-/* Character counter (TemplateField) - gaya sama dengan .lunar-field__help
- * agar bobot visualnya konsisten sebagai teks bantu, bukan teks biasa
- * (DESIGN_SYSTEM.md §19 - Motion & Feedback). */
+/* Character counter (TemplateField) - same style as .lunar-field__help
+ * so its visual weight stays consistent as helper text, not regular
+ * text. */
 .lunar-field__counter {
 	margin-top: 4px;
 	margin-bottom: 0;
@@ -71,11 +70,10 @@
 	font-size: 13px;
 }
 
-/* Preview gambar pada MediaUploadField (Site Image, Default Social
- * Image, Default Twitter Image) - tanpa batasan ini, gambar berukuran
- * rekomendasi (1200x630px) dirender pada resolusi native penuh dan
- * menyebabkan overflow horizontal, melanggar DESIGN_SYSTEM.md §12
- * (Responsive Principles - "tanpa memerlukan scroll horizontal"). */
+/* Image preview in MediaUploadField (Site Image, Default Social
+ * Image, Default Twitter Image) - without this constraint, an image
+ * at the recommended size (1200x630px) renders at its full native
+ * resolution and causes horizontal overflow. */
 .lunar-media-upload-field__preview img {
 	display: block;
 	max-width: 100%;
@@ -85,10 +83,9 @@
 	border-radius: 2px;
 }
 
-/* Checklist "Excluded categories" (Sitemap) - dibatasi tinggi dengan
- * scroll agar tetap mudah dipindai (DESIGN_SYSTEM.md §5 - Layout
- * Principles) pada situs dengan banyak kategori (karakteristik situs
- * dokumentasi/wiki - 1 kategori mewakili 1 game). */
+/* "Excluded categories" checklist (Sitemap) - height-limited with
+ * scroll so it stays easy to scan on a site with many categories
+ * (typical of a documentation/wiki site - one category per game). */
 .lunar-excluded-categories-list {
 	max-height: 240px;
 	overflow-y: auto;
