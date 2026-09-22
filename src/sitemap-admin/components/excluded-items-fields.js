@@ -1,11 +1,11 @@
 /**
  * Excluded Items Fields.
  *
- * Checklist kategori diambil dari endpoint REST BAWAAN WordPress
- * (/wp/v2/categories) - berbeda dari data setting kita sendiri,
- * daftar kategori adalah resource WP core standar sehingga tidak
- * memiliki keterbatasan nested-object seperti /wp/v2/settings (lihat
- * penjelasan pada modules/general/Settings/Settings.php).
+ * The category checklist is fetched from WordPress's own BUILT-IN
+ * REST endpoint (/wp/v2/categories) — unlike our own setting data, the
+ * category list is a standard WP core resource, so it doesn't have the
+ * nested-object limitation /wp/v2/settings has (see the explanation in
+ * modules/general/Settings/Settings.php).
  *
  * @package Lunar\SEO
  */
@@ -26,11 +26,11 @@ export default function ExcludedItemsFields( { value, onChange } ) {
 		let isMounted = true;
 
 		/**
-		 * Ambil SELURUH kategori lewat pagination, bukan hanya 100
-		 * pertama - 100 adalah batas maksimum per_page yang diizinkan
-		 * WP REST API, sehingga kategori di halaman berikutnya perlu
-		 * diambil lewat request terpisah agar tidak ada yang hilang
-		 * dari checklist (relevan untuk situs dengan banyak kategori).
+		 * Fetches EVERY category via pagination, not just the first 100
+		 * — 100 is the maximum per_page the WP REST API allows, so
+		 * categories on the next page need a separate request or
+		 * they'd be missing from the checklist (relevant for sites with
+		 * many categories).
 		 */
 		const fetchAllCategories = async () => {
 			const perPage = 100;
@@ -46,9 +46,9 @@ export default function ExcludedItemsFields( { value, onChange } ) {
 						path: `/wp/v2/categories?per_page=${ perPage }&page=${ page }&orderby=name&order=asc`,
 					} );
 				} catch ( error ) {
-					// WP REST API menolak page yang melebihi total halaman -
-					// berhenti dengan aman, kategori yang sudah terkumpul
-					// tetap ditampilkan.
+					// The WP REST API rejects a page beyond the total page
+					// count — stop safely, whatever categories were
+					// already collected are still shown.
 					break;
 				}
 
