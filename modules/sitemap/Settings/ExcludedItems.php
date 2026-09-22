@@ -2,11 +2,8 @@
 /**
  * Section: Excluded Items.
  *
- * Mengelola daftar kategori dan post/page yang dikecualikan dari
- * XML Sitemap meskipun toggle Include terkait aktif (sesuai
- * dokumen: "Kategori yang dimasukkan ke dalam Excluded Items tidak
- * akan muncul pada XML Sitemap meskipun opsi Include Categories
- * diaktifkan").
+ * Manages the list of categories and posts/pages excluded from the
+ * XML Sitemap even when the relevant Include toggle is on.
  *
  * @package Lunar\SEO\Modules\Sitemap\Settings
  */
@@ -19,23 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class ExcludedItems implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'excluded_items';
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		return [
 			'excluded_categories' => $this->sanitize_id_list( $input['excluded_categories'] ?? [] ),
@@ -44,11 +30,10 @@ final class ExcludedItems implements SectionInterface {
 	}
 
 	/**
-	 * Sanitasi daftar ID. Menerima array ID maupun string
-	 * comma-separated (contoh: "110,121") agar fleksibel terhadap
-	 * bentuk input dari UI (checklist ATAU text field).
+	 * Accepts either an array of IDs or a comma-separated string (e.g.
+	 * "110,121"), so it's flexible to whichever shape the UI sends
+	 * (a checklist OR a text field).
 	 *
-	 * @param mixed $value Nilai mentah.
 	 * @return int[]
 	 */
 	private function sanitize_id_list( $value ): array {
@@ -61,7 +46,7 @@ final class ExcludedItems implements SectionInterface {
 		}
 
 		$ids = array_map( 'absint', $value );
-		$ids = array_filter( $ids ); // Buang 0/tidak valid.
+		$ids = array_filter( $ids ); // Drop 0/invalid values.
 
 		return array_values( array_unique( $ids ) );
 	}
