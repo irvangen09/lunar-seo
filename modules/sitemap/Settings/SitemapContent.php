@@ -2,12 +2,12 @@
 /**
  * Section: Sitemap Content.
  *
- * Menentukan jenis konten yang di-include ke dalam XML Sitemap:
- * toggle bawaan (Homepage, Posts, Pages, Categories, Archives,
- * Author Pages, Tags) plus toggle dinamis untuk Custom Post Type
- * dan Custom Taxonomy (WooCommerce atau plugin lain yang
- * mendaftarkan post type/taxonomy sendiri otomatis tertangani di
- * sini, TANPA kita hardcode nama plugin tersebut).
+ * Determines what content is included in the XML Sitemap: the native
+ * toggles (Homepage, Posts, Pages, Categories, Archives, Author Pages,
+ * Tags) plus dynamic toggles for Custom Post Types and Custom
+ * Taxonomies (WooCommerce or any other plugin that registers its own
+ * post type/taxonomy is automatically handled here, WITHOUT
+ * hardcoding that plugin's name).
  *
  * @package Lunar\SEO\Modules\Sitemap\Settings
  */
@@ -22,52 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class SitemapContent implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'sitemap_content';
 
-	/**
-	 * Default Links Per Page, sesuai dokumen (maksimal 1000 URL
-	 * per sitemap sebelum dipecah ke halaman berikutnya).
-	 *
-	 * @var int
-	 */
 	private const DEFAULT_LINKS_PER_PAGE = 1000;
 
-	/**
-	 * Batas wajar Links Per Page - mencegah admin memasukkan angka
-	 * ekstrem yang bisa membebani server (query terlalu besar per
-	 * request).
-	 *
-	 * @var int
-	 */
+	// A reasonable ceiling on Links Per Page — prevents an admin from
+	// entering an extreme number that could overload the server (too
+	// large a query per request).
 	private const MAX_LINKS_PER_PAGE = 50000;
 
-	/**
-	 * @var ContentTypeRegistry
-	 */
 	private ContentTypeRegistry $content_type_registry;
 
-	/**
-	 * @param ContentTypeRegistry $content_type_registry Service deteksi Custom Post Type/Taxonomy.
-	 */
 	public function __construct( ContentTypeRegistry $content_type_registry ) {
 		$this->content_type_registry = $content_type_registry;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		return [
 			'include_homepage'      => ! empty( $input['include_homepage'] ),
@@ -90,12 +63,6 @@ final class SitemapContent implements SectionInterface {
 		];
 	}
 
-	/**
-	 * Sanitasi Links Per Page - integer positif, dibatasi maksimum wajar.
-	 *
-	 * @param mixed $value Nilai mentah.
-	 * @return int
-	 */
 	private function sanitize_links_per_page( $value ): int {
 		$value = absint( $value );
 
@@ -107,12 +74,12 @@ final class SitemapContent implements SectionInterface {
 	}
 
 	/**
-	 * Sanitasi toggle Custom Post Type/Taxonomy - HANYA slug yang
-	 * benar-benar terdaftar di situs (whitelist dinamis) yang
-	 * diterima, mencegah key sembarangan tersimpan ke database.
+	 * Only accepts a slug that's ACTUALLY registered on the site
+	 * (a dynamic whitelist), preventing an arbitrary key from being
+	 * saved to the database.
 	 *
-	 * @param mixed    $value          Nilai mentah (associative array slug => bool).
-	 * @param string[] $allowed_slugs  Slug yang benar-benar terdaftar saat ini.
+	 * @param mixed    $value         Raw value (associative array slug => bool).
+	 * @param string[] $allowed_slugs Slugs actually registered right now.
 	 * @return array<string, bool>
 	 */
 	private function sanitize_custom_toggles( $value, array $allowed_slugs ): array {
