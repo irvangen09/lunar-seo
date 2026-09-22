@@ -1,11 +1,11 @@
 <?php
 /**
- * Settings Orchestrator - Module Sitemap.
+ * Settings Orchestrator — Module Sitemap.
  *
- * Pola identik dengan modules/general/Settings/Settings.php - lihat
- * dokumentasi di sana untuk alasan lengkap REST route custom
- * (bukan /wp/v2/settings) dan register_setting() untuk kepatuhan
- * WordPress Options API.
+ * Identical pattern to modules/general/Settings/Settings.php — see
+ * that file for the full reasoning behind the custom REST route
+ * (not /wp/v2/settings) and why register_setting() is still kept for
+ * WordPress Options API compliance.
  *
  * @package Lunar\SEO\Modules\Sitemap\Settings
  */
@@ -21,40 +21,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Settings {
 
-	/**
-	 * Setting group untuk register_setting().
-	 *
-	 * @var string
-	 */
 	private const OPTION_GROUP = 'lunar_seo_sitemap';
 
-	/**
-	 * Slug module, dipakai untuk membangun nama option via OptionManager.
-	 *
-	 * @var string
-	 */
 	private const MODULE_SLUG = 'sitemap';
 
-	/**
-	 * @var OptionManager
-	 */
 	private OptionManager $option_manager;
 
-	/**
-	 * @var ContentTypeRegistry
-	 */
 	private ContentTypeRegistry $content_type_registry;
 
 	/**
-	 * Daftar section settings.
-	 *
 	 * @var SectionInterface[]
 	 */
 	private array $sections = [];
 
-	/**
-	 * @param OptionManager $option_manager Shared service Option Manager.
-	 */
 	public function __construct( OptionManager $option_manager ) {
 		$this->option_manager        = $option_manager;
 		$this->content_type_registry = new ContentTypeRegistry();
@@ -62,45 +41,22 @@ final class Settings {
 		$this->register_sections();
 	}
 
-	/**
-	 * Daftarkan seluruh section settings.
-	 *
-	 * @return void
-	 */
 	private function register_sections(): void {
 		$this->register_section( new SitemapContent( $this->content_type_registry ) );
 		$this->register_section( new ExcludedItems() );
 		$this->register_section( new Priorities() );
 		$this->register_section( new Changefreq() );
-
-		// Seluruh section Sitemap Settings telah terdaftar.
 	}
 
-	/**
-	 * Daftarkan satu section ke orchestrator.
-	 *
-	 * @param SectionInterface $section Instance section.
-	 * @return void
-	 */
 	private function register_section( SectionInterface $section ): void {
 		$this->sections[ $section->get_section_key() ] = $section;
 	}
 
-	/**
-	 * Inisialisasi - hook registrasi setting dan REST route custom.
-	 *
-	 * @return void
-	 */
 	public function init(): void {
 		add_action( 'admin_init', [ $this, 'register_setting' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 	}
 
-	/**
-	 * Registrasikan option module ke WordPress Settings API.
-	 *
-	 * @return void
-	 */
 	public function register_setting(): void {
 		register_setting(
 			self::OPTION_GROUP,
@@ -108,19 +64,14 @@ final class Settings {
 			[
 				'type'              => 'object',
 				'sanitize_callback' => [ $this, 'sanitize' ],
-				// show_in_rest sengaja TIDAK diaktifkan - lihat
-				// penjelasan pada Settings.php module General.
+				// show_in_rest is DELIBERATELY not enabled — see the
+				// explanation in the General module's Settings.php.
 				'show_in_rest'      => false,
 				'default'           => [],
 			]
 		);
 	}
 
-	/**
-	 * Registrasikan REST route khusus untuk React admin app.
-	 *
-	 * @return void
-	 */
 	public function register_rest_routes(): void {
 		register_rest_route(
 			'lunar-seo/v1',
@@ -151,11 +102,9 @@ final class Settings {
 	}
 
 	/**
-	 * Handler GET - kembalikan daftar Custom Post Type & Custom
-	 * Taxonomy yang terdaftar di situs (metadata untuk Admin React
-	 * app, BUKAN bagian dari data setting itu sendiri).
-	 *
-	 * @return \WP_REST_Response
+	 * Returns the list of registered Custom Post Types & Custom
+	 * Taxonomies (metadata for the Admin React app, NOT part of the
+	 * setting data itself).
 	 */
 	public function rest_get_content_types(): \WP_REST_Response {
 		$post_types = [];
@@ -184,30 +133,14 @@ final class Settings {
 		);
 	}
 
-	/**
-	 * Permission callback - hanya user dengan capability manage_options.
-	 *
-	 * @return bool
-	 */
 	public function rest_permission_check(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
-	/**
-	 * Handler GET - kembalikan seluruh setting module Sitemap.
-	 *
-	 * @return \WP_REST_Response
-	 */
 	public function rest_get_settings(): \WP_REST_Response {
 		return new \WP_REST_Response( $this->option_manager->get_all( self::MODULE_SLUG ) );
 	}
 
-	/**
-	 * Handler POST - sanitasi lalu simpan seluruh setting module Sitemap.
-	 *
-	 * @param \WP_REST_Request $request Request REST.
-	 * @return \WP_REST_Response
-	 */
 	public function rest_update_settings( \WP_REST_Request $request ): \WP_REST_Response {
 		$input = $request->get_json_params();
 		$input = is_array( $input ) ? $input : [];
@@ -217,9 +150,9 @@ final class Settings {
 		$this->option_manager->update_all( self::MODULE_SLUG, $sanitized );
 
 		/**
-		 * Setiap perubahan Sitemap Settings berpotensi mengubah
-		 * struktur konten yang di-generate - invalidasi seluruh
-		 * cache sitemap (SITEMAP_MODULE_ARCHITECTURE.md §4).
+		 * Any Sitemap Settings change can potentially alter the
+		 * generated content's structure — invalidate every sitemap
+		 * cache entry.
 		 */
 		do_action( 'lunar_seo_sitemap_settings_updated' );
 
@@ -227,10 +160,7 @@ final class Settings {
 	}
 
 	/**
-	 * Sanitasi seluruh data option, didelegasikan per section.
-	 *
-	 * @param mixed $input Data mentah seluruh option.
-	 * @return array Data tersanitasi.
+	 * A section that isn't registered is simply ignored (not saved).
 	 */
 	public function sanitize( $input ): array {
 		$input     = is_array( $input ) ? $input : [];
