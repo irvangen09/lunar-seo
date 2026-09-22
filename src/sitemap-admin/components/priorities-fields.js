@@ -12,16 +12,17 @@ const PRIORITY_OPTIONS = [ '1.0', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3
 );
 
 /**
- * Normalisasi nilai priority ke format 1 desimal ("1.0", bukan "1").
+ * Normalizes a priority value to a 1-decimal format ("1.0", not "1").
  *
- * WordPress REST API meng-encode float PHP bulat (1.0, 0.0) sebagai
- * angka JSON tanpa desimal ("1", "0") karena tidak menyertakan flag
- * JSON_PRESERVE_ZERO_FRACTION. Tanpa normalisasi ini, String(1) = "1"
- * tidak akan pernah cocok dengan opsi dropdown "1.0", membuat
- * SelectControl gagal menampilkan nilai yang benar-benar tersimpan.
+ * The WordPress REST API encodes a whole-number PHP float (1.0, 0.0)
+ * as a JSON number with no decimal ("1", "0"), since it doesn't
+ * include the JSON_PRESERVE_ZERO_FRACTION flag. Without this
+ * normalization, String(1) = "1" would never match the "1.0" dropdown
+ * option, causing SelectControl to fail to display the value that's
+ * actually stored.
  *
- * @param {number|string|undefined} value Nilai priority mentah.
- * @return {string} Nilai dengan format 1 desimal.
+ * @param {number|string|undefined} value The raw priority value.
+ * @return {string} The value in 1-decimal format.
  */
 function normalizePriority( value ) {
 	const numericValue = Number( value ?? 0.3 );
