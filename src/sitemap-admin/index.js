@@ -1,7 +1,7 @@
 /**
- * Entry point Admin - Module Sitemap.
+ * Admin entry point — Module Sitemap.
  *
- * Mount React Settings app ke root container yang dirender oleh
+ * Mounts the React Settings app onto the root container rendered by
  * modules/sitemap/Admin.php.
  *
  * @package Lunar\SEO
