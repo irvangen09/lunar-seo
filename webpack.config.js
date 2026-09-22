@@ -1,17 +1,18 @@
 /**
- * Konfigurasi Webpack custom, mewarisi (extend) default dari
- * @wordpress/scripts agar tetap mendapat semua benefit resmi
- * (Babel, ESLint config, dependency extraction, dst) tanpa perlu
- * membangun konfigurasi dari nol.
+ * Custom Webpack config, extending the @wordpress/scripts default so
+ * it still gets every official benefit (Babel, ESLint config,
+ * dependency extraction, etc.) without building a config from
+ * scratch.
  *
- * Entry "editor" -> build/editor.js, dipakai untuk
- * PluginSidebar/PluginDocumentSettingPanel pada Block Editor
- * (module General).
+ * Entry "editor" -> build/editor.js, used for
+ * PluginSidebar/PluginDocumentSettingPanel in the Block Editor
+ * (General module).
  *
- * Entry "admin" -> build/admin.js, React Settings app module General.
+ * Entry "admin" -> build/admin.js, the General module's React
+ * Settings app.
  *
- * Entry "sitemap-admin" -> build/sitemap-admin.js, React Settings
- * app module Sitemap.
+ * Entry "sitemap-admin" -> build/sitemap-admin.js, the Sitemap
+ * module's React Settings app.
  */
 
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
