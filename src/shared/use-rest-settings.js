@@ -1,9 +1,9 @@
 /**
  * useRestSettings.
  *
- * Hook shared untuk fetch & save data settings via REST route custom
- * module (lunar-seo/v1/{module}-settings). Diekstrak dari logic yang
- * sebelumnya duplikat 1:1 di src/admin/app.js dan
+ * A shared hook for fetching & saving settings data via a module's
+ * custom REST route (lunar-seo/v1/{module}-settings). Extracted from
+ * logic that used to be duplicated 1:1 in src/admin/app.js and
  * src/sitemap-admin/app.js.
  *
  * @package Lunar\SEO
@@ -14,7 +14,7 @@ import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * @param {string} restPath Path REST route, contoh: '/lunar-seo/v1/general-settings'.
+ * @param {string} restPath The REST route path, e.g. '/lunar-seo/v1/general-settings'.
  * @return {{settings: (Object|null), setSettings: Function, isSaving: boolean, notice: (Object|null), save: Function}}
  */
 export default function useRestSettings( restPath ) {
@@ -32,9 +32,9 @@ export default function useRestSettings( restPath ) {
 				}
 			} )
 			.catch( () => {
-				// Tanpa .catch() ini, kegagalan request pertama membuat
-				// `settings` tetap null selamanya - UI macet di <Spinner />
-				// tanpa pesan error apapun.
+				// Without this .catch(), a failed initial request leaves
+				// `settings` null forever — the UI gets stuck on
+				// <Spinner /> with no error message at all.
 				if ( isMounted ) {
 					setNotice( {
 						status: 'error',
