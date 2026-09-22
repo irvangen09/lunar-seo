@@ -1,9 +1,9 @@
 /**
- * Entry point Editor.
+ * Editor entry point.
  *
- * Registrasi PluginSidebar (preview + form lengkap) dan
- * PluginDocumentSettingPanel (indikator ringkas), sesuai keputusan
- * Editor Integration Strategy (GENERAL_MODULE_ARCHITECTURE.md §4).
+ * Registers PluginSidebar (preview + full form) and
+ * PluginDocumentSettingPanel (quick-glance indicator), per the Editor
+ * Integration Strategy decision (GENERAL_MODULE_ARCHITECTURE.md §4).
  *
  * @package Lunar\SEO
  */
