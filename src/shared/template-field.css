@@ -1,12 +1,13 @@
 /**
  * Template Field - Variable Chips.
  *
- * Menggantikan tampilan flat teks "{title}" dengan tombol bergaya
- * chip/pill (mirip pola yang lazim di plugin SEO lain) - label yang
- * ditampilkan sudah ramah-baca ("Title"), token asli "{title}" tetap
- * yang disisipkan ke field dan tersedia lewat tooltip native (atribut
- * title). Warna mengikuti Admin Color Scheme WordPress (biru primer
- * WP-Admin, DESIGN_SYSTEM.md §4) - bukan warna baru.
+ * Replaces the flat text display of "{title}" with a chip/pill-style
+ * button (similar to a common pattern in other SEO plugins) - the
+ * displayed label is reader-friendly ("Title"), while the actual
+ * "{title}" token is what gets inserted into the field, and is still
+ * available via the native tooltip (title attribute). Colors follow
+ * WordPress's Admin Color Scheme (WP-Admin's primary blue) - not a
+ * new color.
  */
 
 .lunar-template-field__variables {
