@@ -1,16 +1,15 @@
 /**
  * Media Upload Field.
  *
- * Komponen reusable untuk field bertipe attachment ID (Site Image,
- * dan nanti Default Social Image/Twitter Image di section Social).
- * Menggunakan wp.media secara langsung (bukan komponen dari
- * @wordpress/block-editor) agar tidak menarik dependency block
- * editor yang tidak diperlukan di halaman Settings biasa
- * (ARCHITECTURE.md §20 - hindari dependency yang tidak perlu).
+ * A reusable component for an attachment-ID-typed field (Site Image,
+ * and Default Social Image/Twitter Image in the Social section). Uses
+ * wp.media directly (not a component from @wordpress/block-editor) so
+ * a regular Settings page doesn't pull in an unnecessary block editor
+ * dependency.
  *
- * Preview gambar diambil via useEntityRecord (REST core-data),
- * bukan wp.media.attachment(), agar konsisten dengan pola data
- * fetching React/REST yang dipakai di seluruh Admin app.
+ * The image preview is fetched via useEntityRecord (REST core-data),
+ * not wp.media.attachment(), to stay consistent with the React/REST
+ * data-fetching pattern used throughout the Admin app.
  *
  * @package Lunar\SEO
  */
