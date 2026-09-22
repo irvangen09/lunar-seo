@@ -1,8 +1,8 @@
 /**
- * React Settings App - Lunar SEO Sitemap.
+ * React Settings App — Lunar SEO Sitemap.
  *
- * Shell utama halaman Settings module Sitemap. Pola identik dengan
- * src/admin/app.js (module General) - REST route custom, bukan
+ * Main shell for the Sitemap module's Settings page. Identical pattern
+ * to src/admin/app.js (General module) — a custom REST route, not
  * /wp/v2/settings.
  *
  * @package Lunar\SEO
@@ -36,10 +36,10 @@ export default function App() {
 				}
 			} )
 			.catch( () => {
-				// Gagal ambil daftar Custom Post Type/Taxonomy bukan hal
-				// fatal - SitemapContentFields tetap bisa merender
-				// checkbox WordPress Standard Content tanpa daftar CPT
-				// dinamis apabila contentTypes tetap null.
+				// Failing to fetch the Custom Post Type/Taxonomy list isn't
+				// fatal — SitemapContentFields can still render the
+				// WordPress Standard Content checkboxes without a dynamic
+				// CPT list, as long as contentTypes stays null.
 			} );
 
 		return () => {
