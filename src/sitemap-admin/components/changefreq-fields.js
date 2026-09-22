@@ -1,8 +1,8 @@
 /**
  * Changefreq Fields.
  *
- * Tidak ada mockup untuk UI ini - struktur meniru PrioritiesFields
- * (dikonfirmasi dengan pengguna).
+ * No mockup exists for this UI — its structure mirrors
+ * PrioritiesFields.
  *
  * @package Lunar\SEO
  */
