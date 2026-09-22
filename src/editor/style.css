@@ -1,11 +1,11 @@
 /**
  * Styles - Editor (PluginSidebar/PluginDocumentSettingPanel).
  *
- * Satu-satunya bagian yang benar-benar butuh tampilan di luar default
- * @wordpress/components: SEO Preview (preview.js) mensimulasikan hasil
- * pencarian search engine - warna judul/URL/deskripsi berikut adalah
- * konvensi umum yang membantu penulis memahami hasil render (fungsi,
- * bukan dekorasi - DESIGN_SYSTEM.md §1 Content First).
+ * The only part that genuinely needs styling beyond the
+ * @wordpress/components default: the SEO Preview (preview.js)
+ * simulates a search engine result — the title/URL/description colors
+ * below are the common convention that helps an author understand
+ * what the render will look like (functional, not decorative).
  *
  * @package Lunar\SEO
  */
