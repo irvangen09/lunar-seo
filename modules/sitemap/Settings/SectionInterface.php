@@ -1,13 +1,11 @@
 <?php
 /**
- * Kontrak yang wajib diimplementasikan setiap section settings
- * module Sitemap.
+ * Contract every Sitemap module settings section must implement.
  *
- * Sengaja TIDAK memakai/mewarisi SectionInterface milik module
- * General - setiap module harus berdiri sendiri tanpa bergantung
- * langsung pada module lain (ARCHITECTURE.md §4, §22). Duplikasi
- * kontrak sekecil ini (2 method) adalah trade-off yang wajar
- * dibandingkan coupling antar module.
+ * Deliberately does NOT use/extend the General module's
+ * SectionInterface — each module must stand alone without depending
+ * directly on another module. Duplicating a contract this small (2
+ * methods) is a reasonable trade-off against cross-module coupling.
  *
  * @package Lunar\SEO\Modules\Sitemap\Settings
  */
@@ -21,18 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface SectionInterface {
 
 	/**
-	 * Key unik section, dipakai sebagai key nested array pada
-	 * option module.
-	 *
-	 * @return string
+	 * This section's unique key, used as the nested array key in the
+	 * module's option.
 	 */
 	public function get_section_key(): string;
 
 	/**
-	 * Sanitasi data mentah milik section ini sebelum disimpan.
-	 *
-	 * @param array $input Data mentah dari input pengguna.
-	 * @return array Data yang telah tersanitasi.
+	 * Sanitizes this section's raw data before it's saved.
 	 */
 	public function sanitize( array $input ): array;
 }
