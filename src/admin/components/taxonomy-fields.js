@@ -1,10 +1,10 @@
 /**
  * Taxonomy Fields.
  *
- * Fields untuk satu tipe taksonomi (Categories atau Tags) pada
- * section Categories & Tags. Konsisten dengan
- * Settings/CategoriesTags.php (PHP): show_in_search_results,
- * seo_title, meta_description, auto_generate_description.
+ * Fields for one taxonomy type (Categories or Tags) in the Categories
+ * & Tags section. Consistent with Settings/CategoriesTags.php (PHP):
+ * show_in_search_results, seo_title, meta_description,
+ * auto_generate_description.
  *
  * @package Lunar\SEO
  */
