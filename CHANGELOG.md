@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `lunar_seo_supported_post_types` filter, allowing other plugins to register additional post types for General module SEO title/meta and Schema module Article/WebPage output. Defaults to `post` and `page`; no behavior change for sites where nothing registers into it.
 - `lunar_seo_module_is_active` filter, allowing a site to disable one module (General, Sitemap, or Schema) without disabling the plugin entirely. Documented in the README's Extensibility section.
 - `makepot` npm script (`wp i18n make-pot`), so the `.pot` translation template can be generated on demand ahead of a release instead of being hand-maintained.
+- `languages/lunar-seo.pot` — initial translation template, 150 translatable strings across PHP and JS. Regenerate via `npm run makepot` before each release rather than hand-editing.
 
 ### Changed
 
