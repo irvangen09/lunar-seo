@@ -8,7 +8,8 @@
     "start": "wp-scripts start",
     "lint:js": "wp-scripts lint-js",
     "format": "wp-scripts format",
-    "plugin-zip": "wp-scripts plugin-zip"
+    "plugin-zip": "wp-scripts plugin-zip",
+    "makepot": "wp i18n make-pot . languages/lunar-seo.pot --exclude=vendor,node_modules,build,tests,docs,internal-docs"
   },
   "files": [
     "lunar-seo.php",
