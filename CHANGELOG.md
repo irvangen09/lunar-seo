@@ -9,10 +9,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - `lunar_seo_supported_post_types` filter, allowing other plugins to register additional post types for General module SEO title/meta and Schema module Article/WebPage output. Defaults to `post` and `page`; no behavior change for sites where nothing registers into it.
+- `lunar_seo_module_is_active` filter, allowing a site to disable one module (General, Sitemap, or Schema) without disabling the plugin entirely. Documented in the README's Extensibility section.
+- `makepot` npm script (`wp i18n make-pot`), so the `.pot` translation template can be generated on demand ahead of a release instead of being hand-maintained.
 
 ### Changed
 
 - `Editor`, `Assets`, `TitleRenderer`, and `MetaRenderer` (General module), and `ArticleNode` and `WebPageNode` (Schema module), now resolve supported post types through the new filter instead of a hardcoded `post`/`page` list.
+
+### Fixed
+
+- Translated remaining Indonesian code comments and removed internal-document references from comments in 5 files that were missed by the previous language sweep (`modules/general/Settings/Social.php`, `modules/general/Services/DescriptionGenerator.php`, `src/editor/components/preview.js`, `src/editor/index.js`, `src/admin/index.js`).
+- Normalized CRLF line endings to LF in 13 files, for consistency with the rest of the codebase.
 
 ## [1.0.2]
 
