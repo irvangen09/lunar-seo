@@ -1,8 +1,8 @@
 /**
  * Admin entry point.
  *
- * Mounts the React Settings app onto the root container rendered by
- * Admin.php (GENERAL_MODULE_ARCHITECTURE.md §7).
+ * Mounts the React Settings app onto the empty root container that
+ * Admin.php renders server-side.
  *
  * @package Lunar\SEO
  */

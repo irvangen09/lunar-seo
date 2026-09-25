@@ -1,10 +1,10 @@
 /**
  * SEO Preview.
  *
- * Simulasi ringan tampilan hasil pencarian Google berdasarkan nilai
- * SEO Title, Meta Description, dan URL saat ini. Murni presentasi
- * client-side (tidak memanggil REST), agar update secara real-time
- * mengikuti perubahan input di form.
+ * A lightweight simulation of how the page looks in Google search
+ * results, based on the current SEO Title, Meta Description, and
+ * URL values. Purely client-side presentation (no REST calls), so
+ * it updates in real time as the form inputs change.
  *
  * @package Lunar\SEO
  */

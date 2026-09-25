@@ -2,8 +2,8 @@
 /**
  * Section: Social.
  *
- * Mengelola setting Open Graph (enable + default image) dan
- * Twitter Card (enable + default image).
+ * Manages Open Graph (enable + default image) and Twitter Card
+ * (enable + default image) settings.
  *
  * @package Lunar\SEO\Modules\General\Settings
  */
@@ -16,23 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Social implements SectionInterface {
 
-	/**
-	 * Key section pada nested array option module.
-	 *
-	 * @var string
-	 */
 	private const SECTION_KEY = 'social';
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_section_key(): string {
 		return self::SECTION_KEY;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function sanitize( array $input ): array {
 		return [
 			'open_graph'   => $this->sanitize_platform( $input['open_graph'] ?? [] ),
@@ -41,14 +30,9 @@ final class Social implements SectionInterface {
 	}
 
 	/**
-	 * Sanitasi satu platform (Open Graph atau Twitter Card).
-	 *
-	 * Kedua platform memiliki bentuk data identik (enabled + image_id),
-	 * sehingga logic sanitasi digabung lewat satu method
-	 * (CODING_STANDARD.md §2 - DRY).
-	 *
-	 * @param mixed $raw Data mentah satu platform.
-	 * @return array
+	 * Open Graph and Twitter Card share the same data shape
+	 * (enabled + image_id), so both are sanitized through this one
+	 * method rather than two near-identical ones.
 	 */
 	private function sanitize_platform( $raw ): array {
 		$raw = is_array( $raw ) ? $raw : [];

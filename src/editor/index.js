@@ -2,8 +2,10 @@
  * Editor entry point.
  *
  * Registers PluginSidebar (preview + full form) and
- * PluginDocumentSettingPanel (quick-glance indicator), per the Editor
- * Integration Strategy decision (GENERAL_MODULE_ARCHITECTURE.md §4).
+ * PluginDocumentSettingPanel (quick-glance indicator) — the sidebar
+ * carries the SEO Preview and full form since it has room for both
+ * side by side, while the document panel stays a lightweight status
+ * indicator in the Document sidebar.
  *
  * @package Lunar\SEO
  */

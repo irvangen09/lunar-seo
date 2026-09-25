@@ -5,7 +5,7 @@
  * Generates a rule-based (NOT generative AI) fallback Meta Description
  * when the admin/author hasn't filled one in manually.
  *
- * Fallback order (GENERAL_MODULE_ARCHITECTURE.md §5.2):
+ * Fallback order:
  * 1. WordPress's manual excerpt (has_excerpt()).
  * 2. The first meaningful paragraph of the content.
  * 3. Trimmed to ~160 characters without cutting a word in half.
@@ -14,8 +14,9 @@
  * Description template in Global Settings (which supports
  * placeholders), this fallback is a pure extraction from the post's
  * own content, not a template. The description is static (the same
- * for every visitor) per the §5.2 decision — it isn't generated
- * dynamically per visitor search query.
+ * for every visitor) — it isn't generated dynamically per visitor
+ * search query, since there's no technical way for the server to
+ * know a visitor's search query at render time.
  *
  * @package Lunar\SEO\Modules\General\Services
  */
