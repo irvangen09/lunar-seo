@@ -51,6 +51,20 @@ add_filter( 'lunar_seo_supported_post_types', function ( array $post_types ): ar
 
 `content_group` determines which General module Content settings apply; `schema_node` determines whether the post type gets an `Article` or `WebPage` Schema node.
 
+All three modules (General, Sitemap, Schema) are active by default. A module can be disabled on a given site — for example if another plugin already handles Sitemap — through a filter:
+
+```php
+add_filter( 'lunar_seo_module_is_active', function ( bool $active, string $module_slug ): bool {
+	if ( 'sitemap' === $module_slug ) {
+		return false;
+	}
+
+	return $active;
+}, 10, 2 );
+```
+
+`$module_slug` is one of `general`, `sitemap`, or `schema`.
+
 ## Installation
 
 1. Download the latest release (`.zip`) from the [Releases](../../releases) page, or clone this repository and build it yourself (see [CONTRIBUTING.md](CONTRIBUTING.md)).
