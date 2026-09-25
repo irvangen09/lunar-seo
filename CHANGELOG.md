@@ -21,13 +21,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Translated remaining Indonesian code comments and removed internal-document references from comments in 5 files that were missed by the previous language sweep (`modules/general/Settings/Social.php`, `modules/general/Services/DescriptionGenerator.php`, `src/editor/components/preview.js`, `src/editor/index.js`, `src/admin/index.js`).
 - Normalized CRLF line endings to LF in 13 files, for consistency with the rest of the codebase.
 
-## [1.0.2]
-
-Existing release prior to this changelog. Earlier version history is not tracked here.
-
 ## [1.0.2] - 2026-07-29
 
-Hasil re-audit (regression check) terhadap v1.0.1 — seluruh perbaikan v1.0.1 terverifikasi tanpa regresi. Rilis ini berisi temuan tambahan dari re-audit tersebut.
+Result of a re-audit (regression check) against v1.0.1 — every v1.0.1 fix was verified with no regressions. This release contains the additional findings from that re-audit.
 
 ### Fixed
 

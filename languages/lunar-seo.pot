@@ -1,0 +1,660 @@
+# Copyright (C) 2026 Irvan Noerfazri
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Lunar SEO 1.0.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lunar-seo\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-25T02:45:57+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: lunar-seo\n"
+
+#. Plugin Name of the plugin
+#: lunar-seo.php
+#: modules/general/Admin.php:53
+#: modules/general/MetaBox.php:47
+#: src/admin/app.js:107
+#: src/editor/components/document-panel.js:50
+#: src/editor/components/sidebar.js:73
+#: src/editor/components/sidebar.js:75
+msgid "Lunar SEO"
+msgstr ""
+
+#. Description of the plugin
+#: lunar-seo.php
+msgid "A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards."
+msgstr ""
+
+#. Author of the plugin
+#: lunar-seo.php
+msgid "Irvan Noerfazri"
+msgstr ""
+
+#. translators: %s: minimum required PHP version.
+#: includes/Bootstrap.php:61
+#, php-format
+msgid "Lunar SEO requires PHP %s or higher. Please contact your hosting provider to upgrade PHP."
+msgstr ""
+
+#. translators: %s: minimum required WordPress version.
+#: includes/Bootstrap.php:76
+#, php-format
+msgid "Lunar SEO requires WordPress %s or higher. Please update WordPress."
+msgstr ""
+
+#: lunar-seo.php:37
+msgid "Lunar SEO: Dependencies are not installed. Please run \"composer install\"."
+msgstr ""
+
+#: modules/general/Admin.php:54
+msgid "SEO"
+msgstr ""
+
+#: modules/general/MetaBox.php:65
+#: src/admin/components/content-type-fields.js:34
+#: src/admin/components/taxonomy-fields.js:37
+#: src/editor/components/document-panel.js:53
+#: src/editor/components/sidebar.js:86
+msgid "SEO Title"
+msgstr ""
+
+#: modules/general/MetaBox.php:75
+#: src/admin/components/content-type-fields.js:45
+#: src/admin/components/taxonomy-fields.js:45
+#: src/editor/components/document-panel.js:64
+#: src/editor/components/sidebar.js:94
+msgid "Meta Description"
+msgstr ""
+
+#: modules/general/MetaBox.php:84
+#: src/editor/components/sidebar.js:103
+msgid "Canonical URL"
+msgstr ""
+
+#: modules/general/MetaBox.php:94
+#: src/editor/components/sidebar.js:111
+#: src/editor/components/sidebar.js:112
+msgid "Robots"
+msgstr ""
+
+#: modules/general/Renderers/TitleRenderer.php:87
+msgid "Search results for {query}"
+msgstr ""
+
+#: modules/general/Renderers/TitleRenderer.php:95
+msgid "Page not found"
+msgstr ""
+
+#: modules/schema/Nodes/BreadcrumbListNode.php:54
+msgid "Home"
+msgstr ""
+
+#: modules/sitemap/Admin.php:52
+#: src/sitemap-admin/app.js:67
+msgid "Lunar SEO - Sitemap"
+msgstr ""
+
+#: modules/sitemap/Admin.php:53
+msgid "Sitemap"
+msgstr ""
+
+#: src/admin/app.js:109
+#: src/sitemap-admin/app.js:69
+msgid "Save Changes"
+msgstr ""
+
+#: src/admin/app.js:120
+msgid "Site Info"
+msgstr ""
+
+#: src/admin/app.js:124
+msgid "Content"
+msgstr ""
+
+#: src/admin/app.js:128
+msgid "Categories & Tags"
+msgstr ""
+
+#: src/admin/app.js:132
+msgid "Social"
+msgstr ""
+
+#: src/admin/app.js:136
+msgid "Verification"
+msgstr ""
+
+#: src/admin/app.js:140
+msgid "Robots & URL"
+msgstr ""
+
+#: src/admin/components/categories-tags-panel.js:18
+#: src/sitemap-admin/components/changefreq-fields.js:21
+#: src/sitemap-admin/components/priorities-fields.js:45
+msgid "Categories"
+msgstr ""
+
+#: src/admin/components/categories-tags-panel.js:26
+msgid "Tags"
+msgstr ""
+
+#: src/admin/components/content-panel.js:18
+#: src/sitemap-admin/components/changefreq-fields.js:18
+#: src/sitemap-admin/components/priorities-fields.js:38
+msgid "Homepage"
+msgstr ""
+
+#: src/admin/components/content-panel.js:28
+msgid "Post"
+msgstr ""
+
+#: src/admin/components/content-panel.js:37
+msgid "Page"
+msgstr ""
+
+#: src/admin/components/content-panel.js:46
+msgid "Search"
+msgstr ""
+
+#: src/admin/components/content-panel.js:54
+msgid "404 (Not Found)"
+msgstr ""
+
+#: src/admin/components/content-type-fields.js:54
+#: src/admin/components/taxonomy-fields.js:54
+msgid "Auto-generate meta description"
+msgstr ""
+
+#: src/admin/components/content-type-fields.js:55
+#: src/admin/components/taxonomy-fields.js:55
+msgid "If the meta description is empty, we'll automatically generate one from your content."
+msgstr ""
+
+#: src/admin/components/media-upload-field.js:32
+msgid "Use this image"
+msgstr ""
+
+#: src/admin/components/media-upload-field.js:57
+msgid "No image selected"
+msgstr ""
+
+#: src/admin/components/media-upload-field.js:65
+msgid "Select Image"
+msgstr ""
+
+#: src/admin/components/media-upload-field.js:70
+msgid "Remove"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:23
+msgid "Use Default Robots Meta"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:24
+msgid "index, follow"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:25
+msgid "noindex, follow"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:26
+msgid "noindex, nofollow"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:42
+msgid "Default Robots Meta"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:44
+msgid "Choose the default search engine instructions for your site content."
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:61
+msgid "Default Robots for Archives"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:62
+msgid "Apply these settings to archive pages such as categories, tags, authors, search results, and date archives."
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:72
+msgid "Default Robots for 404 Pages"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:73
+msgid "Choose how search engines should handle 404 (Not Found) pages."
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:79
+msgid "URL"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:82
+msgid "Remove Category Base"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:83
+msgid "Remove /category/ from category URLs."
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:89
+msgid "Remove Tag Base"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:90
+msgid "Remove /tag/ from tag URLs."
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:96
+msgid "Redirect Attachments to Parent"
+msgstr ""
+
+#: src/admin/components/robots-url-panel.js:97
+msgid "Redirect attachment pages to their parent post or page."
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:23
+msgid "Website Name"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:24
+msgid "The name of your website."
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:29
+msgid "Alternate Website Name"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:30
+msgid "Use the alternate website name for acronyms, or a shorter version of your website’s name."
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:40
+msgid "Title Separator"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:43
+msgid "Choose the separator used in title templates."
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:51
+msgid "Preview"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:53
+msgid "Example Post Title"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:57
+msgid "(Website Name)"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:62
+msgid "Site Image"
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:63
+msgid "Used as a fallback for posts/pages that don’t have any images set."
+msgstr ""
+
+#: src/admin/components/site-info-panel.js:67
+#: src/admin/components/social-panel.js:39
+msgid "Recommended size: 1200 x 630 px"
+msgstr ""
+
+#: src/admin/components/social-panel.js:26
+msgid "Open Graph"
+msgstr ""
+
+#: src/admin/components/social-panel.js:28
+msgid "Enable Open Graph"
+msgstr ""
+
+#: src/admin/components/social-panel.js:29
+msgid "Add Open Graph meta tags to your site."
+msgstr ""
+
+#: src/admin/components/social-panel.js:34
+msgid "Default Social Image"
+msgstr ""
+
+#: src/admin/components/social-panel.js:35
+#: src/admin/components/social-panel.js:54
+msgid "This image will be used if a post or page does not have a featured image."
+msgstr ""
+
+#: src/admin/components/social-panel.js:45
+msgid "Twitter (X) Card"
+msgstr ""
+
+#: src/admin/components/social-panel.js:47
+msgid "Enable Twitter Card"
+msgstr ""
+
+#: src/admin/components/social-panel.js:48
+msgid "Add Twitter Card meta tags to your site."
+msgstr ""
+
+#: src/admin/components/social-panel.js:53
+msgid "Default Twitter Image"
+msgstr ""
+
+#: src/admin/components/social-panel.js:58
+msgid "Recommended size: 1200 x 600 px"
+msgstr ""
+
+#: src/admin/components/taxonomy-fields.js:27
+msgid "Show in search results"
+msgstr ""
+
+#: src/admin/components/taxonomy-fields.js:28
+msgid "Enable to allow archives to appear in search engine results."
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:27
+msgid "Vertical bar"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:28
+msgid "Hyphen"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:29
+msgid "Em dash"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:30
+msgid "Colon"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:31
+msgid "Period"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:32
+msgid "Bullet"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:33
+msgid "Asterisk"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:34
+msgid "Tilde"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:35
+msgid "Left angle quotes"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:36
+msgid "Right angle quotes"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:37
+msgid "Slash"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:38
+msgid "Backslash"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:39
+msgid "Greater than"
+msgstr ""
+
+#: src/admin/components/title-separator-picker.js:40
+msgid "Less than"
+msgstr ""
+
+#: src/admin/components/verification-panel.js:17
+msgid "Google"
+msgstr ""
+
+#: src/admin/components/verification-panel.js:18
+msgid "Get your verification code in Google Search Console."
+msgstr ""
+
+#: src/admin/components/verification-panel.js:19
+#: src/admin/components/verification-panel.js:27
+#: src/admin/components/verification-panel.js:35
+msgid "Add verification code"
+msgstr ""
+
+#: src/admin/components/verification-panel.js:25
+msgid "Bing"
+msgstr ""
+
+#: src/admin/components/verification-panel.js:26
+msgid "Get your verification code in Bing Webmaster Tools."
+msgstr ""
+
+#: src/admin/components/verification-panel.js:33
+msgid "Yandex"
+msgstr ""
+
+#: src/admin/components/verification-panel.js:34
+msgid "Get your verification code in Yandex Webmaster."
+msgstr ""
+
+#. translators: 1: current character count, 2: recommended character limit
+#: src/editor/components/document-panel.js:57
+#: src/editor/components/document-panel.js:68
+#, js-format
+msgid "%1$d/%2$d characters"
+msgstr ""
+
+#: src/editor/components/document-panel.js:61
+msgid "Using the post title (not overridden)"
+msgstr ""
+
+#: src/editor/components/document-panel.js:72
+msgid "Using the auto-generated excerpt (not overridden)"
+msgstr ""
+
+#: src/editor/components/preview.js:19
+msgid "(SEO Title not filled in)"
+msgstr ""
+
+#: src/editor/components/preview.js:22
+msgid "(Meta Description not filled in)"
+msgstr ""
+
+#: src/editor/components/sidebar.js:76
+msgid "SEO Preview"
+msgstr ""
+
+#: src/editor/components/sidebar.js:84
+msgid "General"
+msgstr ""
+
+#: src/editor/components/sidebar.js:107
+msgid "Leave empty to use the default URL."
+msgstr ""
+
+#: src/shared/template-field.js:38
+msgid "Title"
+msgstr ""
+
+#: src/shared/template-field.js:39
+msgid "Term Title"
+msgstr ""
+
+#: src/shared/template-field.js:40
+msgid "Site Name"
+msgstr ""
+
+#: src/shared/template-field.js:41
+msgid "Tagline"
+msgstr ""
+
+#: src/shared/template-field.js:42
+msgid "Separator"
+msgstr ""
+
+#: src/shared/template-field.js:43
+msgid "Search Query"
+msgstr ""
+
+#: src/shared/use-rest-settings.js:41
+msgid "Failed to load settings. Please refresh the page."
+msgstr ""
+
+#: src/shared/use-rest-settings.js:67
+msgid "Settings saved successfully."
+msgstr ""
+
+#: src/shared/use-rest-settings.js:73
+msgid "Failed to save settings."
+msgstr ""
+
+#: src/sitemap-admin/app.js:80
+msgid "Sitemap Content"
+msgstr ""
+
+#: src/sitemap-admin/app.js:88
+msgid "Excluded Items"
+msgstr ""
+
+#: src/sitemap-admin/app.js:95
+msgid "Priorities"
+msgstr ""
+
+#: src/sitemap-admin/app.js:102
+msgid "Changefreq"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:19
+msgid "Posts"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:20
+#: src/sitemap-admin/components/priorities-fields.js:44
+msgid "Static pages"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:22
+#: src/sitemap-admin/components/priorities-fields.js:46
+msgid "Archives"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:23
+#: src/sitemap-admin/components/priorities-fields.js:47
+msgid "Tag pages"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:24
+#: src/sitemap-admin/components/priorities-fields.js:48
+msgid "Author pages"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:25
+#: src/sitemap-admin/components/priorities-fields.js:49
+msgid "Custom post types (default)"
+msgstr ""
+
+#: src/sitemap-admin/components/changefreq-fields.js:26
+#: src/sitemap-admin/components/priorities-fields.js:50
+msgid "Custom taxonomies (default)"
+msgstr ""
+
+#: src/sitemap-admin/components/excluded-items-fields.js:96
+msgid "Excluded categories"
+msgstr ""
+
+#: src/sitemap-admin/components/excluded-items-fields.js:110
+msgid "Exclude posts"
+msgstr ""
+
+#: src/sitemap-admin/components/excluded-items-fields.js:111
+msgid "Exclude the following posts or pages: List of IDs, separated by comma. Note: Child posts won't be excluded automatically!"
+msgstr ""
+
+#: src/sitemap-admin/components/priorities-fields.js:39
+msgid "Posts (If auto calculation is disabled)"
+msgstr ""
+
+#: src/sitemap-admin/components/priorities-fields.js:42
+msgid "Minimum post priority (Even if auto calculation is enabled)"
+msgstr ""
+
+#: src/sitemap-admin/components/priorities-fields.js:63
+msgid "Automatic priority calculation for Posts"
+msgstr ""
+
+#: src/sitemap-admin/components/priorities-fields.js:64
+msgid "Newer posts get priority closer to \"Posts\", older posts closer to \"Minimum post priority\"."
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:15
+msgid "Include homepage"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:16
+msgid "Include posts"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:17
+msgid "Include static pages"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:18
+msgid "Include categories"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:19
+msgid "Include archives"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:20
+msgid "Include author pages"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:21
+msgid "Include tag pages"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:40
+msgid "WordPress standard content"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:54
+msgid "Custom post types"
+msgstr ""
+
+#. translators: %s: custom post type name
+#: src/sitemap-admin/components/sitemap-content-fields.js:61
+#, js-format
+msgid "Include custom post type %s"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:76
+msgid "Custom taxonomies"
+msgstr ""
+
+#. translators: %s: custom taxonomy name
+#: src/sitemap-admin/components/sitemap-content-fields.js:83
+#, js-format
+msgid "Include custom taxonomy %s"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:96
+msgid "Further options"
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:99
+msgid "Include the last modification time."
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:100
+msgid "This is highly recommended and helps the search engines to know when your content has changed. This option affects all sitemap entries."
+msgstr ""
+
+#: src/sitemap-admin/components/sitemap-content-fields.js:109
+msgid "Links per page"
+msgstr ""
