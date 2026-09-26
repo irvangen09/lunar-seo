@@ -2,7 +2,7 @@
 
 **Project:** Lunar SEO
 **Module:** Sitemap
-**Version:** 1.2 (LOCKED - 3 🔶 points confirmed via live end-to-end testing on stg1.gamestuff.id; see §0.1 for the 1.2 documentation correction)
+**Version:** 1.3 (LOCKED - 3 🔶 points confirmed via live end-to-end testing on stg1.gamestuff.id; see §0.1 for the 1.2 documentation correction and §0.2 for the 1.3 query-strategy change)
 **Status:** LOCKED
 
 > This document defines the technical architecture of the Sitemap module. It follows the pattern already proven in `GENERAL_MODULE_ARCHITECTURE.md` — sections that are simply pattern reuse are described briefly, while the 3 points that are genuinely new (and carry real trade-offs) are marked 🔶 and have been confirmed through real testing (see §9).
@@ -14,6 +14,18 @@
 The date-archive sitemap type was present in the code and passing live tests, but was missing from the two most structural parts of this document. §1 listed four Providers and omitted `DateArchiveProvider.php`; §3's URL table had no row for `/archives-sitemap.xml`, even though `Frontend::CORE_TYPE_PREFIXES` has always included an `archives` entry that produces exactly that URL.
 
 This was a documentation gap, not a half-built feature — the rest of the document already covered it: §2's Option Data Model lists an `archives` field in both `priorities` and `changefreq`, and §9 records *"Include Archives — confirmed as assumed (monthly archives, /YYYY/MM/)"* among the scenarios that passed live end-to-end testing. Both sections have now been filled in so the Provider list and the URL table match what ships. No behavior change.
+
+---
+
+# 0.2 Revision 1.3 — PostTypeProvider Query Strategy at Scale (🔶 4)
+
+`PostTypeProvider::get_entries()` previously fetched every post of a given type in one `posts_per_page => -1` query, holding every post as a fully-hydrated `WP_Post` object for the whole function call. This was a known, deliberately deferred item (see the Progressive Clean Code Audit's Nice to Have list) — acceptable at the post counts the ecosystem's primary use case (a game-documentation wiki) was expected to reach, but a real risk for a large site, since `get_permalink()` requires a fully-hydrated post and offers no lighter mode.
+
+Brought forward from "deferred" to "implemented" ahead of the originally-planned trigger, on the Product Owner's judgment that a future self is more likely to actually make the change now, while the context is fresh, than to notice and revisit an implicit growth threshold later.
+
+**Change:** `get_entries()` now runs in two passes — a `fields => 'ids'` query first (cheap: establishes the exact total and date order, which Automatic Priority's rank calculation needs regardless of how the posts are later fetched), then hydrates posts in fixed batches of `BATCH_SIZE` (500) via `post__in` queries ordered by `post__in`. Each batch's `WP_Post` objects go out of scope before the next batch is fetched, so peak memory is bounded by `BATCH_SIZE` rather than by the total post count. `update_post_meta_cache`/`update_post_term_cache` are also disabled on the hydration query, since this Provider never reads post meta or terms.
+
+**No behavior change:** entry order, rank, and priority values are unchanged — a rank sequence of 1..N assigned via a running counter across batches is identical to the previous single-pass `array index + 1`, since batches are contiguous, order-preserving slices of the same date-ordered ID list. `XmlBuilder`, `SitemapCache`, and the `links_per_page` pagination logic are untouched; `get_entries()`'s return shape is identical.
 
 ---
 
@@ -208,6 +220,7 @@ Identical pattern to General: React app + custom REST route (`lunar-seo/v1/sitem
 | 🔶 1 | Sitemap cache strategy | Transient + event-driven invalidation (Option B) | ✅ Confirmed live |
 | 🔶 2 | Automatic Priority formula | Rank-based linear interpolation | ✅ Confirmed live |
 | 🔶 3 | Rewrite rules & output | `generate_rewrite_rules` filter, same pattern as Category Base | ✅ Confirmed live (after 1 bug fix revision, see §6) |
+| 🔶 4 | `PostTypeProvider` query strategy at scale | Two-pass batch hydration, `BATCH_SIZE = 500` (see §0.2) | ✅ Implemented |
 
 ---
 
