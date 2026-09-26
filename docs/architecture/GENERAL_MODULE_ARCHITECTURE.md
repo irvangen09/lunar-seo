@@ -2,7 +2,7 @@
 
 **Project:** Lunar SEO
 **Module:** General
-**Version:** 1.2
+**Version:** 1.3
 **Status:** LOCKED
 **Document Relationship:** Addendum to `ARCHITECTURE.md` and `PLUGIN_BLUEPRINT.md`. Does not replace them, only clarifies how the global architecture applies specifically to the General module.
 
@@ -38,6 +38,14 @@ This document was previously named `SEO_MODULE_ARCHITECTURE.md` under the **Game
 The reason the original design didn't survive contact with the code is a real constraint, not drift for its own sake: the Renderers don't all attach to WordPress at the same point. `TitleRenderer` must register on the `pre_get_document_title`/`document_title_parts` filter (§6.2 item 1), which has to be in place before `wp_head` runs at all, while the other four attach to `wp_head` at their own priorities. A single `render(): void` called directly by the orchestrator cannot express that difference — so each Renderer registers its own hook inside `init()`, and the orchestrator stays thin by only calling `init()` on each one, without knowing where any of them attach.
 
 The formal interface earns its place for the same reason: with the orchestrator holding a mixed array of Renderers and calling one method on each, the contract is doing real work rather than being decorative. §6.1 (thin orchestrator), §6.2 (render order), §6.4 (escaping), and §6.5 (skip conditions) are all unaffected. This document had fallen behind the code, not the other way around; §6.3 now describes what actually ships.
+
+---
+
+# 0.2 Revision 1.3 — Future Trigger Recorded for the Uniform Constructor (§8.3)
+
+Every module (`General`, `Sitemap`, `Schema`) and `ModuleRegistry` share the same 4-parameter constructor (`OptionManager, SiteIdentity, AdminMenu, SupportedPostTypes`). Flagged during the Progressive Clean Code Audit as a "shotgun surgery" risk if a 5th Shared Service is ever added — every one of those call sites would need editing at once.
+
+No 5th Shared Service exists or is planned as of this revision, so refactoring now would mean designing a bundling shape (a `SharedServices` value object, most likely) against a guess rather than an actual need — real cost today for a benefit that may never materialize, or may not match the shape actually needed when it does (`ENGINEERING_PRINCIPLES.md` #1). Left unaddressed with no marker, though, this is exactly the kind of item a busy future session skips past without noticing. §8.3 now records the trigger and the intended shape, so if the day comes, it's an execution decision, not a design discussion.
 
 ---
 
@@ -250,6 +258,14 @@ Data is accessed via a **custom REST route** (`lunar-seo/v1/general-settings`), 
 ## 8.2 Rationale
 
 A Service Locator creates a hidden dependency on global state, conflicting with `CODING_STANDARD.md` §3: *"Avoid global state where not needed."* Dependency Injection makes each class's requirements explicit and easy to trace. Components that don't need `OptionManager` (e.g. `Admin.php`, `Assets.php`) don't receive it — per `ENGINEERING_PRINCIPLES.md` #1 — Write with Purpose.
+
+## 8.3 Future Trigger — a 5th Shared Service
+
+Every module's constructor (`General`, `Sitemap`, `Schema`) and `ModuleRegistry` currently accept the same 4 Shared Services, in the same order: `OptionManager, SiteIdentity, AdminMenu, SupportedPostTypes`. This is deliberate today (§8.1) — each parameter is explicit and traceable, and 4 is not yet an unreasonable number to read at a call site.
+
+**If a 5th Shared Service is ever needed**, do not add a 5th constructor parameter to all of these call sites individually. Bundle the existing 4 (plus the new one) into a single `SharedServices` value object instead, and change every constructor to accept that one object. This keeps each individual service's own responsibility unchanged (`SharedServices` is a plain carrier, not a Service Locator — nothing is resolved lazily or hidden; every dependency a class actually uses is still visible by what it reads off the object) while turning "add a 5th parameter everywhere" into "add one property to one class."
+
+This is scope for whenever that need actually arrives — no `SharedServices` class exists yet, and none should be built ahead of an actual 5th service, per §8.2's own reasoning applied to itself.
 
 ---
 
