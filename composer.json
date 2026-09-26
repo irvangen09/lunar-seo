@@ -2,7 +2,7 @@
     "name": "lunar/lunar-seo",
     "description": "A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards.",
     "type": "wordpress-plugin",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "license": "GPL-2.0-or-later",
     "require": {
         "php": ">=8.0"

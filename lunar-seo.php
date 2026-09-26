@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Lunar SEO
  * Description:       A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards.
- * Version:           1.0.2
+ * Version:           1.1.0
  * Requires at least: 6.9
  * Requires PHP:      8.0
  * Author:            Irvan Noerfazri
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LUNAR_SEO_VERSION', '1.0.2' );
+define( 'LUNAR_SEO_VERSION', '1.1.0' );
 define( 'LUNAR_SEO_FILE', __FILE__ );
 define( 'LUNAR_SEO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'LUNAR_SEO_URL', plugin_dir_url( __FILE__ ) );

@@ -1,6 +1,6 @@
 {
   "name": "lunar-seo",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A lightweight, modular WordPress SEO plugin that follows WordPress Coding Standards.",
   "private": true,
   "scripts": {

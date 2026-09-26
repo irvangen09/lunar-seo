@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-26
+
 ### Added
 
 - `lunar_seo_supported_post_types` filter, allowing other plugins to register additional post types for General module SEO title/meta and Schema module Article/WebPage output. Defaults to `post` and `page`; no behavior change for sites where nothing registers into it.
@@ -16,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `Editor`, `Assets`, `TitleRenderer`, and `MetaRenderer` (General module), and `ArticleNode` and `WebPageNode` (Schema module), now resolve supported post types through the new filter instead of a hardcoded `post`/`page` list.
+- `PostTypeProvider` (Sitemap module) now fetches posts in batches of 500 instead of loading every post of a type at once, bounding peak memory on sites with a large number of posts. No change to sitemap output, order, or priority values — see `docs/architecture/SITEMAP_MODULE_ARCHITECTURE.md` §0.2.
 
 ### Fixed
 
@@ -88,7 +91,8 @@ Result of a re-audit (regression check) against v1.0.1 — every v1.0.1 fix was 
 - `uninstall.php` — cleans up all options, post meta, and transients created by the plugin on uninstall.
 - CSS styling for the Settings pages (Admin/Editor) and a friendlier variable placeholder chip UI.
 
-[Unreleased]: ../../compare/1.0.2...HEAD
+[Unreleased]: ../../compare/1.1.0...HEAD
+[1.1.0]: ../../compare/1.0.2...1.1.0
 [1.0.2]: ../../compare/1.0.1...1.0.2
 [1.0.1]: ../../compare/1.0.0...1.0.1
 [1.0.0]: ../../releases/tag/1.0.0
